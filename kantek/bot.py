@@ -8,22 +8,21 @@ from telethon.events import NewMessage
 
 import config
 import components
-from components import utils
-from plugins import PluginManager
+from pluginmgr import PluginManager
 
 __version__ = '0.1.0'
 
-def main():
+def main() -> None:
     """Register logger and components."""
 
     log = logzero.setup_logger('kantek-logger', level=logging.INFO)
     tlog = logging.getLogger('kantek-channel-log')
     tlog.setLevel(logging.INFO)
-    handler = utils.TGChannelLogHandler(config.log_bot_token,
-                                        config.log_channel_id)
-    formatter = utils.TGChannelFormatter('telethon')
-    handler.setFormatter(formatter)
-    tlog.addHandler(handler)
+    # handler = utils.TGChannelLogHandler(config.log_bot_token,
+    #                                     config.log_channel_id)
+    # formatter = utils.TGChannelFormatter('telethon')
+    # handler.setFormatter(formatter)
+    # tlog.addHandler(handler)
 
     client: TelegramClient = TelegramClient(config.session_name,
                                             config.api_id,

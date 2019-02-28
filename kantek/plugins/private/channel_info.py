@@ -7,7 +7,7 @@ __version__ = '0.1.0'
 __commands__ = ['info']
 
 @events.register(events.NewMessage(outgoing=True, pattern=r'!!info'))
-async def channel_info(event: NewMessage.Event):
+async def channel_info(event: NewMessage.Event) -> None:
     """Replace certain keywords in outgoing messages."""
     msg: PMessage = event.message
     chat: Channel = event.chat
