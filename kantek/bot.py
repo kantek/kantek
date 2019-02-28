@@ -1,11 +1,12 @@
 """Main bot module. Setup logging, register components"""
 import logging
+import os
 
 import logzero
 from telethon import TelegramClient
 
 import config
-from pluginmgr import PluginManager
+from utils.pluginmgr import PluginManager
 
 __version__ = '0.1.0'
 
