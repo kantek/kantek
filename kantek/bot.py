@@ -1,16 +1,14 @@
 """Main bot module. Setup logging, register components"""
-import asyncio
 import logging
 
-from telethon import TelegramClient, events
 import logzero
-from telethon.events import NewMessage
+from telethon import TelegramClient
 
 import config
-import components
 from pluginmgr import PluginManager
 
 __version__ = '0.1.0'
+
 
 def main() -> None:
     """Register logger and components."""
@@ -31,6 +29,7 @@ def main() -> None:
 
     log.info("Registering components")
     plugin_mgr = PluginManager()
+    plugin_mgr.load()
     client.run_until_disconnected()
 
 
