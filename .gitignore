@@ -107,5 +107,5 @@ venv.bak/
 
 .idea
 
-sessions/*
+sessions
 config.py
