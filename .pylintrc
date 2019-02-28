@@ -11,7 +11,7 @@ ignore=migrations
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=
+ignore-patterns=config.py
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -119,7 +119,6 @@ disable=print-statement,
  invalid-name,
  no-else-return,
  bad-continuation,  # clashes with flake8 and I prefer the flake8 style
- missing-docstring,  # py3.7 Docstrings work differently so it errors, see flake8 for missing docstrings
  no-member,  # Find a better way
  too-few-public-methods,
 
