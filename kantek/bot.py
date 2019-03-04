@@ -6,29 +6,28 @@ import logzero
 from telethon import TelegramClient
 
 import config
+from utils.loghandler import TGChannelLogHandler
 from utils.pluginmgr import PluginManager
+
+log = logzero.setup_logger('kantek-logger', level=logging.INFO)
+tlog = logging.getLogger('kantek-channel-log')
+log.setLevel(logging.INFO)
+handler = TGChannelLogHandler(config.log_bot_token,
+                              config.log_channel_id)
+tlog.addHandler(handler)
+tlog.setLevel(logging.INFO)
 
 __version__ = '0.1.0'
 
 
 def main() -> None:
     """Register logger and components."""
-
-    log = logzero.setup_logger('kantek-logger', level=logging.INFO)
-    tlog = logging.getLogger('kantek-channel-log')
-    tlog.setLevel(logging.INFO)
-    # handler = utils.TGChannelLogHandler(config.log_bot_token,
-    #                                     config.log_channel_id)
-    # formatter = utils.TGChannelFormatter('telethon')
-    # handler.setFormatter(formatter)
-    # tlog.addHandler(handler)
-
-    client: TelegramClient = TelegramClient(config.session_name,
-                                            config.api_id,
-                                            config.api_hash)
+    client: TelegramClient = TelegramClient(
+        os.path.abspath(config.session_name),
+        config.api_id,
+        config.api_hash)
     client.start(config.phone)
-
-    log.info("Registering components")
+    tlog.info('Started bot.')
     plugin_mgr = PluginManager()
     plugin_mgr.load()
     client.run_until_disconnected()
