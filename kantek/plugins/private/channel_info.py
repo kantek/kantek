@@ -3,12 +3,14 @@ from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.types import Channel
 
+from config import cmd_prefix
+
 __version__ = '0.1.0'
 __commands__ = ['info']
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=r'!!info'))
-async def channel_info(event: NewMessage.Event) -> None:
+@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}info'))
+async def info(event: NewMessage.Event) -> None:
     """Show the id of the group.
 
     Args:
