@@ -6,7 +6,6 @@ from telethon.tl.types import Channel
 from config import cmd_prefix
 
 __version__ = '0.1.0'
-__commands__ = ['info']
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}info'))
