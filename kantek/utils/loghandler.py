@@ -14,6 +14,12 @@ class TGChannelLogHandler(Handler):
 
     def __init__(self, bot_token: str, channel_id: Union[str, int]) -> None:
         self.bot = lazybot.Bot(bot_token)
+        self.me: Dict[str, Union[bool, str, int]] = self.bot.get_me()
+        if not self.me['ok']:
+            logger.warning(f'Got Error: {self.me.get("error_code")} {self.me.get("description")} '
+                           f'from the bot API. '
+                           f'Check if your `log_bot_token` in the config is correct.')
+
         self.channel_id = channel_id
         super(TGChannelLogHandler, self).__init__()
 
