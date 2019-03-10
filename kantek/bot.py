@@ -9,9 +9,9 @@ import config
 from utils.loghandler import TGChannelLogHandler
 from utils.pluginmgr import PluginManager
 
-log = logzero.setup_logger('kantek-logger', level=logging.INFO)
+logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
+telethon_logger = logzero.setup_logger('telethon', level=logging.INFO)
 tlog = logging.getLogger('kantek-channel-log')
-log.setLevel(logging.INFO)
 handler = TGChannelLogHandler(config.log_bot_token,
                               config.log_channel_id)
 tlog.addHandler(handler)
