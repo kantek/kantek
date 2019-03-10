@@ -14,7 +14,8 @@ class TGChannelLogHandler(Handler):
         self.channel_id = channel_id
         super(TGChannelLogHandler, self).__init__()
 
-    def format(self, record: LogRecord):
+    def format(self, record: LogRecord) -> str:
+        """Format the specified record."""
         time_format = '%Y-%m-%d %H:%M:%S'
         log_time = datetime.fromtimestamp(record.created).strftime(time_format)
         origin = f'`{record.filename}[{record.lineno}]`'
@@ -32,10 +33,9 @@ class TGChannelLogHandler(Handler):
             log_entry.append(f'`{k}:` {v}')
         return '\n'.join(log_entry)
 
-    def emit(self, record) -> dict:
-        """Log the message"""
-        message = self.bot.send_message(
+    def emit(self, record: LogRecord) -> None:
+        """Send the log message to the specified Telegram channel."""
+        self.bot.send_message(
             chat_id=self.channel_id,
             text=self.format(record),
             parse_mode='markdown')
-        return message
