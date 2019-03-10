@@ -3,9 +3,9 @@ import logging
 import os
 
 import logzero
-from telethon import TelegramClient
 
 import config
+from utils.client import KantekClient
 from utils.loghandler import TGChannelLogHandler
 from utils.pluginmgr import PluginManager
 
@@ -22,14 +22,14 @@ __version__ = '0.1.0'
 
 def main() -> None:
     """Register logger and components."""
-    client: TelegramClient = TelegramClient(
+    client: KantekClient = KantekClient(
         os.path.abspath(config.session_name),
         config.api_id,
         config.api_hash)
     client.start(config.phone)
-    tlog.info('Started bot.')
-    plugin_mgr = PluginManager()
-    plugin_mgr.load()
+    tlog.info(f'Started kantek v{__version__}')
+    client.plugin_mgr = PluginManager(client)
+    client.plugin_mgr.register_all()
     client.run_until_disconnected()
 
 
