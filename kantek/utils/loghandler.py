@@ -1,15 +1,18 @@
-import logging
 from datetime import datetime
-from logging import Handler, LogRecord
+from logging import Handler, LogRecord, Logger
+from typing import Union, Dict
 
-import config
+import logzero
+
 from vendor import lazybot
+
+logger: Logger = logzero.logger
 
 
 class TGChannelLogHandler(Handler):
     """Log to a Telegram Channel using a Bot"""
 
-    def __init__(self, bot_token, channel_id):
+    def __init__(self, bot_token: str, channel_id: Union[str, int]) -> None:
         self.bot = lazybot.Bot(bot_token)
         self.channel_id = channel_id
         super(TGChannelLogHandler, self).__init__()
