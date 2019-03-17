@@ -4,7 +4,7 @@ from logging import Logger
 import logzero
 from telethon import events
 from telethon.events import NewMessage
-from telethon.tl.patched import Message as PMessage
+from telethon.tl.patched import Message
 
 from config import cmd_prefix
 from utils.client import KantekClient
@@ -28,7 +28,7 @@ async def plugins(event: NewMessage.Event) -> None:
     # chat: Channel = event.chat
     client: KantekClient = event.client
     pluginmgr: PluginManager = client.plugin_mgr
-    msg: PMessage = event.message
+    msg: Message = event.message
     args = msg.raw_text.split()[1:]
     if not args:
         return
