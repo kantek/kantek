@@ -3,5 +3,4 @@ telethon
 beautifulsoup4
 requests
 aiohttp
-jdb
 pyarango
