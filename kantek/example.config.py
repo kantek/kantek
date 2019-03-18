@@ -11,3 +11,8 @@ log_bot_token: str = ''
 log_channel_id: Union[str, int] = ''
 
 cmd_prefix: str = '.'
+
+db_username = 'kantek'
+db_name = 'kantek'
+db_password = 'PASSWORD'
+db_host = '127.0.0.1'
