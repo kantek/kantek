@@ -16,12 +16,13 @@ import config
 class Chats(Collection):
     _fields = {
         'id': Field([NotNull(), Int()]),
-        'tags': Field([NotNull()])
+        'tags': Field([NotNull()]),
+        'named_tags': Field([NotNull()])
     }
 
     _validation = {
         'on_save': True,
-        'allow_foreign_fields': False
+        'allow_foreign_fields': True
     }
 
     _properties = {
@@ -33,7 +34,8 @@ class Chats(Collection):
     def add_chat(self, chat_id: int):
         data = {'_key': str(chat_id),
                 'id': chat_id,
-                'tags': []}
+                'tags': [],
+                'named_tags': {}}
         try:
             doc = self.createDocument(data)
             doc.save()
