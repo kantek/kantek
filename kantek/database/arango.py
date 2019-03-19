@@ -16,7 +16,6 @@ import config
 class Chats(Collection):
     _fields = {
         'id': Field([NotNull(), Int()]),
-        'title': Field([NotNull()]),
         'tags': Field([NotNull()])
     }
 
@@ -31,17 +30,22 @@ class Chats(Collection):
         }
     }
 
-    def add_chat(self, chat: Chat):
-        data = {'_key': str(chat.id),
-                'id': chat.id,
-                'title': chat.title,
-                'tags': {}}
+    def add_chat(self, chat_id: int):
+        data = {'_key': str(chat_id),
+                'id': chat_id,
+                'tags': []}
         try:
             doc = self.createDocument(data)
             doc.save()
+            return doc
         except CreationError:
             pass
 
+    def get_chat(self, chat_id: int) -> Document:
+        try:
+            return self[chat_id]
+        except DocumentNotFoundError:
+            return self.add_chat(chat_id)
 
 # class Group(Document):
 
