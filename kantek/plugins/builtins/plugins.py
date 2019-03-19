@@ -25,7 +25,6 @@ async def plugins(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    # chat: Channel = event.chat
     client: KantekClient = event.client
     pluginmgr: PluginManager = client.plugin_mgr
     msg: Message = event.message
