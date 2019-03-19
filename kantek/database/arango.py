@@ -52,9 +52,7 @@ class ArangoDB:
                                username=config.db_username,
                                password=config.db_password)
         self.db = self._get_db(config.db_name)
-        self.db.dropAllCollections()
         self.groups: Chats = self._get_collection('Chats')
-        # self.groups.ensureHashIndex(['id'], unique=True)
 
     def _get_db(self, db: str) -> Database:
         if self.conn.hasDatabase(db):
