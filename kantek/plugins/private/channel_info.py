@@ -14,7 +14,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}info'))
 async def info(event: NewMessage.Event) -> None:
-    """Show the information about a group or channel.
+    """Show information about a group or channel.
 
     Args:
         event: The event of the command
