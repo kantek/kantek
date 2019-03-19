@@ -3,7 +3,7 @@ import logging
 
 from telethon import events
 from telethon.events import NewMessage
-from telethon.tl.types import Chat
+from telethon.tl.types import Channel
 
 from config import cmd_prefix
 
@@ -22,8 +22,9 @@ async def info(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    chat: Chat = event.chat
-
+    chat: Channel = event.chat
+    if event.is_private:
+        return
     _info = {
         'title': chat.title,
         'chat_id': event.chat_id,
