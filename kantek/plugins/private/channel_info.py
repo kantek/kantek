@@ -41,4 +41,4 @@ async def info(event: NewMessage.Event) -> None:
 
     await event.respond('\n'.join(info_msg),
                         reply_to=(event.reply_to_msg_id or event.message.id))
-    tlog.info(f'Ran `info` in `chat.title`')
+    tlog.info(f'Ran `info` in `{chat.title}`')
