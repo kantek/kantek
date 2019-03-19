@@ -5,6 +5,7 @@ import os
 import logzero
 
 import config
+from database.arango import ArangoDB
 from utils.client import KantekClient
 from utils.loghandler import TGChannelLogHandler
 from utils.pluginmgr import PluginManager
@@ -29,6 +30,7 @@ def main() -> None:
     client.start(config.phone)
     tlog.info(f'Started kantek v{__version__}')
     client.plugin_mgr = PluginManager(client)
+    client.db = ArangoDB()
     client.plugin_mgr.register_all()
     client.run_until_disconnected()
 
