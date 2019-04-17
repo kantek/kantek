@@ -33,6 +33,7 @@ async def tag(event: NewMessage.Event) -> None:
     msg: Message = event.message
     args = msg.raw_text.split()[1:]
     indent = 4
+    response = False
     if not args:
         db_named_tags: Dict = chat_document['named_tags'].getStore()
         db_tags: List = chat_document['tags']
@@ -44,17 +45,19 @@ async def tag(event: NewMessage.Event) -> None:
                 data.append(f'{" " * indent}**{k}:** {", ".join(v)}')
             for _tag in db_tags:
                 data.append(f'{" " * indent}{_tag}')
-        await event.respond('\n'.join(data),
-                            reply_to=(event.reply_to_msg_id or event.message.id))
+        response = '\n'.join(data)
     elif args[0] == 'add' and len(args) > 1:
-        _add_tags(event, db)
-    elif args[0] == 'clear' and len(args) > 1:
-        _clear_tags(event, db)
+        response = await _add_tags(event, db)
+    elif args[0] == 'clear' and len(args):
+        response = await _clear_tags(event, db)
+    elif args[0] == 'del' and len(args) > 1:
+        response = await _delete_tags(event, db)
+    if response:
+        await client.respond(event, response)
+    tlog.info(f'Ran `tag` in `{chat.title}`. Response: {response}')
 
-    tlog.info(f'Ran `tag` in `{chat.title}`')
 
-
-def _add_tags(event: NewMessage.Event, db: ArangoDB):
+async def _add_tags(event: NewMessage.Event, db: ArangoDB):
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
     chat_document = db.groups[event.chat_id]
@@ -69,10 +72,31 @@ def _add_tags(event: NewMessage.Event, db: ArangoDB):
     chat_document['named_tags'] = db_named_tags
     chat_document['tags'] = db_tags
     chat_document.save()
+    new_named_tags = ', '.join([f'`{k}: {v}`' for k, v in named_tags.items() if v is not None])
+    new_tags = ', '.join(tags)
+    return f'Added {new_tags} {("and" + ", ".join(named_tags)) if new_named_tags else ""}.'
 
 
-def _clear_tags(event: NewMessage.Event, db: ArangoDB):
+async def _clear_tags(event: NewMessage.Event, db: ArangoDB):
     chat_document = db.groups[event.chat_id]
     chat_document['named_tags'] = {}
     chat_document['tags'] = []
     chat_document.save()
+    return 'Cleared tags.'
+
+
+async def _delete_tags(event: NewMessage.Event, db: ArangoDB):
+    msg: Message = event.message
+    args = msg.raw_text.split()[2:]
+    chat_document = db.groups[event.chat_id]
+    db_named_tags: Dict = chat_document['named_tags'].getStore()
+    db_tags: List = chat_document['tags']
+    for arg in args:
+        if arg in db_named_tags:
+            del db_named_tags[arg]
+            db_named_tags = db_named_tags
+        if arg in db_tags:
+            del db_tags[db_tags.index(arg)]
+    chat_document['named_tags'] = db_named_tags
+    chat_document.save()
+    return f'Deleted {", ".join(args)}.'
