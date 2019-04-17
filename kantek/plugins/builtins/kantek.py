@@ -31,6 +31,7 @@ async def tag(event: NewMessage.Event) -> None:
         'version': client.kantek_version,
         'telethon version': client.__version__,
         'python version': platform.python_version(),
+        'plugins loaded': len(client.plugin_mgr.active_plugins)
     }
 
     response += [f'  **{k}:**\n    `{v}`' for k, v in _info.items() if v is not None]
