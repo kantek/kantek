@@ -10,6 +10,7 @@ class KantekClient(TelegramClient):
     """Custom telethon client that has the plugin manager as attribute."""
     plugin_mgr: Optional[PluginManager] = None
     db: ArangoDB = None
+    kantek_version = None
 
     async def respond(self, event, msg, reply=True):
         if reply:
