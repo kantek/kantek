@@ -3,9 +3,10 @@ import logging
 
 from telethon import events
 from telethon.events import NewMessage
-from telethon.tl.types import Channel
+from telethon.tl.types import Channel, User
 
 from config import cmd_prefix
+from utils.client import KantekClient
 
 __version__ = '0.1.0'
 
@@ -23,6 +24,7 @@ async def info(event: NewMessage.Event) -> None:
 
     """
     chat: Channel = event.chat
+    client: KantekClient = event.client
     if event.is_private:
         return
     _info = {
@@ -38,8 +40,24 @@ async def info(event: NewMessage.Event) -> None:
         'version': chat.version,
     }
     info_msg = [f'info for {chat.title}:']
-    info_msg += [f'**{k}:**\n  `{v}`' for k, v in _info.items() if v is not None]
+    info_msg += [f'  **{k}:**\n    `{v}`' for k, v in _info.items() if v is not None]
+    info_msg.append(f'\nuser stats:')
+    bot_accounts = 0
+    total_users = 0
+    deleted_accounts = 0
+    user: User
+    async for user in client.iter_participants(chat):
+        total_users += 1
+        if user.bot:
+            bot_accounts += 1
+        if user.deleted:
+            deleted_accounts += 1
+    _info = {
+        'total_users': total_users,
+        'bots': bot_accounts,
+        'deleted_accounts': deleted_accounts
+    }
+    info_msg += [f'  **{k}:**\n    `{v}`' for k, v in _info.items() if v is not None]
 
-    await event.respond('\n'.join(info_msg),
-                        reply_to=(event.reply_to_msg_id or event.message.id))
+    await client.respond(event, '\n'.join(info_msg))
     tlog.info(f'Ran `info` in `{chat.title}`')
