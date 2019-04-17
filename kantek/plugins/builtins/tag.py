@@ -1,4 +1,4 @@
-"""Plugin to get information about a channel."""
+"""Plugin to handle tagging of chats and channels."""
 import logging
 from typing import Dict, List
 
@@ -18,7 +18,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}tag'))
 async def tag(event: NewMessage.Event) -> None:
-    """Show the information about a group or channel.
+    """Add or remove tags from groups and channels.
 
     Args:
         event: The event of the command
@@ -58,6 +58,14 @@ async def tag(event: NewMessage.Event) -> None:
 
 
 async def _add_tags(event: NewMessage.Event, db: ArangoDB):
+    """Add tags to chat.
+
+    Args:
+        event: The event of the command
+        db: The database object
+
+    Returns: A string with the action taken.
+    """
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
     chat_document = db.groups[event.chat_id]
@@ -78,6 +86,14 @@ async def _add_tags(event: NewMessage.Event, db: ArangoDB):
 
 
 async def _clear_tags(event: NewMessage.Event, db: ArangoDB):
+    """Remove all tags from a chat.
+
+    Args:
+        event: The event of the command
+        db: The database object
+
+    Returns: A string with the action taken.
+    """
     chat_document = db.groups[event.chat_id]
     chat_document['named_tags'] = {}
     chat_document['tags'] = []
@@ -86,6 +102,14 @@ async def _clear_tags(event: NewMessage.Event, db: ArangoDB):
 
 
 async def _delete_tags(event: NewMessage.Event, db: ArangoDB):
+    """Delete the specified tags from a chat.
+
+    Args:
+        event: The event of the command
+        db: The database object
+
+    Returns: A string with the action taken.
+    """
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
     chat_document = db.groups[event.chat_id]
