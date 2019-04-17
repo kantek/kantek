@@ -29,24 +29,22 @@ async def plugins(event: NewMessage.Event) -> None:
     pluginmgr: PluginManager = client.plugin_mgr
     msg: Message = event.message
     args = msg.raw_text.split()[1:]
+    response = False
     if not args:
         return
     cmd = args[0]
     if cmd in ['list', 'ls']:
-        await _plugins_list(event, client, pluginmgr)
+        response = await _plugins_list(event, pluginmgr)
     elif cmd in ['unregister', 'ur']:
-        await _plugins_unregister(event, client, pluginmgr)
-        await _plugins_list(event, client, pluginmgr)
-
+        response = await _plugins_unregister(event, pluginmgr)
+    await client.respond(event, response)
 
 async def _plugins_list(event: NewMessage.Event,
-                        client: KantekClient,
-                        pluginmgr: PluginManager) -> bool:
+                        pluginmgr: PluginManager) -> str:
     """Get a list of plugins.
 
     Args:
         event: The event with the command
-        client: The client instance
         pluginmgr: The plugin manager instance
 
     Returns:
@@ -58,30 +56,26 @@ async def _plugins_list(event: NewMessage.Event,
         for callback in plugin.callbacks:
             plugin_list.append(f'  {callback.name}')
     if plugin_list:
-        await event.respond('\n'.join(plugin_list),
-                            reply_to=(event.reply_to_msg_id or event.message.id))
+        return '\n'.join(plugin_list)
     else:
-        await event.respond('No active plugins.',
-                            reply_to=(event.reply_to_msg_id or event.message.id))
-    return True
+        return 'No active plugins.'
 
 
 async def _plugins_unregister(event: NewMessage.Event,
-                              client: KantekClient,
-                              pluginmgr: PluginManager) -> bool:
+                              pluginmgr: PluginManager) -> str:
     """Get a list of plugins.
 
     Args:
         event: The event with the command
-        client: The client instance
         pluginmgr: The plugin manager instance
 
     Returns:
 
     """
     args = event.message.raw_text.split()[2:]
+    if not args:
+        return 'No arguments specified.'
     if args[0] == 'all':
         pluginmgr.unregister_all()
 
-    logger.debug(args)
-    return True
+    return 'Unregistered all non builtins.'
