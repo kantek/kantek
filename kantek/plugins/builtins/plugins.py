@@ -1,4 +1,4 @@
-"""Plugin to get information about a channel."""
+"""Plugin to interface with the plugin manager."""
 from logging import Logger
 
 import logzero
@@ -17,7 +17,7 @@ logger: Logger = logzero.logger
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}p(lugins)?'))
 async def plugins(event: NewMessage.Event) -> None:
-    """Show all registered plugins.
+    """Command to show, register and unregister plugins.
 
     Args:
         event: The event with the command
@@ -32,7 +32,6 @@ async def plugins(event: NewMessage.Event) -> None:
     if not args:
         return
     cmd = args[0]
-    logger.debug(len(pluginmgr.active_plugins))
     if cmd in ['list', 'ls']:
         await _plugins_list(event, client, pluginmgr)
     elif cmd in ['unregister', 'ur']:
@@ -43,6 +42,16 @@ async def plugins(event: NewMessage.Event) -> None:
 async def _plugins_list(event: NewMessage.Event,
                         client: KantekClient,
                         pluginmgr: PluginManager) -> bool:
+    """Get a list of plugins.
+
+    Args:
+        event: The event with the command
+        client: The client instance
+        pluginmgr: The plugin manager instance
+
+    Returns:
+
+    """
     plugin_list = []
     for plugin in pluginmgr.active_plugins:
         plugin_list.append(f'**{plugin.path}:**')
@@ -60,7 +69,16 @@ async def _plugins_list(event: NewMessage.Event,
 async def _plugins_unregister(event: NewMessage.Event,
                               client: KantekClient,
                               pluginmgr: PluginManager) -> bool:
-    # remove `plugins unregister`
+    """Get a list of plugins.
+
+    Args:
+        event: The event with the command
+        client: The client instance
+        pluginmgr: The plugin manager instance
+
+    Returns:
+
+    """
     args = event.message.raw_text.split()[2:]
     if args[0] == 'all':
         pluginmgr.unregister_all()
