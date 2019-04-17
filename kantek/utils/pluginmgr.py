@@ -77,6 +77,19 @@ class PluginManager:
         logger.info(f'Registered {len(self.active_plugins)} plugins.')
         return self.active_plugins
 
+    def unregister_all(self, builtins=False) -> None:
+        for plugin in self.active_plugins:
+            if builtins:
+                self.unregister_plugin(plugin)
+            else:
+                if not plugin.path.startswith('builtins/'):
+                    self.unregister_plugin(plugin)
+
+    def unregister_plugin(self, plugin: Plugin):
+        for callback in plugin.callbacks:
+            logger.debug(self.client.remove_event_handler(callback.callback))
+        self.active_plugins.remove(plugin)
+
     def _get_plugin_location(self, path: str) -> str:
         return (os.path.relpath(path, self.plugin_path)
                 .rstrip('.py')
