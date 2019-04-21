@@ -2,7 +2,7 @@
 import ast
 import importlib.util
 import os
-from _ast import JoinedStr, NameConstant
+from _ast import JoinedStr, NameConstant, Assign
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
@@ -39,6 +39,7 @@ class Plugin:
     callbacks: List[Callback]
     full_path: str
     plugin_path: str
+    version: str
 
     @property
     def path(self):
@@ -64,6 +65,7 @@ class PluginManager:
 
         """
         for plugin_name, path in self._get_plugin_list():
+            plugin_version = self._get_plugin_version(path)
             active_commands = []
             for callback in self._get_plugin_callbacks(plugin_name, path):
                 logger.debug('Registered plugin %s/%s',
@@ -74,7 +76,8 @@ class PluginManager:
                 Plugin(plugin_name,
                        active_commands,
                        path,
-                       self.plugin_path))
+                       self.plugin_path,
+                       plugin_version))
 
         logger.info(f'Registered {len(self.active_plugins)} plugins.')
         return self.active_plugins
@@ -120,6 +123,17 @@ class PluginManager:
                     is_private = self.__is_private(self.__get_event_decorator_keywords(func))
                     callbacks.append(Callback(func.name, getattr(module, func.name), is_private))
         return callbacks
+
+    def _get_plugin_version(self, path: str) -> str:
+        version = False
+        with open(path, encoding='utf-8') as f:
+            tree = ast.parse(f.read())
+            for item in tree.body:
+                if isinstance(item, ast.Assign):
+                    target = item.targets[0]
+                    if target.id == '__version__':
+                        version = item.value.s
+        return version or ''
 
     def __is_private(self, keywords: Dict[str, bool]) -> bool:
         incoming = keywords.get('incoming')
