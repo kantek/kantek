@@ -118,10 +118,10 @@ class PluginManager:
         callbacks = []
         with open(path, encoding='utf-8') as f:
             tree = ast.parse(f.read())
-            for func in tree.body:
-                if isinstance(func, ast.AsyncFunctionDef) and not func.name.startswith('_'):
-                    is_private = self.__is_private(self.__get_event_decorator_keywords(func))
-                    callbacks.append(Callback(func.name, getattr(module, func.name), is_private))
+            for item in tree.body:
+                if isinstance(item, ast.AsyncFunctionDef) and not item.name.startswith('_'):
+                    is_private = self.__is_private(self.__get_event_decorator_keywords(item))
+                    callbacks.append(Callback(item.name, getattr(module, item.name), is_private))
         return callbacks
 
     def _get_plugin_version(self, path: str) -> str:
