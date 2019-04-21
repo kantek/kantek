@@ -82,7 +82,7 @@ async def _add_tags(event: NewMessage.Event, db: ArangoDB):
     chat_document.save()
     new_named_tags = ', '.join([f'`{k}: {v}`' for k, v in named_tags.items() if v is not None])
     new_tags = ', '.join(tags)
-    return f'Added {new_tags} {("and" + ", ".join(named_tags)) if new_named_tags else ""}.'
+    return f'Added {new_tags} {(", ".join(named_tags))}.'
 
 
 async def _clear_tags(event: NewMessage.Event, db: ArangoDB):
