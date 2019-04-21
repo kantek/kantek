@@ -31,13 +31,15 @@ async def plugins(event: NewMessage.Event) -> None:
     args = msg.raw_text.split()[1:]
     response = False
     if not args:
-        return
-    cmd = args[0]
-    if cmd in ['list', 'ls']:
         response = await _plugins_list(event, pluginmgr)
-    elif cmd in ['unregister', 'ur']:
-        response = await _plugins_unregister(event, pluginmgr)
+    else:
+        cmd = args[0]
+        if cmd in ['list', 'ls']:
+            response = await _plugins_list(event, pluginmgr)
+        elif cmd in ['unregister', 'ur']:
+            response = await _plugins_unregister(event, pluginmgr)
     await client.respond(event, response)
+
 
 async def _plugins_list(event: NewMessage.Event,
                         pluginmgr: PluginManager) -> str:
