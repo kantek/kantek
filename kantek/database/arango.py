@@ -1,3 +1,4 @@
+"""Module containing all operations related to ArangoDB"""
 from typing import Optional
 
 from pyArango.collection import Collection, Field
@@ -11,6 +12,7 @@ import config
 
 
 class Chats(Collection):
+    """A Collection containing Telegram Chats"""
     _fields = {
         'id': Field([NotNull(), Int()]),
         'tags': Field([NotNull()]),
@@ -29,6 +31,14 @@ class Chats(Collection):
     }
 
     def add_chat(self, chat_id: int) -> Optional[Document]:
+        """Add a Chat to the DB or return an existing one.
+
+        Args:
+            chat_id: The id of the chat
+
+        Returns: The chat Document
+
+        """
         data = {'_key': str(chat_id),
                 'id': chat_id,
                 'tags': [],
@@ -41,6 +51,14 @@ class Chats(Collection):
             return None
 
     def get_chat(self, chat_id: int) -> Document:
+        """Return a Chat document
+
+        Args:
+            chat_id: The id of the chat
+
+        Returns: The chat Document
+
+        """
         try:
             return self[chat_id]
         except DocumentNotFoundError:
@@ -51,6 +69,7 @@ class Chats(Collection):
 
 
 class ArangoDB:
+    """Handle creation of all required Documents."""
     def __init__(self) -> None:
         self.conn = Connection(arangoURL=config.db_host,
                                username=config.db_username,
@@ -59,12 +78,28 @@ class ArangoDB:
         self.groups: Chats = self._get_collection('Chats')
 
     def _get_db(self, db: str) -> Database:
+        """Return a database. Create it if it doesn't exist yet.
+
+        Args:
+            db: The name of the Database
+
+        Returns: The Database object
+
+        """
         if self.conn.hasDatabase(db):
             return self.conn[db]
         else:
             return self.conn.createDatabase(db)
 
     def _get_collection(self, collection: str) -> Collection:
+        """Return a collection of create it if it doesn't exist yet.
+
+        Args:
+            collection: The name of the collection
+
+        Returns: The Collection object
+
+        """
         if self.db.hasCollection(collection):
             return self.db[collection]
         else:
