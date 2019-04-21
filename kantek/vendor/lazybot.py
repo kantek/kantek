@@ -17,12 +17,13 @@ class Bot:
 
         return request
 
-    def snake_to_camel(self, text: str) -> str:
+    @staticmethod
+    def snake_to_camel(text: str) -> str:
         """Convert snake_case to camelCase."""
         _text = []
         last_char_was_underscore = False
         c: str
-        for i, c in enumerate(text):
+        for c in text:
             if c == '_':
                 last_char_was_underscore = True
             else:

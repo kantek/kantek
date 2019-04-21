@@ -1,8 +1,8 @@
 """Contains the Plugin Manager handling loading and unloading of plugins."""
 import ast
-import importlib.util
 import os
 from dataclasses import dataclass
+import importlib.util
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
 from logging import Logger
@@ -86,10 +86,17 @@ class PluginManager:
                        self.plugin_path,
                        plugin_version))
 
-        logger.info(f'Registered {len(self.active_plugins)} plugins.')
+        logger.info('Registered %s plugins.', len(self.active_plugins))
         return self.active_plugins
 
     def unregister_all(self, builtins: bool = False) -> None:
+        """Unregister all plugins
+
+        Args:
+            builtins: Flag if builtin plugins should be removed too.
+
+        Returns: None
+        """
         for plugin in self.active_plugins:
             if builtins:
                 self.unregister_plugin(plugin)
@@ -98,6 +105,14 @@ class PluginManager:
                     self.unregister_plugin(plugin)
 
     def unregister_plugin(self, plugin: Plugin) -> None:
+        """Unregister a specific plugin.
+
+        Args:
+            plugin: The plugin to unregister
+
+        Returns: None
+
+        """
         for callback in plugin.callbacks:
             logger.debug(self.client.remove_event_handler(callback.callback))
         self.active_plugins.remove(plugin)
@@ -110,7 +125,7 @@ class PluginManager:
 
     def _get_plugin_list(self) -> List[Tuple[str, str]]:
         plugins: List[Tuple[str, str]] = []
-        for root, dirs, files in os.walk(self.plugin_path):
+        for root, dirs, files in os.walk(self.plugin_path):  # pylint: disable = W0612
             for file in files:
                 path = os.path.join(root, file)
                 name, ext = os.path.splitext(file)
@@ -131,7 +146,8 @@ class PluginManager:
                     callbacks.append(Callback(item.name, getattr(module, item.name), is_private))
         return callbacks
 
-    def _get_plugin_version(self, path: str) -> str:
+    @staticmethod
+    def _get_plugin_version(path: str) -> str:
         version = ''
         with open(path, encoding='utf-8') as f:
             tree = ast.parse(f.read())
@@ -142,7 +158,8 @@ class PluginManager:
                         version = item.value.s
         return version
 
-    def __is_private(self, keywords: Dict[str, bool]) -> bool:
+    @staticmethod
+    def __is_private(keywords: Dict[str, bool]) -> bool:
         incoming = keywords.get('incoming')
         outgoing = keywords.get('outgoing')
         is_private = False
@@ -152,14 +169,16 @@ class PluginManager:
             is_private = outgoing
         return is_private
 
-    def __get_event_decorator_keywords(self, func: ast.AsyncFunctionDef) -> Dict[str, bool]:
+    @classmethod
+    def __get_event_decorator_keywords(cls, func: ast.AsyncFunctionDef) -> Dict[str, bool]:
         keywords = {}
         for decorator in func.decorator_list:
             if decorator.func.value.id == 'events':
-                keywords.update(self.__get_keywords(decorator))
+                keywords.update(cls.__get_keywords(decorator))
         return keywords
 
-    def __get_keywords(self, decorator: ast.Call) -> Dict[str, bool]:
+    @staticmethod
+    def __get_keywords(decorator: ast.Call) -> Dict[str, bool]:
         keywords = {}
         for arg in decorator.args:
             for keyword in arg.keywords:

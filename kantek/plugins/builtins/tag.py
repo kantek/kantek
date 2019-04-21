@@ -48,13 +48,13 @@ async def tag(event: NewMessage.Event) -> None:
         response = '\n'.join(data)
     elif args[0] == 'add' and len(args) > 1:
         response = await _add_tags(event, db)
-    elif args[0] == 'clear' and len(args):
+    elif args[0] == 'clear' and len(args) > 1:
         response = await _clear_tags(event, db)
     elif args[0] == 'del' and len(args) > 1:
         response = await _delete_tags(event, db)
     if response:
         await client.respond(event, response)
-    tlog.info(f'Ran `tag` in `{chat.title}`. Response: {response}')
+    tlog.info('Ran `tag` in `%s`. Response: %s', chat.title, response)
 
 
 async def _add_tags(event: NewMessage.Event, db: ArangoDB):

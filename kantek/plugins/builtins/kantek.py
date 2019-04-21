@@ -36,4 +36,4 @@ async def tag(event: NewMessage.Event) -> None:
 
     response += [f'  **{k}:**\n    `{v}`' for k, v in _info.items() if v is not None]
     await client.respond(event, '\n'.join(response))
-    tlog.info(f'Ran `kantek` in `{chat.title}`')
+    tlog.info('Ran `kantek` in `%s`', chat.title)

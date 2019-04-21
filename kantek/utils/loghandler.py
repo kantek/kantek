@@ -1,3 +1,4 @@
+"""Module with the Custom Logging Handler for logging to a Telegram Channel."""
 from datetime import datetime
 from logging import Handler, LogRecord, Logger
 from typing import Union, Dict
@@ -16,9 +17,10 @@ class TGChannelLogHandler(Handler):
         self.bot = lazybot.Bot(bot_token)
         self.me: Dict[str, Union[bool, str, int]] = self.bot.get_me()
         if not self.me['ok']:
-            logger.warning(f'Got Error: {self.me.get("error_code")} {self.me.get("description")} '
-                           f'from the bot API. '
-                           f'Check if your `log_bot_token` in the config is correct.')
+            logger.warning('Got Error: %s %s '
+                           'from the bot API. '
+                           'Check if your `log_bot_token` in the config is correct.',
+                           self.me.get("error_code"), self.me.get("description"))
 
         self.channel_id = channel_id
         super(TGChannelLogHandler, self).__init__()

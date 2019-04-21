@@ -1,3 +1,4 @@
+"""Module containing regex parsers for different occasions."""
 import re
 from typing import Pattern, Dict, List, Tuple
 

@@ -60,4 +60,4 @@ async def info(event: NewMessage.Event) -> None:
     info_msg += [f'  **{k}:**\n    `{v}`' for k, v in _info.items() if v is not None]
 
     await client.respond(event, '\n'.join(info_msg))
-    tlog.info(f'Ran `info` in `{chat.title}`')
+    tlog.info('Ran `info` in `%s`', chat.title)
