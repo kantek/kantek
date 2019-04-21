@@ -11,7 +11,7 @@ log_bot_token: str = ''
 log_channel_id: Union[str, int] = ''
 
 # This is regex so make sure to escape the usual characters
-cmd_prefix: str = '\.'
+cmd_prefix: str = r'\.'
 
 db_username = 'kantek'
 db_name = 'kantek'

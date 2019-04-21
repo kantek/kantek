@@ -1,16 +1,12 @@
-import time
-from typing import Union, Optional
+from typing import Optional
 
-from pyArango import validation
+from pyArango.collection import Collection, Field
 from pyArango.connection import Connection
 from pyArango.database import Database
 from pyArango.document import Document
-from pyArango.theExceptions import DocumentNotFoundError, CreationError
-from telethon.tl.types import Chat
+from pyArango.theExceptions import CreationError, DocumentNotFoundError
+from pyArango.validation import Int, NotNull
 
-import config
-from pyArango.collection import Collection, Field
-from pyArango.validation import Int, String, NotNull
 import config
 
 
@@ -49,6 +45,7 @@ class Chats(Collection):
             return self[chat_id]
         except DocumentNotFoundError:
             return self.add_chat(chat_id)
+
 
 # class Group(Document):
 

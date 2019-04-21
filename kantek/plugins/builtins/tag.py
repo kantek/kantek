@@ -80,7 +80,6 @@ async def _add_tags(event: NewMessage.Event, db: ArangoDB):
     chat_document['named_tags'] = db_named_tags
     chat_document['tags'] = db_tags
     chat_document.save()
-    new_named_tags = ', '.join([f'`{k}: {v}`' for k, v in named_tags.items() if v is not None])
     new_tags = ', '.join(tags)
     return f'Added {new_tags} {(", ".join(named_tags))}.'
 

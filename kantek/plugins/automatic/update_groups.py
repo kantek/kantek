@@ -3,7 +3,6 @@ import logging
 
 from telethon import events
 from telethon.events import NewMessage
-from telethon.tl.types import Channel
 
 from utils.client import KantekClient
 
@@ -22,8 +21,6 @@ async def add_groups(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    chat: Channel = event.chat
-
     if event.is_private:
         return
     client: KantekClient = event.client

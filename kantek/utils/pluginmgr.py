@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
 from logging import Logger
-from typing import Callable, List, Tuple, Dict
+from typing import Callable, Dict, List, Tuple
 
 import logzero
 from telethon import TelegramClient
@@ -89,7 +89,7 @@ class PluginManager:
         logger.info(f'Registered {len(self.active_plugins)} plugins.')
         return self.active_plugins
 
-    def unregister_all(self, builtins: bool=False) -> None:
+    def unregister_all(self, builtins: bool = False) -> None:
         for plugin in self.active_plugins:
             if builtins:
                 self.unregister_plugin(plugin)
