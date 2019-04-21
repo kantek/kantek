@@ -54,7 +54,8 @@ async def _plugins_list(event: NewMessage.Event,
     for plugin in pluginmgr.active_plugins:
         plugin_list.append(f'**{plugin.path}:**')
         for callback in plugin.callbacks:
-            plugin_list.append(f'  {callback.name}')
+            prefix = "[private]" if callback.private else "[public]"
+            plugin_list.append(f'  {prefix} {callback.name}')
     if plugin_list:
         return '\n'.join(plugin_list)
     else:

@@ -2,11 +2,12 @@
 import ast
 import importlib.util
 import os
+from _ast import JoinedStr, NameConstant
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
 from logging import Logger
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Dict
 
 import logzero
 from telethon import TelegramClient
@@ -20,6 +21,7 @@ __version__ = '0.1.0'
 class Callback:
     name: str
     callback: Callable
+    private: bool
 
 
 @dataclass
@@ -111,9 +113,36 @@ class PluginManager:
         loader: SourceFileLoader = _module.loader
         module = loader.load_module()
         callbacks = []
-        with open(path) as f:
-            tree = ast.parse(f.read(), filename=path)
+        with open(path, encoding='utf-8') as f:
+            tree = ast.parse(f.read())
             for func in tree.body:
                 if isinstance(func, ast.AsyncFunctionDef) and not func.name.startswith('_'):
-                    callbacks.append(Callback(func.name, getattr(module, func.name)))
+                    is_private = self.__is_private(self.__get_event_decorator_keywords(func))
+                    callbacks.append(Callback(func.name, getattr(module, func.name), is_private))
         return callbacks
+
+    def __is_private(self, keywords: Dict[str, bool]) -> bool:
+        incoming = keywords.get('incoming')
+        outgoing = keywords.get('outgoing')
+        is_private = None
+        if incoming is not None:
+            is_private = not incoming
+        if outgoing is not None:
+            is_private = outgoing
+        return is_private
+
+    def __get_event_decorator_keywords(self, func: ast.AsyncFunctionDef) -> Dict[str, bool]:
+        keywords = {}
+        for decorator in func.decorator_list:
+            if decorator.func.value.id == 'events':
+                keywords.update(self.__get_keywords(decorator))
+        return keywords
+
+    def __get_keywords(self, decorator) -> Dict[str, bool]:
+        keywords = {}
+        for arg in decorator.args:
+            for keyword in arg.keywords:
+                value = keyword.value
+                if isinstance(value, NameConstant):
+                    keywords.update({keyword.arg: value.value})
+        return keywords
