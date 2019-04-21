@@ -1,4 +1,5 @@
 import time
+from typing import Union, Optional
 
 from pyArango import validation
 from pyArango.connection import Connection
@@ -31,7 +32,7 @@ class Chats(Collection):
         }
     }
 
-    def add_chat(self, chat_id: int):
+    def add_chat(self, chat_id: int) -> Optional[Document]:
         data = {'_key': str(chat_id),
                 'id': chat_id,
                 'tags': [],
@@ -41,7 +42,7 @@ class Chats(Collection):
             doc.save()
             return doc
         except CreationError:
-            pass
+            return None
 
     def get_chat(self, chat_id: int) -> Document:
         try:
@@ -53,7 +54,7 @@ class Chats(Collection):
 
 
 class ArangoDB:
-    def __init__(self):
+    def __init__(self) -> None:
         self.conn = Connection(arangoURL=config.db_host,
                                username=config.db_username,
                                password=config.db_password)
