@@ -2,7 +2,6 @@
 import ast
 import importlib.util
 import os
-from _ast import JoinedStr, NameConstant, Assign
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
@@ -19,6 +18,13 @@ __version__ = '0.1.0'
 
 @dataclass
 class Callback:
+    """A Plugin callback
+
+    Attributes:
+        name: Callback name
+        callback: The callback function
+        private: If the callback is private or not
+    """
     name: str
     callback: Callable
     private: bool
@@ -34,6 +40,7 @@ class Plugin:
         full_path: Absolute path to the plugin
         plugin_path: Plugin folder the plugin lies in
         path: Plugin Path relative to the Plugin Folder
+        version: The plugin version
     """
     name: str
     callbacks: List[Callback]
@@ -42,7 +49,7 @@ class Plugin:
     version: str
 
     @property
-    def path(self):
+    def path(self) -> str:
         """Return the plugin path relative to the plugin folder."""
         return (os.path.relpath(self.full_path, self.plugin_path)
                 .rstrip('.py')
@@ -82,7 +89,7 @@ class PluginManager:
         logger.info(f'Registered {len(self.active_plugins)} plugins.')
         return self.active_plugins
 
-    def unregister_all(self, builtins=False) -> None:
+    def unregister_all(self, builtins: bool=False) -> None:
         for plugin in self.active_plugins:
             if builtins:
                 self.unregister_plugin(plugin)
@@ -90,7 +97,7 @@ class PluginManager:
                 if not plugin.path.startswith('builtins/'):
                     self.unregister_plugin(plugin)
 
-    def unregister_plugin(self, plugin: Plugin):
+    def unregister_plugin(self, plugin: Plugin) -> None:
         for callback in plugin.callbacks:
             logger.debug(self.client.remove_event_handler(callback.callback))
         self.active_plugins.remove(plugin)
@@ -125,7 +132,7 @@ class PluginManager:
         return callbacks
 
     def _get_plugin_version(self, path: str) -> str:
-        version = False
+        version = ''
         with open(path, encoding='utf-8') as f:
             tree = ast.parse(f.read())
             for item in tree.body:
@@ -133,12 +140,12 @@ class PluginManager:
                     target = item.targets[0]
                     if target.id == '__version__':
                         version = item.value.s
-        return version or ''
+        return version
 
     def __is_private(self, keywords: Dict[str, bool]) -> bool:
         incoming = keywords.get('incoming')
         outgoing = keywords.get('outgoing')
-        is_private = None
+        is_private = False
         if incoming is not None:
             is_private = not incoming
         if outgoing is not None:
@@ -152,11 +159,11 @@ class PluginManager:
                 keywords.update(self.__get_keywords(decorator))
         return keywords
 
-    def __get_keywords(self, decorator) -> Dict[str, bool]:
+    def __get_keywords(self, decorator: ast.Call) -> Dict[str, bool]:
         keywords = {}
         for arg in decorator.args:
             for keyword in arg.keywords:
                 value = keyword.value
-                if isinstance(value, NameConstant):
+                if isinstance(value, ast.NameConstant):
                     keywords.update({keyword.arg: value.value})
         return keywords
