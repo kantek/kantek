@@ -9,6 +9,9 @@ class FormattedBase:
     """Base class for any message type."""
     text: str
 
+    def __add__(self, other):
+        return str(self) + str(other)
+
     def __repr__(self) -> str:
         return f'{type(self).__name__}({self.text})'
 
@@ -77,6 +80,9 @@ class Section:
         self.header = args[0]
         self.items = args[1:]
         self.indent = indent
+
+    def __add__(self, other):
+        return str(self) + '\n\n' + str(other)
 
     def __str__(self) -> str:
         return '\n'.join([str(self.header)]
