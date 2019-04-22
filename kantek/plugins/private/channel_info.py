@@ -7,6 +7,7 @@ from telethon.tl.types import Channel, User
 
 from config import cmd_prefix
 from utils.client import KantekClient
+from utils.mdtex import Section, Bold, KeyValueItem, Code
 
 __version__ = '0.1.0'
 
@@ -27,21 +28,19 @@ async def info(event: NewMessage.Event) -> None:
     client: KantekClient = event.client
     if event.is_private:
         return
-    _info = {
-        'title': chat.title,
-        'chat_id': event.chat_id,
-        'access_hash': chat.access_hash,
-        'creator': chat.creator,
-        'broadcast': chat.broadcast,
-        'megagroup': chat.megagroup,
-        'min': chat.min,
-        'username': chat.username,
-        'verified': chat.verified,
-        'version': chat.version,
-    }
-    info_msg = [f'info for {chat.title}:']
-    info_msg += [f'  **{k}:**\n    `{v}`' for k, v in _info.items() if v is not None]
-    info_msg.append(f'\nuser stats:')
+    info_msg = Section(f'info for {chat.title}:',
+                       KeyValueItem(Bold('title'), Code(chat.title)),
+                       KeyValueItem(Bold('chat_id'), Code(event.chat_id)),
+                       KeyValueItem(Bold('access_hash'), Code(chat.access_hash)),
+                       KeyValueItem(Bold('creator'), Code(chat.creator)),
+                       KeyValueItem(Bold('broadcast'), Code(chat.broadcast)),
+                       KeyValueItem(Bold('megagroup'), Code(chat.megagroup)),
+                       KeyValueItem(Bold('min'), Code(chat.min)),
+                       KeyValueItem(Bold('username'), Code(chat.username)),
+                       KeyValueItem(Bold('verified'), Code(chat.verified)),
+                       KeyValueItem(Bold('version'), Code(chat.version)),
+                       )
+
     bot_accounts = 0
     total_users = 0
     deleted_accounts = 0
@@ -52,12 +51,11 @@ async def info(event: NewMessage.Event) -> None:
             bot_accounts += 1
         if user.deleted:
             deleted_accounts += 1
-    _info = {
-        'total_users': total_users,
-        'bots': bot_accounts,
-        'deleted_accounts': deleted_accounts
-    }
-    info_msg += [f'  **{k}:**\n    `{v}`' for k, v in _info.items() if v is not None]
 
-    await client.respond(event, '\n'.join(info_msg))
+    info_msg += Section('user stats:',
+                        KeyValueItem(Bold('total_users'), Code(total_users)),
+                        KeyValueItem(Bold('bots'), Code(bot_accounts)),
+                        KeyValueItem(Bold('deleted_accounts'), Code(deleted_accounts)))
+
+    await client.respond(event, info_msg)
     tlog.info('Ran `info` in `%s`', chat.title)
