@@ -19,34 +19,35 @@ class FormattedBase:
         return self.text
 
 
+
 String = Union[str, FormattedBase]
 
 
 class Bold(FormattedBase):
     """A bold text."""
 
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: Union[str, int]) -> None:
         self.text = f'**{text}**'
 
 
 class Italic(FormattedBase):
     """A italic text."""
 
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: Union[str, int]) -> None:
         self.text = f'__{text}__'
 
 
 class Code(FormattedBase):
     """A Monospaced text."""
 
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: Union[str, int]) -> None:
         self.text = f'`{text}`'
 
 
 class Pre(FormattedBase):
     """A Multiline Monospaced text."""
 
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: Union[str, int]) -> None:
         self.text = f'```{text}```'
 
 
@@ -69,14 +70,14 @@ class KeyValueItem(FormattedBase):
 class Item(FormattedBase):
     """A simple item without any formatting."""
 
-    def __init__(self, text: str) -> None:
-        self.text = text
+    def __init__(self, text: Union[str, int]) -> None:
+        self.text = str(text)
 
 
 class Section:
     """A section header"""
 
-    def __init__(self, *args: String, indent: int = 4) -> None:
+    def __init__(self, *args: Union[String, 'Section'], indent: int = 4) -> None:
         self.header = args[0]
         self.items = args[1:]
         self.indent = indent
@@ -92,12 +93,12 @@ class Section:
 class SubSection(Section):
     """A subsection Header"""
 
-    def __init__(self, *args: String, indent: int = 8) -> None:
+    def __init__(self, *args: Union[String, Section], indent: int = 8) -> None:
         super().__init__(*args, indent=indent)
 
 
 class SubSubSection(Section):
     """A subsubsection Header"""
 
-    def __init__(self, *args: String, indent: int = 12) -> None:
+    def __init__(self, *args: Union[String, Section], indent: int = 12) -> None:
         super().__init__(*args, indent=indent)
