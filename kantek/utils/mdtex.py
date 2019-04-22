@@ -9,7 +9,7 @@ class FormattedBase:
     """Base class for any message type."""
     text: str
 
-    def __add__(self, other):
+    def __add__(self, other: Union[str, 'FormattedBase']) -> str:
         return str(self) + str(other)
 
     def __repr__(self) -> str:
@@ -17,7 +17,6 @@ class FormattedBase:
 
     def __str__(self) -> str:
         return self.text
-
 
 
 String = Union[str, FormattedBase]
@@ -82,7 +81,7 @@ class Section:
         self.items = args[1:]
         self.indent = indent
 
-    def __add__(self, other):
+    def __add__(self, other: Union[String, 'Section']) -> str:
         return str(self) + '\n\n' + str(other)
 
     def __str__(self) -> str:
