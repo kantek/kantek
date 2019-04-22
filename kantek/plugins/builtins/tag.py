@@ -10,6 +10,7 @@ from config import cmd_prefix
 from database.arango import ArangoDB
 from utils import parsers
 from utils.client import KantekClient
+from utils.mdtex import Bold, Code, Item, KeyValueItem, Section
 
 __version__ = '0.1.0'
 
@@ -32,23 +33,20 @@ async def tag(event: NewMessage.Event) -> None:
     chat_document = client.db.groups.get_chat(event.chat_id)
     msg: Message = event.message
     args = msg.raw_text.split()[1:]
-    indent = 4
-    response = False
+    response = ''
     if not args:
         db_named_tags: Dict = chat_document['named_tags'].getStore()
         db_tags: List = chat_document['tags']
-        data = [f'Tags for **{chat.title}**[`{event.chat_id}`]:']
-        if not db_tags and not db_named_tags:
-            data.append(f'{" " * indent}__None__')
-        else:
-            for k, v in db_named_tags.items():
-                data.append(f'{" " * indent}**{k}:** {", ".join(v)}')
-            for _tag in db_tags:
-                data.append(f'{" " * indent}{_tag}')
-        response = '\n'.join(data)
+        data = []
+        data += [KeyValueItem(Bold(key), ', '.join(value)) for key, value in db_named_tags.items()]
+        data += [Item(_tag) for _tag in db_tags]
+        if not data:
+            data.append(Code('None'))
+        response = Section(Item(f'Tags for **{chat.title}**[`{event.chat_id}`]:'),
+                           *data)
     elif args[0] == 'add' and len(args) > 1:
         response = await _add_tags(event, db)
-    elif args[0] == 'clear' and len(args) > 1:
+    elif args[0] == 'clear':
         response = await _clear_tags(event, db)
     elif args[0] == 'del' and len(args) > 1:
         response = await _delete_tags(event, db)
