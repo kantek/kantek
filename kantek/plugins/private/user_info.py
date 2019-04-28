@@ -35,7 +35,7 @@ async def user_info(event: NewMessage.Event) -> None:
     response = ''
     if not args and msg.is_reply:
         response = await _info_from_reply(event, **keyword_args)
-    elif args:
+    elif args or 'search' in keyword_args:
         response = await _info_from_arguments(event, **keyword_args)
     if response:
         await client.respond(event, response)
@@ -57,7 +57,6 @@ async def _info_from_arguments(event, **kwargs) -> MDTeXDocument:
         user: User = await client.get_entity(entity)
         users.append(await _collect_user_info(user, **kwargs))
     return MDTeXDocument(*users)
-
 
 
 async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
