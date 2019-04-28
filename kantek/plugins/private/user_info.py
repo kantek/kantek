@@ -35,11 +35,29 @@ async def user_info(event: NewMessage.Event) -> None:
     response = ''
     if not args and msg.is_reply:
         response = await _info_from_reply(event, **keyword_args)
-
+    elif args:
+        response = await _info_from_arguments(event, **keyword_args)
     if response:
         await client.respond(event, response)
 
     tlog.info('Ran `tag` in `%s`. Response: %s', chat.title, response)
+
+
+async def _info_from_arguments(event, **kwargs) -> MDTeXDocument:
+    msg: Message = event.message
+    client: KantekClient = event.client
+    search_name = kwargs.get('search', False)
+    if search_name:
+        entities = [search_name]
+    else:
+        entities = [entity[1] for entity in msg.get_entities_text()]
+
+    users = []
+    for entity in entities:
+        user: User = await client.get_entity(entity)
+        users.append(await _collect_user_info(user, **kwargs))
+    return MDTeXDocument(*users)
+
 
 
 async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
@@ -54,10 +72,10 @@ async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
     else:
         user: User = await client.get_entity(reply_msg.sender_id)
 
-    return await _collect_user_info(user, **kwargs)
+    return MDTeXDocument(await _collect_user_info(user, **kwargs))
 
 
-async def _collect_user_info(user, **kwargs) -> MDTeXDocument:
+async def _collect_user_info(user, **kwargs) -> Section:
     id_only = kwargs.get('id', False)
     show_general = kwargs.get('general', True)
     show_bot = kwargs.get('bot', False)
@@ -77,8 +95,8 @@ async def _collect_user_info(user, **kwargs) -> MDTeXDocument:
     else:
         title = Bold(full_name)
     if id_only:
-        return MDTeXDocument(Section(title,
-                                     Code(user.id)))
+        return Section(title,
+                       Code(user.id))
     else:
         general = SubSection(
             Bold('general'),
@@ -106,8 +124,7 @@ async def _collect_user_info(user, **kwargs) -> MDTeXDocument:
             KeyValueItem('min', Code(user.min)),
             KeyValueItem('lang_code', Code(user.lang_code)))
 
-        return MDTeXDocument(
-            Section(title,
-                    general if show_general else None,
-                    misc if show_misc else None,
-                    bot if show_bot else None))
+        return Section(title,
+                       general if show_general else None,
+                       misc if show_misc else None,
+                       bot if show_bot else None)
