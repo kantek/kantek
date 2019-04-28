@@ -1,10 +1,11 @@
 """File containing the Custom TelegramClient"""
-from typing import Optional
+from typing import Optional, Union
 
 from telethon import TelegramClient
 from telethon.events import NewMessage
 
 from database.arango import ArangoDB
+from utils.mdtex import MDTeXDocument, FormattedBase, Section
 from utils.pluginmgr import PluginManager
 
 
@@ -14,7 +15,9 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
     db: Optional[ArangoDB] = None
     kantek_version: str = ''
 
-    async def respond(self, event: NewMessage.Event, msg: str, reply: bool = True) -> None:
+    async def respond(self, event: NewMessage.Event,
+                      msg: Union[str, FormattedBase, Section, MDTeXDocument],
+                      reply: bool = True) -> None:
         """Respond to the message an event caused or to the message that was replied to
 
         Args:
