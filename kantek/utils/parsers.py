@@ -3,7 +3,7 @@ import re
 from typing import Dict, List, Pattern, Tuple
 
 NAMED_ATTRIBUTE: Pattern = re.compile(r'(\w+):\s?(\[.+?\]|\".+\"|\w+)')
-
+QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")')
 
 def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     """Parse arguments provided as string
@@ -17,14 +17,17 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     >>> parse_arguments('arg1: val1 arg2 arg3: "val3.1 val3.2" arg3')
     ({'arg1': 'val1', 'arg3': 'val3.1 val3.2'}, ['arg2', 'arg3'])
 
-    >>> parse_arguments('arg1: val1.1 val1.2')
-    ({'arg1': 'val1'}, ['1', 'val1', '2'])
+    >>> parse_arguments('arg1: "val1.1" val1.2')
+    ({'arg1': 'val1.1'}, ['val1.2'])
 
     >>> parse_arguments('arg1: "val1.2"')
     ({'arg1': 'val1.2'}, [])
 
-    >>> parse_arguments('"val1.2"')
-    ({}, ['val1.2'])
+    >>> parse_arguments('"val space"')
+    ({}, ['val space'])
+
+    >>> parse_arguments('@username')
+    ({}, ['@username'])
 
     Args:
         arguments: The string with the arguments that should be parsed
@@ -38,5 +41,7 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     keyword_args: Dict[str, str] = {name: re.sub(r'[\[\]\"]', '', value)
                                    for name, value in _named_attrs}
     arguments = re.sub(NAMED_ATTRIBUTE, '', arguments)
-    args = re.findall(r'\w+', arguments)
-    return keyword_args, args
+    quoted_args = re.findall(QUOTED_ARGUMENT, arguments)
+    arguments = re.sub(QUOTED_ARGUMENT, '', arguments)
+    args = arguments.split()
+    return keyword_args, args + quoted_args
