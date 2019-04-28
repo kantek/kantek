@@ -5,7 +5,7 @@ from telethon import TelegramClient
 from telethon.events import NewMessage
 
 from database.arango import ArangoDB
-from utils.mdtex import MDTeXDocument, FormattedBase, Section
+from utils.mdtex import FormattedBase, MDTeXDocument, Section
 from utils.pluginmgr import PluginManager
 
 
