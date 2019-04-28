@@ -5,6 +5,7 @@ from typing import Dict, List, Pattern, Tuple
 KEYWORD_ARGUMENT: Pattern = re.compile(r'(\w+):\s?(\[.+?\]|\".+\"|\w+)')
 QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")')
 
+
 def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     """Parse arguments provided as string
 
@@ -39,7 +40,7 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
 
     _named_attrs = re.findall(KEYWORD_ARGUMENT, arguments)
     keyword_args: Dict[str, str] = {name: re.sub(r'[\[\]\"]', '', value)
-                                   for name, value in _named_attrs}
+                                    for name, value in _named_attrs}
     arguments = re.sub(KEYWORD_ARGUMENT, '', arguments)
     quoted_args = re.findall(QUOTED_ARGUMENT, arguments)
     arguments = re.sub(QUOTED_ARGUMENT, '', arguments)
