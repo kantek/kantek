@@ -1,5 +1,6 @@
 """Plugin to get information about a channel."""
 import logging
+from typing import Dict, List
 
 from telethon import events
 from telethon.events import NewMessage
@@ -7,7 +8,7 @@ from telethon.tl.types import Channel, User
 
 from config import cmd_prefix
 from utils.client import KantekClient
-from utils.mdtex import Section, Bold, KeyValueItem, Code
+from utils.mdtex import Bold, Code, Item, KeyValueItem, MDTeXDocument, Section
 
 __version__ = '0.1.0'
 
@@ -28,18 +29,18 @@ async def info(event: NewMessage.Event) -> None:
     client: KantekClient = event.client
     if event.is_private:
         return
-    info_msg = Section(f'info for {chat.title}:',
-                       KeyValueItem(Bold('title'), Code(chat.title)),
-                       KeyValueItem(Bold('chat_id'), Code(event.chat_id)),
-                       KeyValueItem(Bold('access_hash'), Code(chat.access_hash)),
-                       KeyValueItem(Bold('creator'), Code(chat.creator)),
-                       KeyValueItem(Bold('broadcast'), Code(chat.broadcast)),
-                       KeyValueItem(Bold('megagroup'), Code(chat.megagroup)),
-                       KeyValueItem(Bold('min'), Code(chat.min)),
-                       KeyValueItem(Bold('username'), Code(chat.username)),
-                       KeyValueItem(Bold('verified'), Code(chat.verified)),
-                       KeyValueItem(Bold('version'), Code(chat.version)),
-                       )
+    chat_info = Section(f'info for {chat.title}:',
+                        KeyValueItem(Bold('title'), Code(chat.title)),
+                        KeyValueItem(Bold('chat_id'), Code(event.chat_id)),
+                        KeyValueItem(Bold('access_hash'), Code(chat.access_hash)),
+                        KeyValueItem(Bold('creator'), Code(chat.creator)),
+                        KeyValueItem(Bold('broadcast'), Code(chat.broadcast)),
+                        KeyValueItem(Bold('megagroup'), Code(chat.megagroup)),
+                        KeyValueItem(Bold('min'), Code(chat.min)),
+                        KeyValueItem(Bold('username'), Code(chat.username)),
+                        KeyValueItem(Bold('verified'), Code(chat.verified)),
+                        KeyValueItem(Bold('version'), Code(chat.version)),
+                        )
 
     bot_accounts = 0
     total_users = 0
@@ -52,10 +53,18 @@ async def info(event: NewMessage.Event) -> None:
         if user.deleted:
             deleted_accounts += 1
 
-    info_msg += Section('user stats:',
-                        KeyValueItem(Bold('total_users'), Code(total_users)),
-                        KeyValueItem(Bold('bots'), Code(bot_accounts)),
-                        KeyValueItem(Bold('deleted_accounts'), Code(deleted_accounts)))
+    user_stats = Section('user stats:',
+                         KeyValueItem(Bold('total_users'), Code(total_users)),
+                         KeyValueItem(Bold('bots'), Code(bot_accounts)),
+                         KeyValueItem(Bold('deleted_accounts'), Code(deleted_accounts)))
 
+    chat_document = client.db.groups.get_chat(event.chat_id)
+    db_named_tags: Dict = chat_document['named_tags'].getStore()
+    db_tags: List = chat_document['tags']
+    data = []
+    data += [KeyValueItem(Bold(key), ', '.join(value)) for key, value in db_named_tags.items()]
+    data += [Item(_tag) for _tag in db_tags]
+    tags = Section('tags:', *data)
+    info_msg = MDTeXDocument(chat_info, user_stats, tags)
     await client.respond(event, info_msg)
     tlog.info('Ran `info` in `%s`', chat.title)
