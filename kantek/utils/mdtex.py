@@ -86,7 +86,8 @@ class Section:
 
     def __str__(self) -> str:
         return '\n'.join([str(self.header)]
-                         + [' ' * self.indent + str(item) for item in self.items])
+                         + [' ' * self.indent + str(item) for item in self.items
+                            if item is not None])
 
 
 class SubSection(Section):
