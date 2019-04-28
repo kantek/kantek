@@ -1,4 +1,4 @@
-"""Plugin to get information about a channel."""
+"""Plugin to get information about a user."""
 import logging
 
 from telethon import events
@@ -19,7 +19,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}u(ser)?'))
 async def user_info(event: NewMessage.Event) -> None:
-    """Show information about a group or channel.
+    """Show information about a user.
 
     Args:
         event: The event of the command
