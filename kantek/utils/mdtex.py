@@ -101,3 +101,12 @@ class SubSubSection(Section):
 
     def __init__(self, *args: Union[String, Section], indent: int = 12) -> None:
         super().__init__(*args, indent=indent)
+
+
+class MDTeXDocument:
+    """Document containing sections."""
+    def __init__(self, *args: Union[String, 'Section']) -> None:
+        self.sections = args
+
+    def __str__(self) -> str:
+        return '\n\n'.join([str(section) for section in self.sections])
