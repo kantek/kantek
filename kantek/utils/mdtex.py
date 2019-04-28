@@ -76,7 +76,7 @@ class Item(FormattedBase):
 class Section:
     """A section header"""
 
-    def __init__(self, *args: Union[String, 'Section'], indent: int = 4) -> None:
+    def __init__(self, *args: Union[String, 'SubSection'], indent: int = 4) -> None:
         self.header = args[0]
         self.items = args[1:]
         self.indent = indent
@@ -92,14 +92,14 @@ class Section:
 class SubSection(Section):
     """A subsection Header"""
 
-    def __init__(self, *args: Union[String, Section], indent: int = 8) -> None:
+    def __init__(self, *args: Union[String, 'SubSubSection'], indent: int = 8) -> None:
         super().__init__(*args, indent=indent)
 
 
-class SubSubSection(Section):
+class SubSubSection(SubSection):
     """A subsubsection Header"""
 
-    def __init__(self, *args: Union[String, Section], indent: int = 12) -> None:
+    def __init__(self, *args: String, indent: int = 12) -> None:
         super().__init__(*args, indent=indent)
 
 
