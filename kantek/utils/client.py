@@ -3,6 +3,7 @@ from typing import Optional, Union
 
 from telethon import TelegramClient
 from telethon.events import NewMessage
+from telethon.tl.patched import Message
 
 from database.arango import ArangoDB
 from utils.mdtex import FormattedBase, MDTeXDocument, Section
@@ -17,7 +18,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
     async def respond(self, event: NewMessage.Event,
                       msg: Union[str, FormattedBase, Section, MDTeXDocument],
-                      reply: bool = True) -> None:
+                      reply: bool = True) -> Message:
         """Respond to the message an event caused or to the message that was replied to
 
         Args:
@@ -30,6 +31,6 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         """
         msg = str(msg)
         if reply:
-            await event.respond(msg, reply_to=(event.reply_to_msg_id or event.message.id))
+            return await event.respond(msg, reply_to=(event.reply_to_msg_id or event.message.id))
         else:
-            await event.respond(msg, reply_to=event.message.id)
+            return await event.respond(msg, reply_to=event.message.id)
