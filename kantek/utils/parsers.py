@@ -2,7 +2,7 @@
 import re
 from typing import Dict, List, Pattern, Tuple
 
-NAMED_ATTRIBUTE: Pattern = re.compile(r'(\w+):\s?(\[.+?\]|".+"|\w+)')
+NAMED_ATTRIBUTE: Pattern = re.compile(r'(\w+):\s?(\[.+?\]|\".+\"|\w+)')
 
 
 def parse_arguments(cmd: str) -> Tuple[Dict[str, str], List[str]]:
