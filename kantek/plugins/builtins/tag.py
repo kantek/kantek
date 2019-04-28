@@ -69,7 +69,7 @@ async def _add_tags(event: NewMessage.Event, db: ArangoDB):
     chat_document = db.groups[event.chat_id]
     db_named_tags: Dict = chat_document['named_tags'].getStore()
     db_tags: List = chat_document['tags']
-    named_tags, tags = parsers.parse_tag_syntax(' '.join(args))
+    named_tags, tags = parsers.parse_arguments(' '.join(args))
     for k, v in named_tags.items():
         db_named_tags[k] = v
     for _tag in tags:
