@@ -96,5 +96,5 @@ async def _cleanup_chat(event, count: bool = False,
 
     return MDTeXDocument(
         Section(Bold('Cleanup'),
-                KeyValueItem(Bold('Deleted Users'), deleted_users),
+                KeyValueItem(Bold('Deleted Accounts'), deleted_users),
                 KeyValueItem(Bold('Deleted Admins'), deleted_admins) if deleted_admins else None))
