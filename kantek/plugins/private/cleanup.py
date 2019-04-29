@@ -1,10 +1,12 @@
 """Plugin to remove deleted Accounts from a group"""
+import asyncio
 import datetime
 import logging
 from typing import Optional
 
+import logzero
 from telethon import events
-from telethon.errors import UserAdminInvalidError
+from telethon.errors import FloodWaitError, UserAdminInvalidError
 from telethon.events import NewMessage
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.patched import Message
@@ -15,9 +17,10 @@ from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, KeyValueItem, MDTeXDocument, Section
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 tlog = logging.getLogger('kantek-channel-log')
+logger: logging.Logger = logzero.logger
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}cleanup'))
@@ -72,6 +75,25 @@ async def _cleanup_chat(event, count: bool = False,
                     ))
                 except UserAdminInvalidError:
                     deleted_admins += 1
+                except FloodWaitError as error:
+                    if progress_message is not None:
+                        progress = Section(Bold('Cleanup | FloodWait'),
+                                           Bold(f'Got FloodWait for {error.seconds}s. Sleeping.'),
+                                           KeyValueItem(Bold('Progress'),
+                                                        f'{user_counter}/{participant_count}'),
+                                           KeyValueItem(Bold('Deleted Accounts'), deleted_users))
+                        await progress_message.edit(str(progress))
+
+                    tlog.error(error)
+                    logger.error(error)
+                    await asyncio.sleep(error.seconds)
+                    await client(EditBannedRequest(
+                        chat, user, ChatBannedRights(
+                            until_date=datetime.datetime(2038, 1, 1),
+                            view_messages=True
+                        )
+                    ))
+
     return MDTeXDocument(
         Section(Bold('Cleanup'),
                 KeyValueItem(Bold('Deleted Users'), deleted_users),
