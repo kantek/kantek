@@ -10,14 +10,14 @@ from telethon.errors import FloodWaitError, UserAdminInvalidError
 from telethon.events import NewMessage
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.patched import Message
-from telethon.tl.types import Channel, ChatBannedRights, User
+from telethon.tl.types import (Channel, ChannelParticipantsAdmins, ChatBannedRights, User)
 
 from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, KeyValueItem, MDTeXDocument, Section
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -45,6 +45,18 @@ async def cleanup(event: NewMessage.Event) -> None:
         await waiting_message.delete()
 
 
+@events.register(events.NewMessage(incoming=True, pattern=f'{cmd_prefix}cleanup'))
+async def cleanup_group_admins(event: NewMessage.Event) -> None:
+    """Check if the issuer of the command is group admin. Then execute the cleanup command."""
+    if event.is_channel:
+        msg: Message = event.message
+        client: KantekClient = event.client
+        async for p in client.iter_participants(event.chat_id, filter=ChannelParticipantsAdmins):
+            if msg.from_id == p.id:
+                await cleanup(event)
+                break
+
+
 async def _cleanup_chat(event, count: bool = False,
                         progress_message: Optional[Message] = None) -> MDTeXDocument:
     chat: Channel = event.chat
@@ -54,7 +66,8 @@ async def _cleanup_chat(event, count: bool = False,
     deleted_admins = 0
     user_counter = 0
     participant_count = (await client.get_participants(chat, limit=0)).total
-    modulus = participant_count // 25
+    # the number will be 0 if the group has less than 25 participants
+    modulus = (participant_count // 25) or 1
     async for user in client.iter_participants(chat):
         if progress_message is not None and user_counter % modulus == 0:
             progress = Section(Bold('Cleanup'),
