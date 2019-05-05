@@ -1,10 +1,11 @@
 """Module containing all operations related to ArangoDB"""
-from typing import Optional
+from typing import Dict, Optional
 
 from pyArango.collection import Collection, Field
 from pyArango.connection import Connection
 from pyArango.database import Database
 from pyArango.document import Document
+from pyArango.query import AQLQuery
 from pyArango.theExceptions import CreationError, DocumentNotFoundError
 from pyArango.validation import Int, NotNull
 
@@ -184,6 +185,16 @@ class ArangoDB:
             '0x3': self.ab_channel_blacklist
         }
         self.banlist: BanList = self._get_collection('BanList')
+
+    def query(self, query: str, batch_size: int = 100, raw_results: bool = False,
+              bind_vars: Dict = {}, options: Dict = {},
+              count: bool = False, full_count: bool = False,
+              json_encoder: bool = None, **kwargs) -> AQLQuery:
+        """Wrapper around the pyArango AQLQuery to avoid having to do `db.db.AQLQuery`."""
+        return self.db.AQLQuery(query, rawResults=raw_results, batchSize=batch_size,
+                                bindVars=bind_vars, options=options, count=count,
+                                fullCount=full_count,
+                                json_encoder=json_encoder, **kwargs)
 
     def _get_db(self, db: str) -> Database:
         """Return a database. Create it if it doesn't exist yet.
