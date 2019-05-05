@@ -28,7 +28,7 @@ async def cleanup(event: NewMessage.Event) -> None:
     """Command to remove Deleted Accounts from a group or network."""
     chat: Channel = event.chat
     client: KantekClient = event.client
-    keyword_args, args = await helpers.get_args(event)
+    keyword_args, _ = await helpers.get_args(event)
     count_only = keyword_args.get('count', False)
     silent = keyword_args.get('silent', False)
     if not chat.creator and not chat.admin_rights:

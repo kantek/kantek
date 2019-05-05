@@ -1,5 +1,5 @@
 """Module containing all operations related to ArangoDB"""
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 from pyArango.collection import Collection, Field
 from pyArango.connection import Connection
@@ -67,6 +67,7 @@ class Chats(Collection):
 
 
 class AutobahnBlacklist(Collection):
+    """Base class for all types of Blacklists."""
     _fields = {
         'strings': Field([NotNull()]),
     }
@@ -83,11 +84,11 @@ class AutobahnBlacklist(Collection):
         }
     }
 
-    def add_string(self, string) -> Optional[Document]:
+    def add_string(self, string: str) -> Optional[Document]:
         """Add a Chat to the DB or return an existing one.
 
         Args:
-            chat_id: The id of the chat
+            str: The id of the chat
 
         Returns: The chat Document
 
@@ -123,6 +124,7 @@ class AutobahnChannelBlacklist(AutobahnBlacklist):
 
 
 class BanList(Collection):
+    """A list of banned ids and their reason"""
     _fields = {
         'id': Field([NotNull()]),
         'ban_reason': Field([NotNull()])
@@ -160,9 +162,7 @@ class BanList(Collection):
             return None
 
 
-
-
-class ArangoDB:
+class ArangoDB:  # pylint: disable = R0902
     """Handle creation of all required Documents."""
 
     def __init__(self) -> None:
@@ -187,10 +187,12 @@ class ArangoDB:
         self.banlist: BanList = self._get_collection('BanList')
 
     def query(self, query: str, batch_size: int = 100, raw_results: bool = False,
-              bind_vars: Dict = {}, options: Dict = {},
+              bind_vars: Dict = None, options: Dict = None,
               count: bool = False, full_count: bool = False,
-              json_encoder: bool = None, **kwargs) -> AQLQuery:
+              json_encoder: bool = None, **kwargs: Any) -> AQLQuery:  # pylint: disable = R0913
         """Wrapper around the pyArango AQLQuery to avoid having to do `db.db.AQLQuery`."""
+        bind_vars = bind_vars or {}
+        options = options or {}
         return self.db.AQLQuery(query, rawResults=raw_results, batchSize=batch_size,
                                 bindVars=bind_vars, options=options, count=count,
                                 fullCount=full_count,

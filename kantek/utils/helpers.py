@@ -34,6 +34,14 @@ async def get_args(event: NewMessage.Event) -> Tuple[Dict[str, str], List[str]]:
 
 
 async def rose_csv_to_dict(filename: str) -> List[Dict[str, str]]:
+    """Convert a fedban list from Rose to a json that can be imported into ArangoDB
+
+    Args:
+        filename: The name of the csv
+
+    Returns:
+
+    """
     bans = []
     with open(filename, encoding='utf-8', newline='') as f:  #
         csv_file = csv.reader(f, delimiter=',')

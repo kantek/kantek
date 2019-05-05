@@ -1,4 +1,4 @@
-""""""
+"""Plugin to manage the banlist of the bot."""
 import logging
 import os
 import time
@@ -6,7 +6,6 @@ import time
 from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
-from telethon.tl.types import Channel
 
 from config import cmd_prefix
 from database.arango import ArangoDB
@@ -21,8 +20,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}b(an)?l(ist)?'))
 async def banlist(event: NewMessage.Event) -> None:
-    """"""
-    chat: Channel = event.chat
+    """Command to query and manage the banlist."""
     client: KantekClient = event.client
     msg: Message = event.message
     db: ArangoDB = client.db
