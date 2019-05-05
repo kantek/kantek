@@ -11,7 +11,7 @@ from config import cmd_prefix
 from database.arango import ArangoDB
 from utils import parsers
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, Italic, MDTeXDocument, Section, SubSection
+from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Section, SubSection, Pre
 
 __version__ = '0.1.0'
 
@@ -42,6 +42,8 @@ async def autobahn(event: NewMessage.Event) -> None:
         response = await _add_string(event, db)
     elif args[0] == 'del' and len(args) > 1:
         response = await _del_string(event, db)
+    elif args[0] == 'query' and len(args) > 1:
+        response = await _query_string(event, db)
     if response:
         await client.respond(event, response)
 
@@ -87,13 +89,60 @@ async def _del_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if hex_type is None or collection is None:
             continue
 
-        existing_one: Document = collection.fetchByExample({'string': string}, batchSize=1)[0]
+        existing_one: Document = collection.fetchFirstExample({'string': string})
         if existing_one:
             existing_one.delete()
             removed_items.append(item)
 
     return MDTeXDocument(Section(Bold('Deleted Items:'),
                                  *(await _format_items(removed_items))))
+
+
+async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+    """Add a string to the Collection of its type"""
+    msg: Message = event.message
+    args = msg.raw_text.split()[2:]
+    keyword_args, args = parsers.parse_arguments(' '.join(args))
+    if 'types' in args:
+        return MDTeXDocument(Section(
+            Bold('Types'),
+            *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
+    string_type = keyword_args.get('type')
+    code = keyword_args.get('code')
+    code_range = keyword_args.get('range')
+    if string_type and code is None and code_range is None:
+        hex_type = AUTOBAHN_TYPES.get(string_type)
+        if hex_type is not None:
+            collection = db.ab_collection_map[hex_type]
+            all_strings = collection.fetchAll()
+            if not len(all_strings) > 100:
+                items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
+                                      Code(doc['string'])) for doc in all_strings]
+            else:
+                items = [Pre(', '.join([doc['string'] for doc in all_strings]))]
+            return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
+
+    if string_type is not None and code is not None:
+        hex_type = AUTOBAHN_TYPES.get(string_type)
+        if hex_type is not None:
+            collection = db.ab_collection_map[hex_type]
+            db_key = code.split('x')[-1]
+            string = collection.fetchDocument(db_key).getStore()['string']
+            return MDTeXDocument(Section(Bold(f'String for {string_type}[{code}]'), Code(string)))
+
+    if string_type is not None and code_range is not None:
+        hex_type = AUTOBAHN_TYPES.get(string_type)
+        if hex_type is not None:
+            collection = db.ab_collection_map[hex_type]
+            start, stop = [int(c.split('x')[-1]) for c in code_range.split('-')]
+            keys = [str(i) for i  in range(start, stop + 1)]
+            documents = db.db.AQLQuery(f'FOR doc IN {collection.name} '
+                                       'FILTER doc._key in @keys '
+                                       'RETURN doc',
+                                       bindVars={'keys': keys})
+            items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
+                                  Code(doc['string'])) for doc in documents]
+            return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
 
 
 async def _format_items(items: List[List[str]]) -> List[Union[Section, Italic]]:
