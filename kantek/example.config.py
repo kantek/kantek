@@ -10,6 +10,8 @@ session_name: str = f'sessions/{os.environ.get("KANTEK_SESSION", "kantek-session
 log_bot_token: str = ''
 log_channel_id: Union[str, int] = ''
 
+gban_group = ''
+
 # This is regex so make sure to escape the usual characters
 cmd_prefix: str = r'\.'
 
