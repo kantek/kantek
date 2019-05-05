@@ -1,5 +1,7 @@
 """"""
 import logging
+import os
+import time
 
 from telethon import events
 from telethon.events import NewMessage
@@ -8,7 +10,7 @@ from telethon.tl.types import Channel
 
 from config import cmd_prefix
 from database.arango import ArangoDB
-from utils import parsers
+from utils import helpers, parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Section
 
@@ -30,7 +32,10 @@ async def banlist(event: NewMessage.Event) -> None:
         pass
     elif args[0] == 'query' and len(args) > 1:
         response = await _query_banlist(event, db)
-
+    elif args[0] == 'import':
+        waiting_message = await client.respond(event, 'Import bans. This might take a while.')
+        response = await _import_banlist(event, db)
+        await waiting_message.delete()
     if response:
         await client.respond(event, response)
 
@@ -54,3 +59,27 @@ async def _query_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument
                           'RETURN length', bind_vars={'reason': reason})
         query_results = [KeyValueItem(Bold('Count'), Code(result))]
     return MDTeXDocument(Section(Bold('Query Results'), *query_results))
+
+
+async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+    msg: Message = event.message
+    filename = 'tmp/banlist_import.csv'
+    if msg.is_reply:
+        reply_msg: Message = await msg.get_reply_message()
+        _, ext = os.path.splitext(reply_msg.document.attributes[0].file_name)
+        if ext == '.csv':
+            await reply_msg.download_media('tmp/banlist_import.csv')
+            start_time = time.time()
+            _banlist = await helpers.rose_csv_to_dict(filename)
+            if _banlist:
+                db.query('FOR ban in @banlist '
+                         'UPSERT {"_key": ban.id} '
+                         'INSERT ban '
+                         'UPDATE {"reason": ban.reason} '
+                         'IN BanList', bind_vars={'banlist': _banlist})
+            stop_time = time.time() - start_time
+            return MDTeXDocument(Section(Bold('Import Result'),
+                                         f'Added {len(_banlist)} entries.'),
+                                 Italic(f'Took {stop_time:.02f}s'))
+        else:
+            return MDTeXDocument(Section(Bold('Error'), 'File is not a CSV'))

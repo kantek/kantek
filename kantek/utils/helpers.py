@@ -1,4 +1,5 @@
 """Helper functions to aid with different tasks that dont require a client."""
+import csv
 from typing import Dict, List, Tuple
 
 from telethon.events import NewMessage
@@ -30,3 +31,16 @@ async def get_args(event: NewMessage.Event) -> Tuple[Dict[str, str], List[str]]:
     """
     _args = event.message.raw_text.split()[1:]
     return parsers.parse_arguments(' '.join(_args))
+
+
+async def rose_csv_to_dict(filename: str) -> List[Dict[str, str]]:
+    bans = []
+    with open(filename, encoding='utf-8', newline='') as f:  #
+        csv_file = csv.reader(f, delimiter=',')
+        # skip the header
+        next(csv_file, None)
+        for line in csv_file:
+            _id = line[0]
+            reason = line[-1]
+            bans.append({'_key': _id, 'id': _id, 'reason': reason})
+    return bans
