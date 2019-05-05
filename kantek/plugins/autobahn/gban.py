@@ -44,4 +44,6 @@ async def gban(event: NewMessage.Event) -> None:
                  'UPDATE {"reason": @ban.reason} '
                  'IN BanList', bind_vars={'ban': data})
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
+        if chat.creator or chat.admin_rights:
+            await reply_msg.delete()
     await msg.delete()
