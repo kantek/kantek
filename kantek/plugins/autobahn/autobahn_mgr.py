@@ -11,7 +11,7 @@ from config import cmd_prefix
 from database.arango import ArangoDB
 from utils import parsers
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Section, SubSection, Pre
+from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
 
 __version__ = '0.1.0'
 
@@ -135,11 +135,11 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if hex_type is not None:
             collection = db.ab_collection_map[hex_type]
             start, stop = [int(c.split('x')[-1]) for c in code_range.split('-')]
-            keys = [str(i) for i  in range(start, stop + 1)]
-            documents = db.db.AQLQuery(f'FOR doc IN {collection.name} '
-                                       'FILTER doc._key in @keys '
-                                       'RETURN doc',
-                                       bindVars={'keys': keys})
+            keys = [str(i) for i in range(start, stop + 1)]
+            documents = db.query(f'FOR doc IN {collection.name} '
+                                 'FILTER doc._key in @keys '
+                                 'RETURN doc',
+                                 bind_vars={'keys': keys})
             items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
                                   Code(doc['string'])) for doc in documents]
             return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
