@@ -42,15 +42,15 @@ async def _query_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument
     reason = keyword_args.get('reason')
     users = []
     if args:
-        users = db.db.AQLQuery('For doc in BanList '
-                               'FILTER doc._key in @ids '
-                               'RETURN doc', bindVars={'ids': args})
+        users = db.query('For doc in BanList '
+                         'FILTER doc._key in @ids '
+                         'RETURN doc', bind_vars={'ids': args})
         query_results = [KeyValueItem(Code(user['id']), user['reason'])
                          for user in users] or [Italic('None')]
     if reason is not None:
-        result = db.db.AQLQuery('FOR doc IN BanList '
-                                'FILTER doc.reason LIKE @reason '
-                                'COLLECT WITH COUNT INTO length '
-                                'RETURN length', bindVars={'reason': reason})
+        result = db.query('FOR doc IN BanList '
+                          'FILTER doc.reason LIKE @reason '
+                          'COLLECT WITH COUNT INTO length '
+                          'RETURN length', bind_vars={'reason': reason})
         query_results = [KeyValueItem(Bold('Count'), Code(result))]
     return MDTeXDocument(Section(Bold('Query Results'), *query_results))
