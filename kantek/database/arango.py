@@ -121,6 +121,46 @@ class AutobahnChannelBlacklist(AutobahnBlacklist):
     hex_type = '0x3'
 
 
+class BanList(Collection):
+    _fields = {
+        'id': Field([NotNull()]),
+        'ban_reason': Field([NotNull()])
+    }
+
+    _validation = {
+        'on_save': True,
+    }
+
+    _properties = {
+        'keyOptions': {
+            'allowUserKeys': True,
+        }
+    }
+
+    def add_user(self, _id: int, reason: str) -> Optional[Document]:
+        """Add a Chat to the DB or return an existing one.
+
+        Args:
+            _id: The id of the User
+            reason: The ban reason
+
+        Returns: The chat Document
+
+        """
+        data = {'_key': _id,
+                'id': _id,
+                'reason': reason}
+
+        try:
+            doc = self.createDocument(data)
+            doc.save()
+            return doc
+        except CreationError:
+            return None
+
+
+
+
 class ArangoDB:
     """Handle creation of all required Documents."""
 
@@ -143,6 +183,7 @@ class ArangoDB:
             '0x2': self.ab_filename_blacklist,
             '0x3': self.ab_channel_blacklist
         }
+        self.banlist: BanList = self._get_collection('BanList')
 
     def _get_db(self, db: str) -> Database:
         """Return a database. Create it if it doesn't exist yet.
