@@ -52,7 +52,7 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     """Add a string to the Collection of its type"""
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
-    keyword_args, args = parsers.parse_arguments(' '.join(args))
+    _, args = parsers.parse_arguments(' '.join(args))
     strings = [s.split(';', maxsplit=1) for s in args]
     added_items = []
     for item in strings:
@@ -77,7 +77,7 @@ async def _del_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     """Add a string to the Collection of its type"""
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
-    keyword_args, args = parsers.parse_arguments(' '.join(args))
+    _, args = parsers.parse_arguments(' '.join(args))
     strings = [s.split(';', maxsplit=1) for s in args]
     removed_items = []
     for item in strings:
@@ -110,40 +110,36 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     string_type = keyword_args.get('type')
     code = keyword_args.get('code')
     code_range = keyword_args.get('range')
-    if string_type and code is None and code_range is None:
+    hex_type = None
+    collection = None
+    if string_type is not None:
         hex_type = AUTOBAHN_TYPES.get(string_type)
-        if hex_type is not None:
-            collection = db.ab_collection_map[hex_type]
-            all_strings = collection.fetchAll()
-            if not len(all_strings) > 100:
-                items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
-                                      Code(doc['string'])) for doc in all_strings]
-            else:
-                items = [Pre(', '.join([doc['string'] for doc in all_strings]))]
-            return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
-
-    if string_type is not None and code is not None:
-        hex_type = AUTOBAHN_TYPES.get(string_type)
-        if hex_type is not None:
-            collection = db.ab_collection_map[hex_type]
-            db_key = code.split('x')[-1]
-            string = collection.fetchDocument(db_key).getStore()['string']
-            return MDTeXDocument(Section(Bold(f'String for {string_type}[{code}]'), Code(string)))
-
-    if string_type is not None and code_range is not None:
-        hex_type = AUTOBAHN_TYPES.get(string_type)
-        if hex_type is not None:
-            collection = db.ab_collection_map[hex_type]
-            start, stop = [int(c.split('x')[-1]) for c in code_range.split('-')]
-            keys = [str(i) for i in range(start, stop + 1)]
-            documents = db.query(f'FOR doc IN @@collection '
-                                 'FILTER doc._key in @keys '
-                                 'RETURN doc',
-                                 bind_vars={'@collection': collection.name,
-                                            'keys': keys})
+        collection = db.ab_collection_map[hex_type]
+    if code is None and code_range is None:
+        all_strings = collection.fetchAll()
+        if not len(all_strings) > 100:
             items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
-                                  Code(doc['string'])) for doc in documents]
-            return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
+                                  Code(doc['string'])) for doc in all_strings]
+        else:
+            items = [Pre(', '.join([doc['string'] for doc in all_strings]))]
+        return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
+
+    elif hex_type is not None and code is not None:
+        db_key = code.split('x')[-1]
+        string = collection.fetchDocument(db_key).getStore()['string']
+        return MDTeXDocument(Section(Bold(f'String for {string_type}[{code}]'), Code(string)))
+
+    elif hex_type is not None and code_range is not None:
+        start, stop = [int(c.split('x')[-1]) for c in code_range.split('-')]
+        keys = [str(i) for i in range(start, stop + 1)]
+        documents = db.query(f'FOR doc IN @@collection '
+                             'FILTER doc._key in @keys '
+                             'RETURN doc',
+                             bind_vars={'@collection': collection.name,
+                                        'keys': keys})
+        items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
+                              Code(doc['string'])) for doc in documents]
+        return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
 
 
 async def _format_items(items: List[List[str]]) -> List[Union[Section, Italic]]:
