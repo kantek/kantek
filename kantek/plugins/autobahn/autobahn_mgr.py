@@ -136,10 +136,11 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             collection = db.ab_collection_map[hex_type]
             start, stop = [int(c.split('x')[-1]) for c in code_range.split('-')]
             keys = [str(i) for i in range(start, stop + 1)]
-            documents = db.query(f'FOR doc IN {collection.name} '
+            documents = db.query(f'FOR doc IN @@collection '
                                  'FILTER doc._key in @keys '
                                  'RETURN doc',
-                                 bind_vars={'keys': keys})
+                                 bind_vars={'@collection': collection.name,
+                                            'keys': keys})
             items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
                                   Code(doc['string'])) for doc in documents]
             return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
