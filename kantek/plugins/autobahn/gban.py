@@ -28,6 +28,7 @@ async def gban(event: NewMessage.Event) -> None:
     banlist = db.banlist
     keyword_args, args = await helpers.get_args(event)
     fban = keyword_args.get('fban', True)
+    await msg.delete()
     if msg.is_reply:
         reply_msg: Message = await msg.get_reply_message()
         uid = reply_msg.from_id
@@ -46,4 +47,3 @@ async def gban(event: NewMessage.Event) -> None:
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
             await reply_msg.delete()
-    await msg.delete()
