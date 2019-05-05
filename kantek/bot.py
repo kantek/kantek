@@ -29,10 +29,12 @@ def main() -> None:
         config.api_hash)
     client.start(config.phone)
     client.kantek_version = __version__
-    tlog.info('Started kantek v%s', __version__)
     client.plugin_mgr = PluginManager(client)
+    logger.info('Connecting to Database')
     client.db = ArangoDB()
     client.plugin_mgr.register_all()
+    tlog.info('Started kantek v%s', __version__)
+    logger.info('Started kantek v%s', __version__)
     client.run_until_disconnected()
 
 
