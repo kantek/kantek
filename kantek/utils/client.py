@@ -69,3 +69,31 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                       'INSERT @ban '
                       'UPDATE {"reason": @ban.reason} '
                       'IN BanList', bind_vars={'ban': data})
+
+    async def ungban(self, uid: Union[int, str], fedban: bool = True):
+        """Command to gban a user
+
+        Args:
+            uid: User ID
+            fedban: If /unfban should be used
+
+        Returns: None
+
+        """
+        await self.send_message(
+            config.gban_group,
+            f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
+        await self.send_message(
+            config.gban_group,
+            f'/unban {uid}')
+        if fedban:
+            await self.send_message(
+                config.gban_group,
+                f'/unfban {uid}')
+        time.sleep(0.5)
+        await self.send_read_acknowledge(config.gban_group,
+                                         max_id=1000000,
+                                         clear_mentions=True)
+
+        self.db.query('REMOVE {"_key": @uid} '
+                      'IN BanList', bind_vars={'uid': str(uid)})
