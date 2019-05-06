@@ -37,11 +37,11 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         else:
             return await event.respond(msg, reply_to=event.message.id)
 
-    async def gban(self, _id: int, reason: str, fedban: bool =True):
+    async def gban(self, uid: Union[int, str], reason: str, fedban: bool = True):
         """Command to gban a user
 
         Args:
-            _id: User ID
+            uid: User ID
             reason: Ban reason
             fedban: If /fban should be used
 
@@ -50,15 +50,22 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         """
         await self.send_message(
             config.gban_group,
-            f'<a href="tg://user?id={_id}">{_id}</a>', parse_mode='html')
+            f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
         await self.send_message(
             config.gban_group,
-            f'/ban {_id} {reason}')
+            f'/ban {uid} {reason}')
         if fedban:
             await self.send_message(
                 config.gban_group,
-                f'/fban {_id} {reason}')
+                f'/fban {uid} {reason}')
         time.sleep(0.5)
         await self.send_read_acknowledge(config.gban_group,
                                          max_id=1000000,
                                          clear_mentions=True)
+        data = {'_key': str(uid),
+                'id': str(uid),
+                'reason': reason}
+        self.db.query('UPSERT {"_key": @ban.id} '
+                      'INSERT @ban '
+                      'UPDATE {"reason": @ban.reason} '
+                      'IN BanList', bind_vars={'ban': data})

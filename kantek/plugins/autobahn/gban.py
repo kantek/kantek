@@ -16,10 +16,12 @@ __version__ = '0.1.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
+DEFAULT_REASON = 'spam[gban]'
+
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}gban'))
 async def gban(event: NewMessage.Event) -> None:
-    """"""
+    """Command to globally ban a user."""
 
     chat: Channel = event.chat
     msg: Message = event.message
@@ -35,15 +37,12 @@ async def gban(event: NewMessage.Event) -> None:
         if args:
             ban_reason = args[0]
         else:
-            ban_reason = 'spam[gban]'
+            ban_reason = DEFAULT_REASON
         await client.gban(uid, ban_reason, fedban=fban)
-        data = {'_key': str(uid),
-                'id': str(uid),
-                'reason': ban_reason}
-        db.query('UPSERT {"_key": @ban.id} '
-                 'INSERT @ban '
-                 'UPDATE {"reason": @ban.reason} '
-                 'IN BanList', bind_vars={'ban': data})
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
             await reply_msg.delete()
+    else:
+        ban_reason = keyword_args.get('reason', DEFAULT_REASON)
+        for uid in args:
+            await client.gban(uid, ban_reason, fedban=fban)
