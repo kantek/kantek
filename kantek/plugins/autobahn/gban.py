@@ -1,5 +1,7 @@
 """Plugin to handle global bans"""
+import asyncio
 import logging
+from typing import Dict
 
 from telethon import events
 from telethon.events import NewMessage
@@ -8,7 +10,6 @@ from telethon.tl.patched import Message
 from telethon.tl.types import Channel, InputReportReasonSpam
 
 from config import cmd_prefix
-from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
 
@@ -26,11 +27,13 @@ async def gban(event: NewMessage.Event) -> None:
     chat: Channel = event.chat
     msg: Message = event.message
     client: KantekClient = event.client
-    db: ArangoDB = client.db
     keyword_args, args = await helpers.get_args(event)
     fban = keyword_args.get('fban', True)
     await msg.delete()
     if msg.is_reply:
+        chat_document = client.db.groups.get_chat(event.chat_id)
+        db_named_tags: Dict = chat_document['named_tags'].getStore()
+        bancmd = db_named_tags.get('gbancmd')
         reply_msg: Message = await msg.get_reply_message()
         uid = reply_msg.from_id
         if args:
@@ -40,6 +43,9 @@ async def gban(event: NewMessage.Event) -> None:
         await client.gban(uid, ban_reason, fedban=fban)
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
+            if bancmd is not None:
+                await reply_msg.reply(f'{bancmd} {ban_reason}')
+                await asyncio.sleep(0.5)
             await reply_msg.delete()
     else:
         ban_reason = keyword_args.get('reason', DEFAULT_REASON)
