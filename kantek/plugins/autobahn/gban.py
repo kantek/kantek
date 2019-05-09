@@ -1,13 +1,15 @@
 """Plugin to handle global bans"""
 import asyncio
+import datetime
 import logging
 from typing import Dict
 
 from telethon import events
 from telethon.events import NewMessage
+from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.patched import Message
-from telethon.tl.types import Channel, InputReportReasonSpam
+from telethon.tl.types import Channel, InputReportReasonSpam, ChatBannedRights
 
 from config import cmd_prefix
 from utils import helpers
@@ -43,7 +45,14 @@ async def gban(event: NewMessage.Event) -> None:
         await client.gban(uid, ban_reason, fedban=fban)
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
-            if bancmd is not None:
+            if bancmd == 'manual':
+                await client(EditBannedRequest(
+                    chat, uid, ChatBannedRights(
+                        until_date=datetime.datetime(2038, 1, 1),
+                        view_messages=True
+                    )
+                ))
+            elif bancmd is not None:
                 await reply_msg.reply(f'{bancmd} {ban_reason}')
                 await asyncio.sleep(0.5)
             await reply_msg.delete()
