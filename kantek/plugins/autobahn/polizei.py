@@ -2,16 +2,14 @@
 import logging
 from typing import Dict, List
 
-from telethon import events, utils
+from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
-from telethon.tl.types import Channel, User
+from telethon.tl.types import Channel
 
-from config import cmd_prefix
 from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, Item, KeyValueItem, MDTeXDocument, Section
 
 __version__ = '0.1.0'
 
@@ -45,10 +43,12 @@ async def polizei(event: NewMessage.Event) -> None:
             ban_type = db.ab_channel_blacklist.hex_type
             ban_reason = channel_blacklist[chat_id]
 
+    for string in string_blacklist:
+        if string in msg.raw_text:
+            ban_type = db.ab_string_blacklist.hex_type
+            ban_reason = string_blacklist[string]
+
     if ban_type and ban_reason:
         if chat.creator or chat.admin_rights:
             await msg.delete()
         await client.gban(msg.from_id, f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]')
-
-
-
