@@ -1,9 +1,10 @@
 """Plugin to manage the autobahn"""
 import logging
+import re
 from typing import List, Union
 
 from pyArango.document import Document
-from telethon import events
+from telethon import events, utils
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 
@@ -24,6 +25,8 @@ AUTOBAHN_TYPES = {
     'channel': '0x3',
     'preemptive': '0x9'
 }
+
+INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}a(uto)?b(ahn)?'))
@@ -53,24 +56,27 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
     _, args = parsers.parse_arguments(' '.join(args))
-    strings = [s.split(';', maxsplit=1) for s in args]
+    string_type = args[0]
+    strings = args[1:]
     added_items = []
-    for item in strings:
-        if len(item) != 2:
-            continue
-        string_type, string = item
+    for string in strings:
         hex_type = AUTOBAHN_TYPES.get(string_type)
         collection = db.ab_collection_map.get(hex_type)
         if hex_type is None or collection is None:
             continue
+        if hex_type == '0x3':
+            encoded_link = re.search(INVITELINK_PATTERN, string).group(1)
+            invite_link = f't.me/joinchat/{encoded_link}'
+            link_creator, chat_id, random_part = utils.resolve_invite_link(invite_link)
+            string = chat_id
 
         existing_one = collection.fetchByExample({'string': string}, batchSize=1)
         if not existing_one:
             collection.add_string(string)
-            added_items.append(item)
-
+            added_items.append(Code(string))
     return MDTeXDocument(Section(Bold('Added Items:'),
-                                 *(await _format_items(added_items))))
+                                 SubSection(Bold(string_type),
+                                            *added_items)))
 
 
 async def _del_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
