@@ -1,18 +1,20 @@
 """Plugin to manage the autobahn"""
 import logging
 import re
-from typing import List, Union
+from urllib import parse
 
+import requests
 from pyArango.document import Document
-from telethon import events, utils
+from requests import ConnectionError
+from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 
 from config import cmd_prefix
 from database.arango import ArangoDB
-from utils import parsers, helpers
+from utils import helpers, parsers
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
+from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
 
 __version__ = '0.2.0'
 
@@ -23,6 +25,7 @@ AUTOBAHN_TYPES = {
     'string': '0x1',
     'filename': '0x2',
     'channel': '0x3',
+    'domain': '0x4',
     'preemptive': '0x9'
 }
 
@@ -67,6 +70,8 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if hex_type == '0x3':
             link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
             string = chat_id
+        elif hex_type == '0x4':
+            string = await helpers.resolve_url(string)
 
         existing_one = collection.fetchByExample({'string': string}, batchSize=1)
         if not existing_one:

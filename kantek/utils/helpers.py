@@ -1,8 +1,11 @@
 """Helper functions to aid with different tasks that dont require a client."""
 import csv
 import re
+import urllib
 from typing import Dict, List, Tuple
 
+import requests
+from requests import ConnectionError
 from telethon import utils
 from telethon.events import NewMessage
 from telethon.tl.types import User
@@ -78,3 +81,25 @@ async def resolve_invite_link(link):
         return utils.resolve_invite_link(invite_link)
     else:
         return None, None, None
+
+
+async def resolve_url(url: str) -> str:
+    """Follow all redirects and return the base domain
+
+    Args:
+        url: The url
+
+    Returns:
+        The base comain as given by urllib.parse
+    """
+    if not url.startswith('http'):
+        url = f'http://{url}'
+    try:
+        req = requests.get(url)
+        url = req.url
+    except ConnectionError:
+        pass
+    netloc = urllib.parse.urlparse(url).netloc
+    if netloc:
+        url = netloc
+    return url
