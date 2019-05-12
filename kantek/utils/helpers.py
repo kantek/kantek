@@ -1,11 +1,15 @@
 """Helper functions to aid with different tasks that dont require a client."""
 import csv
+import re
 from typing import Dict, List, Tuple
 
+from telethon import utils
 from telethon.events import NewMessage
 from telethon.tl.types import User
 
 from utils import parsers
+
+INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
 async def get_full_name(user: User) -> str:
@@ -52,3 +56,25 @@ async def rose_csv_to_dict(filename: str) -> List[Dict[str, str]]:
             reason = line[-1]
             bans.append({'_key': _id, 'id': _id, 'reason': reason})
     return bans
+
+
+async def resolve_invite_link(link):
+    """Method to work around a bug in telethon 1.6 and 1.7 that makes the resolve_invite_link method
+    unable to parse tg://invite style links
+
+    This is temporary and will be removed
+
+    Args:
+        link:
+
+    Returns:
+        Same as telethons method
+
+    """
+    encoded_link = re.search(INVITELINK_PATTERN, link)
+    if encoded_link is not None:
+        encoded_link = encoded_link.group(1)
+        invite_link = f't.me/joinchat/{encoded_link}'
+        return utils.resolve_invite_link(invite_link)
+    else:
+        return None, None, None

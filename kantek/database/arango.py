@@ -1,5 +1,5 @@
 """Module containing all operations related to ArangoDB"""
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 
 from pyArango.collection import Collection, Field
 from pyArango.connection import Connection
@@ -102,6 +102,9 @@ class AutobahnBlacklist(Collection):
         except CreationError:
             return None
 
+    def get_all(self) -> Dict[str, str]:
+        """Get all strings in the Blacklist."""
+        return {doc['string']: doc['_key'] for doc in self.fetchAll()}
 
 class AutobahnBioBlacklist(AutobahnBlacklist):
     """Blacklist with strings in a bio."""

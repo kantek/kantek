@@ -10,7 +10,7 @@ from telethon.tl.patched import Message
 
 from config import cmd_prefix
 from database.arango import ArangoDB
-from utils import parsers
+from utils import parsers, helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
 
@@ -65,9 +65,7 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if hex_type is None or collection is None:
             continue
         if hex_type == '0x3':
-            encoded_link = re.search(INVITELINK_PATTERN, string).group(1)
-            invite_link = f't.me/joinchat/{encoded_link}'
-            link_creator, chat_id, random_part = utils.resolve_invite_link(invite_link)
+            link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
             string = chat_id
 
         existing_one = collection.fetchByExample({'string': string}, batchSize=1)
@@ -94,9 +92,7 @@ async def _del_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             continue
 
         if hex_type == '0x3':
-            encoded_link = re.search(INVITELINK_PATTERN, string).group(1)
-            invite_link = f't.me/joinchat/{encoded_link}'
-            link_creator, chat_id, random_part = utils.resolve_invite_link(invite_link)
+            link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
             string = chat_id
 
         existing_one: Document = collection.fetchFirstExample({'string': string})
