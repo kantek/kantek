@@ -69,7 +69,7 @@ class Chats(Collection):
 class AutobahnBlacklist(Collection):
     """Base class for all types of Blacklists."""
     _fields = {
-        'strings': Field([NotNull()]),
+        'string': Field([NotNull()]),
     }
 
     _validation = {
@@ -88,7 +88,7 @@ class AutobahnBlacklist(Collection):
         """Add a Chat to the DB or return an existing one.
 
         Args:
-            str: The id of the chat
+            string: The id of the chat
 
         Returns: The chat Document
 
