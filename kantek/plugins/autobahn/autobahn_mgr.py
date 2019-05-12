@@ -14,7 +14,7 @@ from utils import parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -84,24 +84,29 @@ async def _del_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
     _, args = parsers.parse_arguments(' '.join(args))
-    strings = [s.split(';', maxsplit=1) for s in args]
+    string_type = args[0]
+    strings = args[1:]
     removed_items = []
-    for item in strings:
-        if len(item) != 2:
-            continue
-        string_type, string = item
+    for string in strings:
         hex_type = AUTOBAHN_TYPES.get(string_type)
         collection = db.ab_collection_map.get(hex_type)
         if hex_type is None or collection is None:
             continue
 
+        if hex_type == '0x3':
+            encoded_link = re.search(INVITELINK_PATTERN, string).group(1)
+            invite_link = f't.me/joinchat/{encoded_link}'
+            link_creator, chat_id, random_part = utils.resolve_invite_link(invite_link)
+            string = chat_id
+
         existing_one: Document = collection.fetchFirstExample({'string': string})
         if existing_one:
-            existing_one.delete()
-            removed_items.append(item)
+            existing_one[0].delete()
+            removed_items.append(string)
 
     return MDTeXDocument(Section(Bold('Deleted Items:'),
-                                 *(await _format_items(removed_items))))
+                                 SubSection(Bold(string_type),
+                                            *removed_items)))
 
 
 async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
@@ -146,21 +151,3 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
                               Code(doc['string'])) for doc in documents]
         return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
-
-
-async def _format_items(items: List[List[str]]) -> List[Union[Section, Italic]]:
-    """Format a list of lists into nice sections"""
-    formatted = {}
-    for string_type, string in items:
-        type_list = formatted.get(string_type)
-        if type_list is not None:
-            formatted[string_type].append(Code(string))
-        else:
-            formatted[string_type] = [Code(string)]
-    sections = []
-    for string_type, strings in formatted.items():
-        sections.append(SubSection(Bold(string_type), *strings))
-    if sections:
-        return sections
-    else:
-        return [Italic('None')]
