@@ -4,6 +4,7 @@ from typing import Dict, List
 
 from telethon import events
 from telethon.events import NewMessage
+from telethon.tl.patched import Message
 from telethon.tl.types import Chat, Message
 
 from config import cmd_prefix
@@ -50,6 +51,10 @@ async def tag(event: NewMessage.Event) -> None:
         await _clear_tags(event, db)
     elif args[0] == 'del' and len(args) > 1:
         await _delete_tags(event, db)
+    if not response:
+        await msg.delete()
+    else:
+        await client.respond(event, response)
     tlog.info('Ran `tag` in `%s`. Response: %s', chat.title, response)
 
 
