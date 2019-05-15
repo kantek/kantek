@@ -45,13 +45,11 @@ async def tag(event: NewMessage.Event) -> None:
         response = Section(Item(f'Tags for **{chat.title}**[`{event.chat_id}`]:'),
                            *data)
     elif args[0] == 'add' and len(args) > 1:
-        response = await _add_tags(event, db)
+        await _add_tags(event, db)
     elif args[0] == 'clear':
-        response = await _clear_tags(event, db)
+        await _clear_tags(event, db)
     elif args[0] == 'del' and len(args) > 1:
-        response = await _delete_tags(event, db)
-    if response:
-        await client.respond(event, response)
+        await _delete_tags(event, db)
     tlog.info('Ran `tag` in `%s`. Response: %s', chat.title, response)
 
 
@@ -78,8 +76,6 @@ async def _add_tags(event: NewMessage.Event, db: ArangoDB):
     chat_document['named_tags'] = db_named_tags
     chat_document['tags'] = db_tags
     chat_document.save()
-    new_tags = ', '.join(tags)
-    return f'Added {new_tags} {(", ".join(named_tags))}.'
 
 
 async def _clear_tags(event: NewMessage.Event, db: ArangoDB):
@@ -95,7 +91,6 @@ async def _clear_tags(event: NewMessage.Event, db: ArangoDB):
     chat_document['named_tags'] = {}
     chat_document['tags'] = []
     chat_document.save()
-    return 'Cleared tags.'
 
 
 async def _delete_tags(event: NewMessage.Event, db: ArangoDB):
@@ -120,4 +115,3 @@ async def _delete_tags(event: NewMessage.Event, db: ArangoDB):
             del db_tags[db_tags.index(arg)]
     chat_document['named_tags'] = db_named_tags
     chat_document.save()
-    return f'Deleted {", ".join(args)}.'
