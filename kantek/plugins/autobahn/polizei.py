@@ -8,7 +8,8 @@ from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.patched import Message
-from telethon.tl.types import Channel, ChatBannedRights, MessageEntityTextUrl
+from telethon.tl.types import (Channel, ChannelParticipantsAdmins, ChatBannedRights,
+                               MessageEntityTextUrl)
 
 from database.arango import ArangoDB
 from utils import helpers
@@ -59,6 +60,12 @@ async def _check_message(event):
     # exclude users below a certain id to avoid banning "legit" users
     if msg.from_id < 610000000:
         return False, False
+
+    admins = [p.id for p in (await client.get_participants(event.chat_id,
+                                                           filter=ChannelParticipantsAdmins()))]
+    if msg.from_id in admins:
+        return False, False
+
     db: ArangoDB = client.db
     bio_blacklist = db.ab_bio_blacklist.get_all()
     string_blacklist = db.ab_string_blacklist.get_all()
