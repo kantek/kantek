@@ -2,7 +2,7 @@
 import asyncio
 import datetime
 import logging
-from typing import Dict, List
+from typing import Dict
 
 from telethon import events
 from telethon.events import ChatAction, NewMessage
@@ -31,7 +31,6 @@ async def polizei(event: NewMessage.Event) -> None:
     chat_document = db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
     bancmd = db_named_tags.get('gbancmd')
-    db_tags: List = chat_document['tags']
     polizei_tag = db_named_tags.get('polizei')
     if polizei_tag == 'exclude':
         return
@@ -49,7 +48,6 @@ async def biopolizei(event: ChatAction.Event) -> None:
     chat_document = db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
     bancmd = db_named_tags.get('gbancmd')
-    db_tags: List = chat_document['tags']
     polizei_tag = db_named_tags.get('polizei')
     if polizei_tag == 'exclude':
         return
@@ -105,11 +103,8 @@ async def _check_message(event):
 
     db: ArangoDB = client.db
     string_blacklist = db.ab_string_blacklist.get_all()
-    filename_blacklist = db.ab_filename_blacklist.get_all()
     channel_blacklist = db.ab_channel_blacklist.get_all()
     domain_blacklist = db.ab_domain_blacklist.get_all()
-    ban_type = False
-    ban_reason = False
     entities = [e[1] for e in msg.get_entities_text()]
     for e in entities:
         link_creator, chat_id, random_part = await helpers.resolve_invite_link(e)
