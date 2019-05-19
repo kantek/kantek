@@ -21,7 +21,8 @@ __version__ = '0.1.0'
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True))
+@events.register(events.MessageEdited(outgoing=False))
+@events.register(events.NewMessage(outgoing=False))
 async def polizei(event: NewMessage.Event) -> None:
     """Plugin to automatically ban users for certain messages."""
     client: KantekClient = event.client
