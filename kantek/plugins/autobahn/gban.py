@@ -26,7 +26,7 @@ DEFAULT_REASON = 'spam[gban]'
 async def gban(event: NewMessage.Event) -> None:
     """Command to globally ban a user."""
 
-    chat: Channel = event.chat
+    chat: Channel = await event.get_chat()
     msg: Message = event.message
     client: KantekClient = event.client
     keyword_args, args = await helpers.get_args(event)

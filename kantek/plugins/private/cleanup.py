@@ -26,7 +26,7 @@ logger: logging.Logger = logzero.logger
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}cleanup'))
 async def cleanup(event: NewMessage.Event) -> None:
     """Command to remove Deleted Accounts from a group or network."""
-    chat: Channel = event.chat
+    chat: Channel = await event.get_chat()
     client: KantekClient = event.client
     keyword_args, _ = await helpers.get_args(event)
     count_only = keyword_args.get('count', False)
@@ -59,7 +59,7 @@ async def cleanup_group_admins(event: NewMessage.Event) -> None:
 
 async def _cleanup_chat(event, count: bool = False,
                         progress_message: Optional[Message] = None) -> MDTeXDocument:
-    chat: Channel = event.chat
+    chat: Channel = await event.get_chat()
     client: KantekClient = event.client
     user: User
     deleted_users = 0

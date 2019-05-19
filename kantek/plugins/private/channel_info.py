@@ -25,7 +25,7 @@ async def info(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    chat: Channel = event.chat
+    chat: Channel = await event.get_chat()
     client: KantekClient = event.client
     if event.is_private:
         return

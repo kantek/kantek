@@ -2,6 +2,7 @@
 import logging
 import platform
 
+import telethon
 from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.types import Chat
@@ -29,7 +30,7 @@ async def tag(event: NewMessage.Event) -> None:
     response = ['**kantek** userbot']
     _info = {
         'version': client.kantek_version,
-        'telethon version': client.__version__,
+        'telethon version': telethon.__version__,
         'python version': platform.python_version(),
         'plugins loaded': len(client.plugin_mgr.active_plugins)
     }

@@ -23,7 +23,7 @@ tlog = logging.getLogger('kantek-channel-log')
 async def polizei(event: NewMessage.Event) -> None:
     """Plugin to automatically ban users for certain messages."""
     client: KantekClient = event.client
-    chat: Channel = event.chat
+    chat: Channel = await event.get_chat()
     db: ArangoDB = client.db
     chat_document = db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
