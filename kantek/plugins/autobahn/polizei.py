@@ -1,11 +1,14 @@
 """Plugin that automatically bans according to a blacklist"""
+import asyncio
+import datetime
 import logging
 from typing import Dict, List
 
 from telethon import events
 from telethon.events import NewMessage
+from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.patched import Message
-from telethon.tl.types import Channel
+from telethon.tl.types import Channel, ChatBannedRights, MessageEntityTextUrl
 
 from database.arango import ArangoDB
 from utils import helpers
@@ -16,7 +19,7 @@ __version__ = '0.1.0'
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(chats=[-1001129887931]))
+@events.register(events.NewMessage(outgoing=True))
 async def polizei(event: NewMessage.Event) -> None:
     """Plugin to automatically ban users for certain messages."""
     client: KantekClient = event.client
@@ -24,11 +27,34 @@ async def polizei(event: NewMessage.Event) -> None:
     db: ArangoDB = client.db
     chat_document = db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
+    bancmd = db_named_tags.get('gbancmd')
     db_tags: List = chat_document['tags']
     polizei_tag = db_named_tags.get('polizei')
     if polizei_tag == 'exclude':
         return
-    print('-' * 10)
+    ban_type, ban_reason = await _check_message(event)
+
+    if ban_type and ban_reason:
+        msg: Message = event.message
+        if chat.creator or chat.admin_rights:
+            await msg.delete()
+        if chat.creator or chat.admin_rights:
+            if bancmd == 'manual':
+                await client(EditBannedRequest(
+                    chat, msg.from_id, ChatBannedRights(
+                        until_date=datetime.datetime(2038, 1, 1),
+                        view_messages=True
+                    )
+                ))
+            elif bancmd is not None:
+                await msg.reply(f'{bancmd} {ban_reason}')
+                await asyncio.sleep(0.25)
+            await msg.delete()
+        await client.gban(msg.from_id, f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]')
+
+
+async def _check_message(event):
+    client: KantekClient = event.client
     msg: Message = event.message
     bio_blacklist = db.ab_bio_blacklist.get_all()
     string_blacklist = db.ab_string_blacklist.get_all()
