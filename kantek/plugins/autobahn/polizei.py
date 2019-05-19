@@ -66,6 +66,14 @@ async def _check_message(event):
     if msg.from_id in admins:
         return False, False
 
+    # commands used in bots to blacklist items, these will be used by admins
+    # so they shouldnt be banned for it
+    blacklisting_commands = [
+        '/addblacklist',
+    ]
+    for cmd in blacklisting_commands:
+        if msg.text and msg.text.startswith(cmd):
+            return False, False
     db: ArangoDB = client.db
     bio_blacklist = db.ab_bio_blacklist.get_all()
     string_blacklist = db.ab_string_blacklist.get_all()
