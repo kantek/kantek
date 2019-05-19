@@ -102,19 +102,19 @@ async def _check_message(event):
     for cmd in blacklisting_commands:
         if msg.text and msg.text.startswith(cmd):
             return False, False
+
     db: ArangoDB = client.db
-    bio_blacklist = db.ab_bio_blacklist.get_all()
     string_blacklist = db.ab_string_blacklist.get_all()
     filename_blacklist = db.ab_filename_blacklist.get_all()
     channel_blacklist = db.ab_channel_blacklist.get_all()
+    domain_blacklist = db.ab_domain_blacklist.get_all()
     ban_type = False
     ban_reason = False
-    entities = (e[1] for e in msg.get_entities_text())
+    entities = [e[1] for e in msg.get_entities_text()]
     for e in entities:
         link_creator, chat_id, random_part = await helpers.resolve_invite_link(e)
         if chat_id in channel_blacklist.keys():
-            ban_type = db.ab_channel_blacklist.hex_type
-            ban_reason = channel_blacklist[chat_id]
+            return db.ab_channel_blacklist.hex_type, channel_blacklist[chat_id]
 
     for string in string_blacklist:
         if string in msg.raw_text:
