@@ -118,10 +118,11 @@ async def _check_message(event):
 
     for string in string_blacklist:
         if string in msg.raw_text:
-            ban_type = db.ab_string_blacklist.hex_type
-            ban_reason = string_blacklist[string]
-
-    if ban_type and ban_reason:
-        if chat.creator or chat.admin_rights:
-            await msg.delete()
-        await client.gban(msg.from_id, f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]')
+            return db.ab_string_blacklist.hex_type, string_blacklist[string]
+    if msg.entities:
+        for entity in msg.entities:
+            if isinstance(entity, MessageEntityTextUrl):
+                domain = await helpers.resolve_url(entity.url)
+                if domain in domain_blacklist:
+                    return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
+    return False, False
