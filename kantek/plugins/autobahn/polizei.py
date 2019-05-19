@@ -56,6 +56,10 @@ async def polizei(event: NewMessage.Event) -> None:
 async def _check_message(event):
     client: KantekClient = event.client
     msg: Message = event.message
+    # exclude users below a certain id to avoid banning "legit" users
+    if msg.from_id < 610000000:
+        return False, False
+    db: ArangoDB = client.db
     bio_blacklist = db.ab_bio_blacklist.get_all()
     string_blacklist = db.ab_string_blacklist.get_all()
     filename_blacklist = db.ab_filename_blacklist.get_all()
