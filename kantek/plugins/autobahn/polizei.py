@@ -16,7 +16,7 @@ from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -73,7 +73,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
                 )
             ))
         elif bancmd is not None:
-            await client.respond(event, f'{bancmd} {formatted_reason}')
+            await client.respond(event, f'{bancmd} {userid} {formatted_reason}')
             await asyncio.sleep(0.25)
         await event.delete()
     await client.gban(userid, formatted_reason)
