@@ -16,7 +16,7 @@ from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -64,8 +64,6 @@ async def biopolizei(event: ChatAction.Event) -> None:
 async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     formatted_reason = f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]'
     client: KantekClient = event.client
-    if chat.creator or chat.admin_rights:
-        await event.delete()
     if chat.creator or chat.admin_rights:
         if bancmd == 'manual':
             await client(EditBannedRequest(
