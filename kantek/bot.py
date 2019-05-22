@@ -18,7 +18,7 @@ handler = TGChannelLogHandler(config.log_bot_token,
 tlog.addHandler(handler)
 tlog.setLevel(logging.INFO)
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 
 def main() -> None:
