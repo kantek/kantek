@@ -62,6 +62,7 @@ async def biopolizei(event: ChatAction.Event) -> None:
 
 
 async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
+    formatted_reason = f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]'
     client: KantekClient = event.client
     if chat.creator or chat.admin_rights:
         await event.delete()
@@ -74,10 +75,10 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
                 )
             ))
         elif bancmd is not None:
-            await client.respond(event, f'{bancmd} {ban_reason}')
+            await client.respond(event, f'{bancmd} {formatted_reason}')
             await asyncio.sleep(0.25)
         await event.delete()
-    await client.gban(userid, f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]')
+    await client.gban(userid, formatted_reason)
 
 
 async def _check_message(event):
