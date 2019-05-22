@@ -55,7 +55,7 @@ async def biopolizei(event: ChatAction.Event) -> None:
     bio_blacklist = db.ab_bio_blacklist.get_all()
     user: UserFull = await client(GetFullUserRequest(await event.get_input_user()))
     for string in bio_blacklist:
-        if string in user.about:
+        if user.about and string in user.about:
             ban_type, ban_reason = db.ab_bio_blacklist.hex_type, bio_blacklist[string]
     if ban_type and ban_reason:
         await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
@@ -85,7 +85,7 @@ async def _check_message(event):
     client: KantekClient = event.client
     msg: Message = event.message
     # exclude users below a certain id to avoid banning "legit" users
-    if msg.from_id < 610000000:
+    if msg.from_id and msg.from_id < 610000000:
         return False, False
 
     admins = [p.id for p in (await client.get_participants(event.chat_id,
