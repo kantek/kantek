@@ -1,11 +1,13 @@
 """Plugin that automatically bans according to a blacklist"""
 import asyncio
 import datetime
+import itertools
 import logging
 from typing import Dict
 
 from telethon import events
 from telethon.events import ChatAction, NewMessage
+from telethon.tl.custom import MessageButton
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.patched import Message
@@ -16,7 +18,7 @@ from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -104,6 +106,16 @@ async def _check_message(event):
     string_blacklist = db.ab_string_blacklist.get_all()
     channel_blacklist = db.ab_channel_blacklist.get_all()
     domain_blacklist = db.ab_domain_blacklist.get_all()
+
+    if msg.buttons:
+        _buttons = await msg.get_buttons()
+        button: MessageButton
+        for button in itertools.chain.from_iterable(_buttons):
+            if button.url:
+                domain = await helpers.resolve_url(button.url)
+                if domain in domain_blacklist:
+                    return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
+
     entities = [e[1] for e in msg.get_entities_text()]
     for e in entities:
         link_creator, chat_id, random_part = await helpers.resolve_invite_link(e)
