@@ -20,7 +20,7 @@ from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -98,10 +98,11 @@ async def _check_message(event):
     if msg.from_id and msg.from_id < 610000000:
         return False, False
 
-    admins = [p.id for p in (await client.get_participants(event.chat_id,
-                                                           filter=ChannelParticipantsAdmins()))]
-    if msg.from_id in admins:
-        return False, False
+    # disabled until the admins are cached to avoid fetching them on every message
+    # admins = [p.id for p in (await client.get_participants(event.chat_id,
+    #                                                        filter=ChannelParticipantsAdmins()))]
+    # if msg.from_id in admins:
+    #     return False, False
 
     # commands used in bots to blacklist items, these will be used by admins
     # so they shouldnt be banned for it
