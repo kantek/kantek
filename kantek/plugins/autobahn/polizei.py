@@ -5,6 +5,8 @@ import itertools
 import logging
 from typing import Dict
 
+import logzero
+from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import MessageButton
@@ -18,10 +20,10 @@ from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 tlog = logging.getLogger('kantek-channel-log')
-
+logger: logging.Logger = logzero.logger
 
 @events.register(events.MessageEdited(outgoing=False))
 @events.register(events.NewMessage(outgoing=False))
@@ -66,6 +68,14 @@ async def biopolizei(event: ChatAction.Event) -> None:
 async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     formatted_reason = f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]'
     client: KantekClient = event.client
+    db: ArangoDB = client.db
+    try:
+        old_ban_reason = db.banlist[userid]['reason']
+        if old_ban_reason == formatted_reason:
+            logger.info(f'User ID `{userid}` already banned for the same reason.')
+            return
+    except DocumentNotFoundError:
+        pass
     if chat.creator or chat.admin_rights:
         if bancmd == 'manual':
             await client(EditBannedRequest(
