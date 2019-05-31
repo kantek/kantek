@@ -20,7 +20,7 @@ from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -123,6 +123,9 @@ async def _check_message(event):
         button: MessageButton
         for button in itertools.chain.from_iterable(_buttons):
             if button.url:
+                _, chat_id, _ = await helpers.resolve_invite_link(button.url)
+                if chat_id in channel_blacklist:
+                    return db.ab_channel_blacklist.hex_type, channel_blacklist[chat_id]
                 domain = await helpers.resolve_url(button.url)
                 if domain in domain_blacklist:
                     return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
