@@ -48,6 +48,10 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         Returns: None
 
         """
+        # if the user account is deleted this can be None
+        if uid is None:
+            return
+
         await self.send_message(
             config.gban_group,
             f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
