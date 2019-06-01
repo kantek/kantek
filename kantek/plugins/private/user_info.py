@@ -69,7 +69,7 @@ async def _info_from_arguments(event) -> MDTeXDocument:
 async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
     msg: Message = event.message
     client: KantekClient = event.client
-    get_forward = kwargs.get('forward', False)
+    get_forward = kwargs.get('forward', True)
     reply_msg: Message = await msg.get_reply_message()
 
     if get_forward and reply_msg.forward is not None:
