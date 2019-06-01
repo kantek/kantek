@@ -39,6 +39,9 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     >>> parse_arguments('arg: True arg2: false')
     ({'arg': True, 'arg2': False}, [])
 
+    >>> parse_arguments('arg: 123 456 arg2: True')
+    ({'arg': 123, 'arg2': True}, [456])
+
     Args:
         arguments: The string with the arguments that should be parsed
 
@@ -51,10 +54,12 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     keyword_args: Dict[str, str] = {}
     for name, value in _named_attrs:
         _value = re.sub(r'\"', '', value)
-        keyword_args.update({name: BOOL_MAP.get(_value, _value)})
+        val = BOOL_MAP.get(_value, int(_value) if _value.isdecimal() else _value)
+        keyword_args.update({name: val})
 
     arguments = re.sub(KEYWORD_ARGUMENT, '', arguments)
     quoted_args = re.findall(QUOTED_ARGUMENT, arguments)
     arguments = re.sub(QUOTED_ARGUMENT, '', arguments)
-    args = arguments.split()
+    # convert any numbers to int
+    args = [int(arg) if arg.isdecimal() else arg for arg in arguments.split()]
     return keyword_args, args + quoted_args
