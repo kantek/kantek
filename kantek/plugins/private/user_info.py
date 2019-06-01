@@ -5,10 +5,10 @@ from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Forward
 from telethon.tl.patched import Message
-from telethon.tl.types import Channel, User
+from telethon.tl.types import Channel, MessageEntityMention, MessageEntityMentionName, User
 
 from config import cmd_prefix
-from utils import parsers, helpers
+from utils import helpers, parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, Link, MDTeXDocument, Section, SubSection
 
@@ -36,26 +36,33 @@ async def user_info(event: NewMessage.Event) -> None:
     if not args and msg.is_reply:
         response = await _info_from_reply(event, **keyword_args)
     elif args or 'search' in keyword_args:
-        response = await _info_from_arguments(event, **keyword_args)
+        response = await _info_from_arguments(event)
     if response:
         await client.respond(event, response)
 
     tlog.info('Ran `tag` in `%s`. Response: %s', chat.title, response)
 
 
-async def _info_from_arguments(event, **kwargs) -> MDTeXDocument:
+async def _info_from_arguments(event) -> MDTeXDocument:
     msg: Message = event.message
     client: KantekClient = event.client
-    search_name = kwargs.get('search', False)
+    keyword_args, args = await helpers.get_args(event)
+    search_name = keyword_args.get('search', False)
     if search_name:
         entities = [search_name]
     else:
-        entities = [entity[1] for entity in msg.get_entities_text()]
+        entities = [entity[1] for entity in msg.get_entities_text()
+                    if isinstance(entity, (MessageEntityMention, MessageEntityMentionName))]
+
+    # append any user ids to the list
+    for uid in args:
+        if isinstance(uid, int):
+            entities.append(uid)
 
     users = []
     for entity in entities:
         user: User = await client.get_entity(entity)
-        users.append(await _collect_user_info(user, **kwargs))
+        users.append(await _collect_user_info(user, **keyword_args))
     return MDTeXDocument(*users)
 
 
