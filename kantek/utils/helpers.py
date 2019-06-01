@@ -100,6 +100,9 @@ async def resolve_url(url: str) -> str:
     except ConnectionError:
         pass
     netloc = urllib.parse.urlparse(url).netloc
-    if netloc:
-        url = netloc
+    # split up the result to only get the base domain
+    # www.sitischu.com => sitischu.com
+    base_domain = netloc.split('.', maxsplit=netloc.count('.') - 1)[-1]
+    if base_domain:
+        url = base_domain
     return url
