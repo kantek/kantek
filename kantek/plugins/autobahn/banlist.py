@@ -13,7 +13,7 @@ from utils import helpers, parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Section
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -45,9 +45,10 @@ async def _query_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument
     reason = keyword_args.get('reason')
     users = []
     if args:
+        uids = [str(uid) for uid in args]
         users = db.query('For doc in BanList '
                          'FILTER doc._key in @ids '
-                         'RETURN doc', bind_vars={'ids': args})
+                         'RETURN doc', bind_vars={'ids': uids})
         query_results = [KeyValueItem(Code(user['id']), user['reason'])
                          for user in users] or [Italic('None')]
     if reason is not None:
