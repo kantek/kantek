@@ -36,3 +36,9 @@ class TagManager:
 
     def __setitem__(self, key, value):
         self.set_tag(key, value)
+
+    def clear(self):
+        """Clears all tags that a Chat has."""
+        self._document['named_tags'] = {}
+        self._document['tags'] = []
+        self._document.save()

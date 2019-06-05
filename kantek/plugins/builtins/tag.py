@@ -33,10 +33,10 @@ async def tag(event: NewMessage.Event) -> None:
     client: KantekClient = event.client
     db: ArangoDB = client.db
     msg: Message = event.message
+    tag_mgr = TagManager(event)
     args = msg.raw_text.split()[1:]
     response = ''
     if not args:
-        tag_mgr = TagManager(event)
         named_tags: Dict = tag_mgr.named_tags
         tags: List = tag_mgr.tags
         data = []
@@ -49,7 +49,7 @@ async def tag(event: NewMessage.Event) -> None:
     elif args[0] == 'add' and len(args) > 1:
         await _add_tags(event)
     elif args[0] == 'clear':
-        await _clear_tags(event, db)
+        tag_mgr.clear()
     elif args[0] == 'del' and len(args) > 1:
         await _delete_tags(event, db)
     if not response:
@@ -75,21 +75,6 @@ async def _add_tags(event: NewMessage.Event):
         tag_mgr[name] = value
     for _tag in tags:
         tag_mgr.set_tag(_tag)
-
-
-async def _clear_tags(event: NewMessage.Event, db: ArangoDB):
-    """Remove all tags from a chat.
-
-    Args:
-        event: The event of the command
-        db: The database object
-
-    Returns: A string with the action taken.
-    """
-    chat_document = db.groups[event.chat_id]
-    chat_document['named_tags'] = {}
-    chat_document['tags'] = []
-    chat_document.save()
 
 
 async def _delete_tags(event: NewMessage.Event, db: ArangoDB):
