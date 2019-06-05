@@ -12,6 +12,7 @@ from database.arango import ArangoDB
 from utils import parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Item, KeyValueItem, Section
+from utils.tagmgr import TagManager
 
 __version__ = '0.1.0'
 
@@ -46,7 +47,7 @@ async def tag(event: NewMessage.Event) -> None:
         response = Section(Item(f'Tags for **{chat.title}**[`{event.chat_id}`]:'),
                            *data)
     elif args[0] == 'add' and len(args) > 1:
-        await _add_tags(event, db)
+        await _add_tags(event)
     elif args[0] == 'clear':
         await _clear_tags(event, db)
     elif args[0] == 'del' and len(args) > 1:
@@ -58,29 +59,22 @@ async def tag(event: NewMessage.Event) -> None:
     tlog.info('Ran `tag` in `%s`. Response: %s', chat.title, response)
 
 
-async def _add_tags(event: NewMessage.Event, db: ArangoDB):
+async def _add_tags(event: NewMessage.Event):
     """Add tags to chat.
 
     Args:
         event: The event of the command
-        db: The database object
 
     Returns: A string with the action taken.
     """
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
-    chat_document = db.groups[event.chat_id]
-    db_named_tags: Dict = chat_document['named_tags'].getStore()
-    db_tags: List = chat_document['tags']
+    tag_mgr = TagManager(event)
     named_tags, tags = parsers.parse_arguments(' '.join(args))
-    for k, v in named_tags.items():
-        db_named_tags[k] = v
+    for name, value in named_tags.items():
+        tag_mgr[name] = value
     for _tag in tags:
-        if _tag not in db_tags:
-            db_tags.append(_tag)
-    chat_document['named_tags'] = db_named_tags
-    chat_document['tags'] = db_tags
-    chat_document.save()
+        tag_mgr.set_tag(_tag)
 
 
 async def _clear_tags(event: NewMessage.Event, db: ArangoDB):
