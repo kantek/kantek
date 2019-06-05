@@ -32,16 +32,16 @@ async def tag(event: NewMessage.Event) -> None:
     chat: Chat = event.chat
     client: KantekClient = event.client
     db: ArangoDB = client.db
-    chat_document = client.db.groups.get_chat(event.chat_id)
     msg: Message = event.message
     args = msg.raw_text.split()[1:]
     response = ''
     if not args:
-        db_named_tags: Dict = chat_document['named_tags'].getStore()
-        db_tags: List = chat_document['tags']
+        tag_mgr = TagManager(event)
+        named_tags: Dict = tag_mgr.named_tags
+        tags: List = tag_mgr.tags
         data = []
-        data += [KeyValueItem(Bold(key), value) for key, value in db_named_tags.items()]
-        data += [Item(_tag) for _tag in db_tags]
+        data += [KeyValueItem(Bold(key), value) for key, value in named_tags.items()]
+        data += [Item(_tag) for _tag in tags]
         if not data:
             data.append(Code('None'))
         response = Section(Item(f'Tags for **{chat.title}**[`{event.chat_id}`]:'),
