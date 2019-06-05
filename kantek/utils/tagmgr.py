@@ -3,7 +3,6 @@ from typing import Optional, Union
 from pyArango.document import DocumentStore
 from telethon.events import NewMessage
 
-from database.arango import ArangoDB
 from utils.client import KantekClient
 
 TagValue = Union[bool, str, int]
@@ -52,11 +51,9 @@ class TagManager:
         if value is None:
             if tag_name not in self.tags:
                 self.tags.append(tag_name)
-                self._document['tags'] = self.tags
         elif value is not None:
             self.named_tags[tag_name] = value
-            self._document['named_tags'] = self.named_tags
-        self._document.save()
+        self._save()
 
     def __setitem__(self, key: TagName, value: TagValue) -> None:
         self.set_tag(key, value)
@@ -66,3 +63,9 @@ class TagManager:
         self._document['named_tags'] = {}
         self._document['tags'] = []
         self._document.save()
+
+    def _save(self):
+        self._document['tags'] = self.tags
+        self._document['named_tags'] = self.named_tags
+        self._document.save()
+        print(self._document['tags'])
