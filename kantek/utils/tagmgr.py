@@ -24,12 +24,12 @@ class TagManager:
         """Get a Tags Value
 
         Args:
-            tag_name: The name of the Tag
+            tag_name: Name of the tag
 
         Returns:
             The tags value for named tags
             True if the tag exists
-            None if the Tag doesnt exist
+            None if the tag doesn't exist
 
         """
         return self.named_tags.get(tag_name, tag_name in self.tags or None)
@@ -42,7 +42,7 @@ class TagManager:
         If value is None a normal tag will be created. If the value is not None a named tag with
          that value will be created
         Args:
-            tag_name: Name of the Tag
+            tag_name: Name of the tag
             value: The value of the tag
 
         Returns: None
@@ -64,8 +64,25 @@ class TagManager:
         self._document['tags'] = []
         self._document.save()
 
+    def del_tag(self, tag_name: TagName) -> None:
+        """Delete a tag.
+
+        Args:
+            tag_name: Name of the tag
+
+        Returns: None
+
+        """
+        if tag_name in self.tags:
+            del self.tags[self.tags.index(tag_name)]
+        elif tag_name in self.named_tags:
+            del self.named_tags[tag_name]
+        self._save()
+
+    def __delitem__(self, key: TagName) -> None:
+        self.del_tag(key)
+
     def _save(self):
         self._document['tags'] = self.tags
         self._document['named_tags'] = self.named_tags
         self._document.save()
-        print(self._document['tags'])

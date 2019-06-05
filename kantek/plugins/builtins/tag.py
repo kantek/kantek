@@ -51,7 +51,7 @@ async def tag(event: NewMessage.Event) -> None:
     elif args[0] == 'clear':
         tag_mgr.clear()
     elif args[0] == 'del' and len(args) > 1:
-        await _delete_tags(event, db)
+        await _delete_tags(event)
     if not response:
         await msg.delete()
     else:
@@ -77,25 +77,17 @@ async def _add_tags(event: NewMessage.Event):
         tag_mgr.set_tag(_tag)
 
 
-async def _delete_tags(event: NewMessage.Event, db: ArangoDB):
+async def _delete_tags(event: NewMessage.Event):
     """Delete the specified tags from a chat.
 
     Args:
         event: The event of the command
-        db: The database object
 
     Returns: A string with the action taken.
     """
     msg: Message = event.message
+    tag_mgr = TagManager(event)
     args = msg.raw_text.split()[2:]
-    chat_document = db.groups[event.chat_id]
-    db_named_tags: Dict = chat_document['named_tags'].getStore()
-    db_tags: List = chat_document['tags']
+    _, args = parsers.parse_arguments(' '.join(args))
     for arg in args:
-        if arg in db_named_tags:
-            del db_named_tags[arg]
-            db_named_tags = db_named_tags
-        if arg in db_tags:
-            del db_tags[db_tags.index(arg)]
-    chat_document['named_tags'] = db_named_tags
-    chat_document.save()
+        del tag_mgr[arg]
