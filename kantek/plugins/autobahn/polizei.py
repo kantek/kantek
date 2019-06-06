@@ -14,13 +14,13 @@ from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.patched import Message
 from telethon.tl.types import (Channel, ChannelParticipantsAdmins, ChatBannedRights,
-                               MessageEntityTextUrl, UserFull)
+                               MessageEntityTextUrl, UserFull, MessageEntityUrl)
 
 from database.arango import ArangoDB
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -130,19 +130,23 @@ async def _check_message(event):
                 if domain in domain_blacklist:
                     return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
 
-    entities = [e[1] for e in msg.get_entities_text()]
-    for e in entities:
-        link_creator, chat_id, random_part = await helpers.resolve_invite_link(e)
+    entities = [e for e in msg.get_entities_text()]
+    for entity, text in entities:
+        link_creator, chat_id, random_part = await helpers.resolve_invite_link(text)
         if chat_id in channel_blacklist.keys():
             return db.ab_channel_blacklist.hex_type, channel_blacklist[chat_id]
+
+        domain = ''
+        if isinstance(entity, MessageEntityUrl):
+            domain = await helpers.resolve_url(text)
+        elif isinstance(entity, MessageEntityTextUrl):
+            domain = await helpers.resolve_url(entity.url)
+
+        if domain and domain in domain_blacklist:
+            return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
 
     for string in string_blacklist:
         if string in msg.raw_text:
             return db.ab_string_blacklist.hex_type, string_blacklist[string]
-    if msg.entities:
-        for entity in msg.entities:
-            if isinstance(entity, MessageEntityTextUrl):
-                domain = await helpers.resolve_url(entity.url)
-                if domain in domain_blacklist:
-                    return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
+
     return False, False
