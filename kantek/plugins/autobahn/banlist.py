@@ -2,6 +2,7 @@
 import logging
 import os
 import time
+from typing import List
 
 from telethon import events
 from telethon.events import NewMessage
@@ -28,7 +29,7 @@ async def banlist(event: NewMessage.Event) -> None:
     response = ''
     if not args:
         pass
-    elif args[0] == 'query' and len(args) > 1:
+    elif args[0] == 'query':
         response = await _query_banlist(event, db)
     elif args[0] == 'import':
         waiting_message = await client.respond(event, 'Import bans. This might take a while.')
@@ -51,12 +52,18 @@ async def _query_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument
                          'RETURN doc', bind_vars={'ids': uids})
         query_results = [KeyValueItem(Code(user['id']), user['reason'])
                          for user in users] or [Italic('None')]
-    if reason is not None:
-        result = db.query('FOR doc IN BanList '
-                          'FILTER doc.reason LIKE @reason '
-                          'COLLECT WITH COUNT INTO length '
-                          'RETURN length', bind_vars={'reason': reason})
-        query_results = [KeyValueItem(Bold('Count'), Code(result))]
+    elif reason is not None:
+        result: List[int] = db.query('FOR doc IN BanList '
+                                     'FILTER doc.reason LIKE @reason '
+                                     'COLLECT WITH COUNT INTO length '
+                                     'RETURN length', bind_vars={'reason': reason}).result
+        query_results = [KeyValueItem(Bold('Count'), Code(result[0]))]
+    else:
+        result: List[int] = db.query('FOR doc IN BanList '
+                                     'COLLECT WITH COUNT INTO length '
+                                     'RETURN length').result
+
+        query_results = [KeyValueItem(Bold('Total Count'), Code(result[0]))]
     return MDTeXDocument(Section(Bold('Query Results'), *query_results))
 
 
