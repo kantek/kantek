@@ -12,7 +12,7 @@ from utils import helpers, parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, Link, MDTeXDocument, Section, SubSection
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -52,7 +52,7 @@ async def _info_from_arguments(event) -> MDTeXDocument:
         entities = [search_name]
     else:
         entities = [entity[1] for entity in msg.get_entities_text()
-                    if isinstance(entity, (MessageEntityMention, MessageEntityMentionName))]
+                    if isinstance(entity[0], (MessageEntityMention, MessageEntityMentionName))]
 
     # append any user ids to the list
     for uid in args:
