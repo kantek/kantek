@@ -1,5 +1,6 @@
 """Plugin to get information about a user."""
 import logging
+from typing import Union
 
 from telethon import events
 from telethon.events import NewMessage
@@ -81,7 +82,7 @@ async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
     return MDTeXDocument(await _collect_user_info(user, **kwargs))
 
 
-async def _collect_user_info(user, **kwargs) -> Section:
+async def _collect_user_info(user, **kwargs) -> Union[Section, KeyValueItem]:
     id_only = kwargs.get('id', False)
     show_general = kwargs.get('general', True)
     show_bot = kwargs.get('bot', False)
@@ -101,8 +102,7 @@ async def _collect_user_info(user, **kwargs) -> Section:
     else:
         title = Bold(full_name)
     if id_only:
-        return Section(title,
-                       Code(user.id))
+        return KeyValueItem(title, Code(user.id))
     else:
         general = SubSection(
             Bold('general'),
