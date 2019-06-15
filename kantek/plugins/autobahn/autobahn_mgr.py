@@ -16,7 +16,7 @@ from utils import helpers, parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -62,6 +62,7 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     string_type = args[0]
     strings = args[1:]
     added_items = []
+    existing_items = []
     for string in strings:
         hex_type = AUTOBAHN_TYPES.get(string_type)
         collection = db.ab_collection_map.get(hex_type)
@@ -77,9 +78,15 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if not existing_one:
             collection.add_string(string)
             added_items.append(Code(string))
+        else:
+            existing_items.append(Code(string))
+
     return MDTeXDocument(Section(Bold('Added Items:'),
                                  SubSection(Bold(string_type),
-                                            *added_items)))
+                                            *added_items)) if added_items else '',
+                         Section(Bold('Existing Items:'),
+                                 SubSection(Bold(string_type),
+                                            *existing_items)) if existing_items else '')
 
 
 async def _del_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
