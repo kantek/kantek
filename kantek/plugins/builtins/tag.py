@@ -44,7 +44,7 @@ async def tag(event: NewMessage.Event) -> None:
         data += [Item(_tag) for _tag in tags]
         if not data:
             data.append(Code('None'))
-        response = Section(Item(f'Tags for **{chat.title}**[`{event.chat_id}`]:'),
+        response = Section(Item(f'Tags for {Bold(chat.title)}[{Code(event.chat_id)}]:'),
                            *data)
     elif args[0] == 'add' and len(args) > 1:
         await _add_tags(event)
