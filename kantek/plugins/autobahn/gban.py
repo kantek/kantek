@@ -15,7 +15,7 @@ from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -60,6 +60,8 @@ async def gban(event: NewMessage.Event) -> None:
         ban_reason = keyword_args.get('reason', DEFAULT_REASON)
         for uid in args:
             await client.gban(uid, ban_reason, fedban=fban)
+            # sleep to avoid flooding the bots too much
+            await asyncio.sleep(0.5)
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}ungban'))
