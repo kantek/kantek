@@ -23,7 +23,7 @@ __version__ = '0.3.1'
 
 def main() -> None:
     """Register logger and components."""
-    client: KantekClient = KantekClient(
+    client = KantekClient(
         os.path.abspath(config.session_name),
         config.api_id,
         config.api_hash)
