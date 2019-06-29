@@ -10,6 +10,7 @@ import config
 from database.arango import ArangoDB
 from utils.mdtex import FormattedBase, MDTeXDocument, Section
 from utils.pluginmgr import PluginManager
+from utils.strafregister import Strafregister
 
 
 class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
@@ -17,6 +18,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
     plugin_mgr: Optional[PluginManager] = None
     db: Optional[ArangoDB] = None
     kantek_version: str = ''
+    sr = Strafregister(config.strafregister_file)
 
     async def respond(self, event: NewMessage.Event,
                       msg: Union[str, FormattedBase, Section, MDTeXDocument],
@@ -51,7 +53,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         # if the user account is deleted this can be None
         if uid is None:
             return
-
+        await self.sr.log(Strafregister.BAN, uid, reason)
         await self.send_message(
             config.gban_group,
             f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
@@ -84,6 +86,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         Returns: None
 
         """
+        await self.sr.log(Strafregister.UNBAN, uid)
         await self.send_message(
             config.gban_group,
             f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
