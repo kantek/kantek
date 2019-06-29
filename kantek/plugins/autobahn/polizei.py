@@ -57,7 +57,12 @@ async def biopolizei(event: ChatAction.Event) -> None:
         return
     ban_type, ban_reason = False, False
     bio_blacklist = db.ab_bio_blacklist.get_all()
-    user: UserFull = await client(GetFullUserRequest(await event.get_input_user()))
+    try:
+        user: UserFull = await client(GetFullUserRequest(await event.get_input_user()))
+    except TypeError as e:
+        logger.error(e)
+        return
+
     for string in bio_blacklist:
         if user.about and string in user.about:
             ban_type, ban_reason = db.ab_bio_blacklist.hex_type, bio_blacklist[string]
