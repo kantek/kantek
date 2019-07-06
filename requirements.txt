@@ -3,3 +3,4 @@ telethon==1.8.0
 beautifulsoup4==4.7.1
 requests==2.21.0
 pyArango==1.3.2
+faker==1.0.7
