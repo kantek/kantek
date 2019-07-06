@@ -1,10 +1,13 @@
 """File containing the Custom TelegramClient"""
+import datetime
 import time
 from typing import Optional, Union
 
 from telethon import TelegramClient
 from telethon.events import NewMessage
+from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.patched import Message
+from telethon.tl.types import ChatBannedRights
 
 import config
 from database.arango import ArangoDB
@@ -104,3 +107,12 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
         self.db.query('REMOVE {"_key": @uid} '
                       'IN BanList', bind_vars={'uid': str(uid)})
+
+    async def ban(self, chat, uid):
+        """Bans a user from a chat."""
+        await self(EditBannedRequest(
+            chat, uid, ChatBannedRights(
+                until_date=datetime.datetime(2038, 1, 1),
+                view_messages=True
+            )
+        ))
