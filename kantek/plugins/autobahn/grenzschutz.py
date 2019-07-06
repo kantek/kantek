@@ -52,11 +52,11 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     await client.ban(chat, uid)
 
     if not silent:
-        message = MDTeXDocument(Section(Bold('SpamWatch Grenzschutz Ban'),
-                                        KeyValueItem(Bold("User"),
-                                                     f'{Mention(user.first_name, uid)} [{Code(
-                                                         uid)}]'),
-                                        KeyValueItem(Bold("Reason"),
-                                                     ban_reason)
-                                        ))
+        message = MDTeXDocument(Section(
+            Bold('SpamWatch Grenzschutz Ban'),
+            KeyValueItem(Bold("User"),
+                         f'{Mention(user.first_name, uid)} [{Code(uid)}]'),
+            KeyValueItem(Bold("Reason"),
+                         ban_reason)
+        ))
         await client.send_message(chat, str(message))
