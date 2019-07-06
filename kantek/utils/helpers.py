@@ -5,6 +5,7 @@ import urllib
 from typing import Dict, List, Tuple
 
 import requests
+from faker import Faker
 from requests import ConnectionError
 from telethon import utils
 from telethon.events import NewMessage
@@ -92,10 +93,12 @@ async def resolve_url(url: str) -> str:
     Returns:
         The base comain as given by urllib.parse
     """
+    faker = Faker()
+    headers = {'User-Agent': faker.user_agent()}
     if not url.startswith('http'):
         url = f'http://{url}'
     try:
-        req = requests.get(url)
+        req = requests.get(url, headers=headers)
         url = req.url
     except ConnectionError:
         pass
