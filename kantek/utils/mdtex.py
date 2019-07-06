@@ -57,6 +57,12 @@ class Link(FormattedBase):
         self.text = f'[{label}]({url})'
 
 
+class Mention(Link):
+    """Inline Mention of a User."""
+    def __init__(self, label: String, uid: int):
+        super().__init__(label, f'tg://user?id={uid}')
+
+
 class KeyValueItem(FormattedBase):
     """A item that has a key and a value divided by a colon."""
 
@@ -106,6 +112,7 @@ class SubSubSection(SubSection):
 
 class MDTeXDocument:
     """Document containing sections."""
+
     def __init__(self, *args: Union[String, 'Section']) -> None:
         self.sections = args
 
