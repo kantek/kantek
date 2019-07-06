@@ -40,6 +40,8 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         uid = event.message.from_id
     else:
         return
+    if uid is None:
+        return
     user = await client.get_entity(uid)
     result = db.query('For doc in BanList '
                       'FILTER doc._key == @id '
