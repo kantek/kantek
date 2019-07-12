@@ -84,7 +84,7 @@ async def resolve_invite_link(link):
         return None, None, None
 
 
-async def resolve_url(url: str) -> str:
+async def resolve_url(url: str, base_domain: bool = True) -> str:
     """Follow all redirects and return the base domain
 
     Args:
@@ -105,7 +105,7 @@ async def resolve_url(url: str) -> str:
     netloc = urllib.parse.urlparse(url).netloc
     # split up the result to only get the base domain
     # www.sitischu.com => sitischu.com
-    base_domain = netloc.split('.', maxsplit=netloc.count('.') - 1)[-1]
-    if base_domain:
-        url = base_domain
+    _base_domain = netloc.split('.', maxsplit=netloc.count('.') - 1)[-1]
+    if _base_domain and base_domain:
+        url = _base_domain
     return url
