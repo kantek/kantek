@@ -12,7 +12,7 @@ from telethon.tl.patched import Message
 
 from config import cmd_prefix
 from database.arango import ArangoDB
-from utils import helpers, parsers
+from utils import helpers, parsers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
 
@@ -63,6 +63,7 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     strings = args[1:]
     added_items = []
     existing_items = []
+    skipped_items = []
     for string in strings:
         hex_type = AUTOBAHN_TYPES.get(string_type)
         collection = db.ab_collection_map.get(hex_type)
@@ -73,8 +74,12 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             string = chat_id
         elif hex_type == '0x4':
             string = await helpers.resolve_url(string)
+            if string in constants.TELEGRAM_DOMAINS:
+                skipped_items.append(string)
+                continue
 
         existing_one = collection.fetchByExample({'string': string}, batchSize=1)
+
         if not existing_one:
             collection.add_string(string)
             added_items.append(Code(string))
@@ -86,7 +91,11 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                                             *added_items)) if added_items else '',
                          Section(Bold('Existing Items:'),
                                  SubSection(Bold(string_type),
-                                            *existing_items)) if existing_items else '')
+                                            *existing_items)) if existing_items else '',
+                         Section(Bold('Skipped Items:'),
+                                 SubSection(Bold(string_type),
+                                            *skipped_items)) if skipped_items else '',
+                         )
 
 
 async def _del_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
