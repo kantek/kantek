@@ -77,6 +77,10 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             if string in constants.TELEGRAM_DOMAINS:
                 skipped_items.append(string)
                 continue
+        # avoids "null" being added to the db
+        if string is None:
+            skipped_items.append(string)
+            continue
 
         existing_one = collection.fetchByExample({'string': string}, batchSize=1)
 
