@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from datetime import datetime
 from typing import Union
 
@@ -21,7 +22,8 @@ class Strafregister:
         current_date = (datetime.utcnow()
                         .replace(microsecond=0)
                         .isoformat())
-        header = {"updated": current_date}
+        current_stamp = int(time.time())
+        header = {"updated": current_date, "updated_timestamp": current_stamp}
         if action in self._types:
             old_list = []
             if os.path.isfile(self.file):
@@ -31,7 +33,8 @@ class Strafregister:
             data = {
                 'type': action,
                 'id': uid,
-                'date': current_date
+                'date': current_date,
+                'timestamp': current_stamp
             }
 
             if reason:
