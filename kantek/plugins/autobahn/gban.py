@@ -15,7 +15,7 @@ from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -57,8 +57,14 @@ async def gban(event: NewMessage.Event) -> None:
                 await asyncio.sleep(0.5)
             await reply_msg.delete()
     else:
+        ids = []
         ban_reason = keyword_args.get('reason', DEFAULT_REASON)
-        for uid in args:
+        for arg in args:
+            if isinstance(arg, int):
+                ids.append(arg)
+            else:
+                ban_reason = arg
+        for uid in ids:
             await client.gban(uid, ban_reason, fedban=fban)
             # sleep to avoid flooding the bots too much
             await asyncio.sleep(0.5)
