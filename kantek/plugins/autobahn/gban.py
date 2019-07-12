@@ -16,7 +16,7 @@ from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument, Section, KeyValueItem, Bold, Code
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -36,7 +36,7 @@ async def gban(event: NewMessage.Event) -> None:
     db_named_tags: Dict = chat_document['named_tags'].getStore()
     gban = db_named_tags.get('gban')
     verbose = False
-    if gban == 'verbose':
+    if gban == 'verbose' or event.is_private:
         verbose = True
     await msg.delete()
     if msg.is_reply:
