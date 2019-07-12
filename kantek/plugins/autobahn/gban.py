@@ -14,8 +14,9 @@ from telethon.tl.types import Channel, InputReportReasonSpam, ChatBannedRights
 from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
+from utils.mdtex import MDTeXDocument, Section, KeyValueItem, Bold, Code
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -31,10 +32,15 @@ async def gban(event: NewMessage.Event) -> None:
     client: KantekClient = event.client
     keyword_args, args = await helpers.get_args(event)
     fban = keyword_args.get('fban', True)
+    chat_document = client.db.groups.get_chat(event.chat_id)
+    db_named_tags: Dict = chat_document['named_tags'].getStore()
+    gban = db_named_tags.get('gban')
+    verbose = False
+    if gban == 'verbose':
+        verbose = True
     await msg.delete()
     if msg.is_reply:
-        chat_document = client.db.groups.get_chat(event.chat_id)
-        db_named_tags: Dict = chat_document['named_tags'].getStore()
+
         bancmd = db_named_tags.get('gbancmd')
         reply_msg: Message = await msg.get_reply_message()
         uid = reply_msg.from_id
@@ -57,17 +63,22 @@ async def gban(event: NewMessage.Event) -> None:
                 await asyncio.sleep(0.5)
             await reply_msg.delete()
     else:
-        ids = []
+        uids = []
         ban_reason = keyword_args.get('reason', DEFAULT_REASON)
         for arg in args:
             if isinstance(arg, int):
-                ids.append(arg)
+                uids.append(arg)
             else:
                 ban_reason = arg
-        for uid in ids:
+        for uid in uids:
             await client.gban(uid, ban_reason, fedban=fban)
             # sleep to avoid flooding the bots too much
             await asyncio.sleep(0.5)
+        if verbose:
+            await client.respond(event, MDTeXDocument(
+                Section(Bold('GBanned Users'),
+                        KeyValueItem(Bold('Reason'), ban_reason),
+                        KeyValueItem(Bold('IDs'), Code(', '.join([str(uid) for uid in uids]))))))
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}ungban'))
