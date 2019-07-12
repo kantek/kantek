@@ -2,6 +2,7 @@
 import logging
 from typing import Dict, Union
 
+import logzero
 from telethon import events
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.types import Channel
@@ -13,6 +14,7 @@ from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Mention, Sectio
 __version__ = '0.1.0'
 
 tlog = logging.getLogger('kantek-channel-log')
+logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
 
 
 @events.register(events.chataction.ChatAction())
@@ -42,7 +44,11 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         return
     if uid is None:
         return
-    user = await client.get_entity(uid)
+    try:
+        user = await client.get_entity(uid)
+    except ValueError as err:
+        logger.error(err)
+
     result = db.query('For doc in BanList '
                       'FILTER doc._key == @id '
                       'RETURN doc', bind_vars={'id': str(uid)})
