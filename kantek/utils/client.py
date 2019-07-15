@@ -74,10 +74,15 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         data = {'_key': str(uid),
                 'id': str(uid),
                 'reason': reason}
+        user = self.db.query('For doc in BanList '
+                             'FILTER doc._key == @uid '
+                             'RETURN doc', bind_vars={'uid': str(uid)})
+        if user and "Spambot" in user[0]['reason'] and "Spambot" not in reason:
+            return False
         self.db.query('UPSERT {"_key": @ban.id} '
                       'INSERT @ban '
                       'UPDATE {"reason": @ban.reason} '
-                      'IN BanList', bind_vars={'ban': data})
+                      'IN BanList ', bind_vars={'ban': data})
 
     async def ungban(self, uid: Union[int, str], fedban: bool = True):
         """Command to gban a user
