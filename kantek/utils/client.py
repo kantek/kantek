@@ -1,9 +1,12 @@
 """File containing the Custom TelegramClient"""
 import datetime
+import logging
 import time
 from typing import Optional, Union
 
+import logzero
 from telethon import TelegramClient
+from telethon.errors import UserAdminInvalidError
 from telethon.events import NewMessage
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.patched import Message
@@ -14,6 +17,8 @@ from database.arango import ArangoDB
 from utils.mdtex import FormattedBase, MDTeXDocument, Section
 from utils.pluginmgr import PluginManager
 from utils.strafregister import Strafregister
+
+logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
 
 
 class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
@@ -115,9 +120,12 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
     async def ban(self, chat, uid):
         """Bans a user from a chat."""
-        await self(EditBannedRequest(
-            chat, uid, ChatBannedRights(
-                until_date=datetime.datetime(2038, 1, 1),
-                view_messages=True
-            )
-        ))
+        try:
+            await self(EditBannedRequest(
+                chat, uid, ChatBannedRights(
+                    until_date=datetime.datetime(2038, 1, 1),
+                    view_messages=True
+                )
+            ))
+        except UserAdminInvalidError as err:
+            logger.error(err)
