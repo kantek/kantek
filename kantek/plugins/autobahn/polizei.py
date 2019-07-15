@@ -157,7 +157,7 @@ async def _check_message(event):
                     _entity = await client.get_entity(entity.url)
             elif isinstance(entity, MessageEntityMention):
                 _entity = await client.get_entity(text)
-        except (UsernameNotOccupiedError, ValueError) as err:
+        except constants.GET_ENTITY_ERRORS as err:
             logger.error(err)
 
         if _entity:

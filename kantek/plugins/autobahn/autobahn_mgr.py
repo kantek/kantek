@@ -8,7 +8,7 @@ import requests
 from pyArango.document import Document
 from requests import ConnectionError
 from telethon import events
-from telethon.errors import UsernameNotOccupiedError
+from telethon.errors import UsernameNotOccupiedError, UsernameInvalidError
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 
@@ -79,8 +79,10 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             if string is None:
                 try:
                     entity = await event.client.get_entity(_string)
-                except (UsernameNotOccupiedError, ValueError) as err:
+                except constants.GET_ENTITY_ERRORS as err:
                     logger.error(err)
+                    skipped_items.append(_string)
+                    continue
                 if entity:
                     string = entity.id
         elif hex_type == '0x4':
