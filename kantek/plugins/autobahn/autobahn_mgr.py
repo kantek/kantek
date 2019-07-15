@@ -70,8 +70,13 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if hex_type is None or collection is None:
             continue
         if hex_type == '0x3':
+            _string = string
             link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
             string = chat_id
+            if string is None:
+                entity = await event.client.get_entity(_string)
+                if entity:
+                    string = entity.id
         elif hex_type == '0x4':
             string = await helpers.resolve_url(string)
             if string in constants.TELEGRAM_DOMAINS:

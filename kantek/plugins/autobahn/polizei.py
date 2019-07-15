@@ -13,17 +13,18 @@ from telethon.tl.custom import MessageButton
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.patched import Message
-from telethon.tl.types import (Channel, ChannelParticipantsAdmins, ChatBannedRights,
-                               MessageEntityTextUrl, UserFull, MessageEntityUrl)
+from telethon.tl.types import (Channel, ChatBannedRights,
+                               MessageEntityTextUrl, UserFull, MessageEntityUrl, MessageEntityMention)
 
 from database.arango import ArangoDB
-from utils import helpers
+from utils import helpers, constants
 from utils.client import KantekClient
 
 __version__ = '0.3.4'
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
+
 
 @events.register(events.MessageEdited(outgoing=False))
 @events.register(events.NewMessage(outgoing=False))
@@ -142,13 +143,26 @@ async def _check_message(event):
             return db.ab_channel_blacklist.hex_type, channel_blacklist[chat_id]
 
         domain = ''
+        channel = ''
+        _entity = None
         if isinstance(entity, MessageEntityUrl):
             domain = await helpers.resolve_url(text)
+            if domain in constants.TELEGRAM_DOMAINS:
+                _entity = await client.get_entity(text)
         elif isinstance(entity, MessageEntityTextUrl):
             domain = await helpers.resolve_url(entity.url)
+            if domain in constants.TELEGRAM_DOMAINS:
+                _entity = await client.get_entity(entity.url)
+        elif isinstance(entity, MessageEntityMention):
+            _entity = await client.get_entity(text)
+
+        if _entity:
+            channel = _entity.id
 
         if domain and domain in domain_blacklist:
             return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
+        if channel and channel in channel_blacklist:
+            return db.ab_channel_blacklist.hex_type, channel_blacklist[channel]
 
     for string in string_blacklist:
         if string in msg.raw_text:

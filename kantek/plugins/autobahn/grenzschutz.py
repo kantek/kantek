@@ -4,6 +4,7 @@ from typing import Dict, Union
 
 import logzero
 from telethon import events
+from telethon.errors import UserIdInvalidError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.types import Channel
 
@@ -56,8 +57,11 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         return
     else:
         ban_reason = result[0]['reason']
-
-    await client.ban(chat, uid)
+    try:
+        await client.ban(chat, uid)
+    except UserIdInvalidError as err:
+        logger.error(f"Erro occured while banning {err}")
+        return
 
     if not silent:
         message = MDTeXDocument(Section(
