@@ -18,7 +18,7 @@ from utils.mdtex import FormattedBase, MDTeXDocument, Section
 from utils.pluginmgr import PluginManager
 from utils.strafregister import Strafregister
 
-logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
+logger: logging.Logger = logzero.logger
 
 
 class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223

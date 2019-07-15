@@ -15,7 +15,7 @@ from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Mention, Sectio
 __version__ = '0.1.0'
 
 tlog = logging.getLogger('kantek-channel-log')
-logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
+logger: logging.Logger = logzero.logger
 
 
 @events.register(events.chataction.ChatAction())

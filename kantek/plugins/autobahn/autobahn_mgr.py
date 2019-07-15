@@ -3,10 +3,12 @@ import logging
 import re
 from urllib import parse
 
+import logzero
 import requests
 from pyArango.document import Document
 from requests import ConnectionError
 from telethon import events
+from telethon.errors import UsernameNotOccupiedError
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 
@@ -19,6 +21,7 @@ from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Pre, Section, S
 __version__ = '0.2.1'
 
 tlog = logging.getLogger('kantek-channel-log')
+logger: logging.Logger = logzero.logger
 
 AUTOBAHN_TYPES = {
     'bio': '0x0',
@@ -74,7 +77,10 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
             string = chat_id
             if string is None:
-                entity = await event.client.get_entity(_string)
+                try:
+                    entity = await event.client.get_entity(_string)
+                except (UsernameNotOccupiedError, ValueError) as err:
+                    logger.error(err)
                 if entity:
                     string = entity.id
         elif hex_type == '0x4':

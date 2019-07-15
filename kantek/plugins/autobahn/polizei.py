@@ -8,6 +8,7 @@ from typing import Dict
 import logzero
 from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
+from telethon.errors import UsernameNotOccupiedError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import MessageButton
 from telethon.tl.functions.channels import EditBannedRequest
@@ -145,16 +146,19 @@ async def _check_message(event):
         domain = ''
         channel = ''
         _entity = None
-        if isinstance(entity, MessageEntityUrl):
-            domain = await helpers.resolve_url(text)
-            if domain in constants.TELEGRAM_DOMAINS:
+        try:
+            if isinstance(entity, MessageEntityUrl):
+                domain = await helpers.resolve_url(text)
+                if domain in constants.TELEGRAM_DOMAINS:
+                    _entity = await client.get_entity(text)
+            elif isinstance(entity, MessageEntityTextUrl):
+                domain = await helpers.resolve_url(entity.url)
+                if domain in constants.TELEGRAM_DOMAINS:
+                    _entity = await client.get_entity(entity.url)
+            elif isinstance(entity, MessageEntityMention):
                 _entity = await client.get_entity(text)
-        elif isinstance(entity, MessageEntityTextUrl):
-            domain = await helpers.resolve_url(entity.url)
-            if domain in constants.TELEGRAM_DOMAINS:
-                _entity = await client.get_entity(entity.url)
-        elif isinstance(entity, MessageEntityMention):
-            _entity = await client.get_entity(text)
+        except (UsernameNotOccupiedError, ValueError) as err:
+            logger.error(err)
 
         if _entity:
             channel = _entity.id
