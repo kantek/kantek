@@ -9,7 +9,7 @@ from telethon.tl.patched import Message
 from telethon.tl.types import Channel, MessageEntityMention, MessageEntityMentionName, User
 
 from config import cmd_prefix
-from utils import helpers, parsers
+from utils import helpers, parsers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, Link, MDTeXDocument, Section, SubSection
 
@@ -61,10 +61,15 @@ async def _info_from_arguments(event) -> MDTeXDocument:
             entities.append(uid)
 
     users = []
+    errors = []
     for entity in entities:
-        user: User = await client.get_entity(entity)
+        try:
+            user: User = await client.get_entity(entity)
+        except constants.GET_ENTITY_ERRORS as err:
+            errors.append(str(entity))
         users.append(await _collect_user_info(user, **keyword_args))
-    return MDTeXDocument(*users)
+    if users:
+        return MDTeXDocument(*users, (Section(Bold('Errors for'), Code(', '.join(errors)))) if errors else '')
 
 
 async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
