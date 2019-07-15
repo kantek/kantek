@@ -74,6 +74,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     formatted_reason = f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]'
     client: KantekClient = event.client
     db: ArangoDB = client.db
+    await event.delete()
     try:
         old_ban_reason = db.banlist[userid]['reason']
         if old_ban_reason == formatted_reason:
@@ -92,7 +93,6 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
         elif bancmd is not None:
             await client.respond(event, f'{bancmd} {userid} {formatted_reason}')
             await asyncio.sleep(0.25)
-        await event.delete()
     await client.gban(userid, formatted_reason)
 
 
