@@ -3,8 +3,8 @@ import json
 import os
 import secrets
 
-import requests
 import bs4
+import requests
 from bs4 import BeautifulSoup
 
 

@@ -53,8 +53,8 @@ async def stats(event: NewMessage.Event) -> None:  # pylint: disable = R0912, R0
                 # if participants_count > largest_group_member_count:
                 #     largest_group_member_count = participants_count
                 if entity.creator or entity.admin_rights:
-                #     if participants_count > largest_group_with_admin:
-                #         largest_group_with_admin = participants_count
+                    # if participants_count > largest_group_with_admin:
+                    #     largest_group_with_admin = participants_count
                     admin_in_groups += 1
                 if entity.creator:
                     creator_in_groups += 1

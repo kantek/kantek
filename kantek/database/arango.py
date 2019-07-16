@@ -1,5 +1,5 @@
 """Module containing all operations related to ArangoDB"""
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional, Any
 
 from pyArango.collection import Collection, Field
 from pyArango.connection import Connection
@@ -106,6 +106,7 @@ class AutobahnBlacklist(Collection):
         """Get all strings in the Blacklist."""
         return {doc['string']: doc['_key'] for doc in self.fetchAll()}
 
+
 class AutobahnBioBlacklist(AutobahnBlacklist):
     """Blacklist with strings in a bio."""
     hex_type = '0x0'
@@ -129,6 +130,7 @@ class AutobahnChannelBlacklist(AutobahnBlacklist):
 class AutobahnDomainBlacklist(AutobahnBlacklist):
     """Blacklist with blacklisted domains"""
     hex_type = '0x4'
+
 
 class BanList(Collection):
     """A list of banned ids and their reason"""

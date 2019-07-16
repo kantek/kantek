@@ -1,8 +1,8 @@
 """Contains the Plugin Manager handling loading and unloading of plugins."""
 import ast
+import importlib.util
 import os
 from dataclasses import dataclass
-import importlib.util
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
 from logging import Logger

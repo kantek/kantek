@@ -26,4 +26,3 @@ async def purge(event: NewMessage.Event) -> None:
     else:
         reply_msg: Message = await msg.get_reply_message()
         await client.delete_messages(chat, list(range(reply_msg.id, msg.id)))
-

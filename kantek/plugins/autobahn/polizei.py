@@ -8,7 +8,6 @@ from typing import Dict
 import logzero
 from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
-from telethon.errors import UsernameNotOccupiedError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import MessageButton
 from telethon.tl.functions.channels import EditBannedRequest

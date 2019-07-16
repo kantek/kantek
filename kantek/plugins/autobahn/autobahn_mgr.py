@@ -1,14 +1,10 @@
 """Plugin to manage the autobahn"""
 import logging
 import re
-from urllib import parse
 
 import logzero
-import requests
 from pyArango.document import Document
-from requests import ConnectionError
 from telethon import events
-from telethon.errors import UsernameNotOccupiedError, UsernameInvalidError
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 

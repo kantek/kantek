@@ -4,11 +4,13 @@ import requests
 
 class Bot:
     """Class containing the needed functions."""
+
     def __init__(self, token):
         self.url = f'https://api.telegram.org/bot{token}'
 
     def __getattr__(self, method_name):
         """Allow any method to be called."""
+
         def request(**kwargs):
             """Do the post request to telegram."""
             method = self.snake_to_camel(method_name)

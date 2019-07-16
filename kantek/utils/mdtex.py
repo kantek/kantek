@@ -59,6 +59,7 @@ class Link(FormattedBase):
 
 class Mention(Link):
     """Inline Mention of a User."""
+
     def __init__(self, label: String, uid: int):
         super().__init__(label, f'tg://user?id={uid}')
 
