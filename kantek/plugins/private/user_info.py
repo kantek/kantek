@@ -18,7 +18,7 @@ __version__ = '0.1.1'
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}u(ser)?'))
+@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}u(ser)? '))
 async def user_info(event: NewMessage.Event) -> None:
     """Show information about a user.
 
