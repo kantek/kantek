@@ -15,7 +15,7 @@ __version__ = '0.1.0'
 logger: Logger = logzero.logger
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}p(lugins)?\s'))
+@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}plugins'))
 async def plugins(event: NewMessage.Event) -> None:
     """Command to show, register and unregister plugins.
 
