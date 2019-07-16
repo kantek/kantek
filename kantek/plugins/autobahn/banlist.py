@@ -1,4 +1,5 @@
 """Plugin to manage the banlist of the bot."""
+import csv
 import logging
 import os
 import time
@@ -14,7 +15,7 @@ from utils import helpers, parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Section
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -32,8 +33,12 @@ async def banlist(event: NewMessage.Event) -> None:
     elif args[0] == 'query':
         response = await _query_banlist(event, db)
     elif args[0] == 'import':
-        waiting_message = await client.respond(event, 'Import bans. This might take a while.')
+        waiting_message = await client.respond(event, 'Importing bans. This might take a while.')
         response = await _import_banlist(event, db)
+        await waiting_message.delete()
+    elif args[0] == 'export':
+        waiting_message = await client.respond(event, 'Exporting bans. This might take a while.')
+        response = await _export_banlist(event, db)
         await waiting_message.delete()
     if response:
         await client.respond(event, response)
@@ -89,3 +94,20 @@ async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocumen
                                  Italic(f'Took {stop_time:.02f}s'))
         else:
             return MDTeXDocument(Section(Bold('Error'), 'File is not a CSV'))
+
+
+async def _export_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+    client: KantekClient = event.client
+    chat = await event.get_chat()
+    users = db.query('For doc in BanList '
+                     'RETURN doc')
+    os.makedirs('tmp/', exist_ok=True)
+    start_time = time.time()
+    with open('tmp/banlist_export.csv', 'w') as f:
+        f.write('id,reason\n')
+        cwriter = csv.writer(f)
+        for user in users:
+            cwriter.writerow([user['id'], user['reason']])
+    stop_time = time.time() - start_time
+    await client.send_file(chat, 'tmp/banlist_export.csv',
+                           caption=str(Italic(f'Took {stop_time:.02f}s')))
