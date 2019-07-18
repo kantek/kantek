@@ -12,7 +12,7 @@ from database.arango import ArangoDB
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Mention, Section
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -26,8 +26,11 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         return
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
-    if not chat.creator and not chat.admin_rights:
+    if not chat.creator or not chat.admin_rights:
         return
+    if chat.admin_rights:
+        if not chat.admin_rights.ban_users:
+            return
     db: ArangoDB = client.db
     chat_document = db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
@@ -60,7 +63,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     try:
         await client.ban(chat, uid)
     except UserIdInvalidError as err:
-        logger.error(f"Erro occured while banning {err}")
+        logger.error(f"Error occured while banning {err}")
         return
 
     if not silent:
