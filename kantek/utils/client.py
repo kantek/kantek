@@ -5,7 +5,7 @@ import time
 from typing import Optional, Union
 
 import logzero
-from telethon import TelegramClient
+from telethon import TelegramClient, hints
 from telethon.errors import UserAdminInvalidError
 from telethon.events import NewMessage
 from telethon.tl.functions.channels import EditBannedRequest
@@ -129,3 +129,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
             ))
         except UserAdminInvalidError as err:
             logger.error(err)
+
+    async def get_cached_entity(self, entity: hints.EntitiesLike):
+        input_entity = await self.get_input_entity(entity)
+        return await self.get_entity(input_entity)

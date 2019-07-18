@@ -149,13 +149,13 @@ async def _check_message(event):
             if isinstance(entity, MessageEntityUrl):
                 domain = await helpers.resolve_url(text)
                 if domain in constants.TELEGRAM_DOMAINS:
-                    _entity = await client.get_entity(text)
+                    _entity = await client.get_cached_entity(text)
             elif isinstance(entity, MessageEntityTextUrl):
                 domain = await helpers.resolve_url(entity.url)
                 if domain in constants.TELEGRAM_DOMAINS:
-                    _entity = await client.get_entity(entity.url)
+                    _entity = await client.get_cached_entity(text)
             elif isinstance(entity, MessageEntityMention):
-                _entity = await client.get_entity(text)
+                _entity = await client.get_cached_entity(text)
         except constants.GET_ENTITY_ERRORS as err:
             logger.error(err)
 
