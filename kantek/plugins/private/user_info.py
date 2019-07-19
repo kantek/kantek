@@ -18,7 +18,7 @@ __version__ = '0.1.1'
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}u(ser)? '))
+@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}u(ser)?'))
 async def user_info(event: NewMessage.Event) -> None:
     """Show information about a user.
 
@@ -31,6 +31,10 @@ async def user_info(event: NewMessage.Event) -> None:
     chat: Channel = await event.get_chat()
     client: KantekClient = event.client
     msg: Message = event.message
+    # crude hack until I have a proper way to have commands with short options
+    # without this ungban will always trigger user too
+    if 'ungban' in msg.text:
+        return
     _args = msg.raw_text.split()[1:]
     keyword_args, args = parsers.parse_arguments(' '.join(_args))
     response = ''
