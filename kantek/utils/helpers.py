@@ -1,5 +1,6 @@
 """Helper functions to aid with different tasks that dont require a client."""
 import csv
+import hashlib
 import re
 import urllib
 from typing import Dict, List, Tuple
@@ -109,3 +110,11 @@ async def resolve_url(url: str, base_domain: bool = True) -> str:
     if _base_domain and base_domain:
         url = _base_domain
     return url
+
+
+async def hash_file(filename: str):
+    hasher = hashlib.sha512()
+    with open(filename, 'rb') as f:
+        buffer = f.read()
+        hasher.update(buffer)
+    return hasher.hexdigest()

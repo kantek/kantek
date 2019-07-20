@@ -1,10 +1,13 @@
 """Plugin to manage the autobahn"""
+import asyncio
 import logging
+import os
 import re
 
 import logzero
 from pyArango.document import Document
 from telethon import events
+from telethon.errors import MessageIdInvalidError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
 
@@ -25,6 +28,7 @@ AUTOBAHN_TYPES = {
     'filename': '0x2',
     'channel': '0x3',
     'domain': '0x4',
+    'file': '0x5',
     'preemptive': '0x9'
 }
 
@@ -53,8 +57,25 @@ async def autobahn(event: NewMessage.Event) -> None:
         await client.respond(event, response)
 
 
+def _sync_file_callback(received: int, total: int, msg: Message) -> None:
+    loop = asyncio.get_event_loop()
+    loop.create_task(_file_callback(received, total, msg))
+    # msg.edit(args)
+
+
+async def _file_callback(received: int, total: int, msg: Message) -> None:
+    text = MDTeXDocument(Section(Bold('Downloading File'),
+                                 KeyValueItem('Progress',
+                                              f'{received / 1024 ** 2:.2f}/{total / 1024 ** 2:.2f}MB ({(received / total) * 100:.0f}%)')))
+    try:
+        await msg.edit(str(text))
+    except MessageIdInvalidError as err:
+        logger.error(err)
+
+
 async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     """Add a string to the Collection of its type"""
+    client: KantekClient = event.client
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
     _, args = parsers.parse_arguments(' '.join(args))
@@ -63,9 +84,9 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     added_items = []
     existing_items = []
     skipped_items = []
+    hex_type = AUTOBAHN_TYPES.get(string_type)
+    collection = db.ab_collection_map.get(hex_type)
     for string in strings:
-        hex_type = AUTOBAHN_TYPES.get(string_type)
-        collection = db.ab_collection_map.get(hex_type)
         if hex_type is None or collection is None:
             continue
         if hex_type == '0x3':
@@ -98,6 +119,30 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             added_items.append(Code(string))
         else:
             existing_items.append(Code(string))
+
+    if not strings and hex_type == '0x5':
+        if msg.is_reply:
+            reply_msg: Message = await msg.get_reply_message()
+            if reply_msg.file:
+                await msg.edit('Downloading file, this may take a while.')
+
+                dl_filename = await reply_msg.download_media('tmp/blacklisted_file',
+                                                             progress_callback=lambda r, t: _sync_file_callback(r, t, msg))
+                file_hash = await helpers.hash_file(dl_filename)
+                os.remove(dl_filename)
+                await msg.delete()
+                existing_one = collection.fetchByExample({'string': file_hash}, batchSize=1)
+
+                short_hash = f'{file_hash[:15]}[...]'
+                if not existing_one:
+                    collection.add_string(file_hash)
+                    added_items.append(Code(short_hash))
+                else:
+                    existing_items.append(Code(short_hash))
+            else:
+                return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a file'))
+        else:
+            return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a file'))
 
     return MDTeXDocument(Section(Bold('Added Items:'),
                                  SubSection(Bold(string_type),
