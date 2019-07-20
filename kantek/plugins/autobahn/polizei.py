@@ -20,7 +20,7 @@ from database.arango import ArangoDB
 from utils import helpers, constants
 from utils.client import KantekClient
 
-__version__ = '0.3.4'
+__version__ = '0.4.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
