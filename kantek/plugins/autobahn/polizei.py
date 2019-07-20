@@ -3,6 +3,8 @@ import asyncio
 import datetime
 import itertools
 import logging
+import os
+import uuid
 from typing import Dict
 
 import logzero
@@ -174,11 +176,12 @@ async def _check_message(event):
 
     if msg.file:
         # avoid a DoS when getting large files
-        ten_mib = (1024**2)*10
+        ten_mib = (1024 ** 2) * 10
         # Only download files to avoid downloading photos
         if msg.document and msg.file.size < ten_mib:
-            dl_filename = await msg.download_media('tmp/polizei_file')
+            dl_filename = await msg.download_media(f'tmp/{uuid.uuid4()}')
             filehash = await helpers.hash_file(dl_filename)
+            os.remove(dl_filename)
             if filehash in file_blacklist:
                 return db.ab_file_blacklist.hex_type, file_blacklist[filehash]
         else:
