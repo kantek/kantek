@@ -6,9 +6,9 @@ from typing import Dict
 
 from telethon import events
 from telethon.events import NewMessage
+from telethon.tl.custom import Message
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.functions.messages import ReportRequest
-from telethon.tl.patched import Message
 from telethon.tl.types import Channel, InputReportReasonSpam, ChatBannedRights
 
 from config import cmd_prefix

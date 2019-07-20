@@ -4,8 +4,8 @@ import logging
 from telethon import events
 from telethon.errors import ChatNotModifiedError
 from telethon.events import NewMessage
+from telethon.tl.custom import Message
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
-from telethon.tl.patched import Message
 from telethon.tl.types import ChannelParticipantsAdmins, ChatBannedRights, InputPeerChannel
 
 from config import cmd_prefix

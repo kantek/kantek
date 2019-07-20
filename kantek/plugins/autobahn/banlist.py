@@ -7,7 +7,7 @@ from typing import List
 
 from telethon import events
 from telethon.events import NewMessage
-from telethon.tl.patched import Message
+from telethon.tl.custom import Message
 
 from config import cmd_prefix
 from database.arango import ArangoDB

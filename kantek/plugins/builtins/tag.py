@@ -4,7 +4,7 @@ from typing import Dict, List
 
 from telethon import events
 from telethon.events import NewMessage
-from telethon.tl.patched import Message
+from telethon.tl.custom import Message
 from telethon.tl.types import Chat, Message
 
 from config import cmd_prefix

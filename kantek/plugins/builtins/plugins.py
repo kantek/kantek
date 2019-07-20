@@ -4,7 +4,7 @@ from logging import Logger
 import logzero
 from telethon import events
 from telethon.events import NewMessage
-from telethon.tl.patched import Message
+from telethon.tl.custom import Message
 
 from config import cmd_prefix
 from utils.client import KantekClient

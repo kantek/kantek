@@ -8,8 +8,8 @@ import logzero
 from telethon import events
 from telethon.errors import FloodWaitError, UserAdminInvalidError
 from telethon.events import NewMessage
+from telethon.tl.custom import Message
 from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.patched import Message
 from telethon.tl.types import (Channel, ChannelParticipantsAdmins, ChatBannedRights, User)
 
 from config import cmd_prefix

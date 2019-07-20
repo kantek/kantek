@@ -4,8 +4,7 @@ from typing import Union
 
 from telethon import events
 from telethon.events import NewMessage
-from telethon.tl.custom import Forward
-from telethon.tl.patched import Message
+from telethon.tl.custom import Forward, Message
 from telethon.tl.types import Channel, MessageEntityMention, MessageEntityMentionName, User
 
 from config import cmd_prefix

@@ -9,10 +9,10 @@ import logzero
 from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
 from telethon.events import ChatAction, NewMessage
+from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.patched import Message
 from telethon.tl.types import (Channel, ChatBannedRights,
                                MessageEntityTextUrl, UserFull, MessageEntityUrl, MessageEntityMention)
 
