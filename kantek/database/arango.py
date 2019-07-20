@@ -132,6 +132,11 @@ class AutobahnDomainBlacklist(AutobahnBlacklist):
     hex_type = '0x4'
 
 
+class AutobahnFileBlacklist(AutobahnBlacklist):
+    """Blacklist with blacklisted domains"""
+    hex_type = '0x5'
+
+
 class BanList(Collection):
     """A list of banned ids and their reason"""
     _fields = {
@@ -189,12 +194,15 @@ class ArangoDB:  # pylint: disable = R0902
             'AutobahnChannelBlacklist')
         self.ab_domain_blacklist: AutobahnDomainBlacklist = self._get_collection(
             'AutobahnDomainBlacklist')
+        self.ab_file_blacklist: AutobahnFileBlacklist = self._get_collection(
+            'AutobahnFileBlacklist')
         self.ab_collection_map = {
             '0x0': self.ab_bio_blacklist,
             '0x1': self.ab_string_blacklist,
             '0x2': self.ab_filename_blacklist,
             '0x3': self.ab_channel_blacklist,
-            '0x4': self.ab_domain_blacklist
+            '0x4': self.ab_domain_blacklist,
+            '0x5': self.ab_file_blacklist
         }
         self.banlist: BanList = self._get_collection('BanList')
 
