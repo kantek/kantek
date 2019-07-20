@@ -65,6 +65,7 @@ async def _cleanup_chat(event, count: bool = False,
     deleted_users = 0
     deleted_admins = 0
     user_counter = 0
+    deleted_accounts_label = Bold('Removed Deleted Accounts')
     participant_count = (await client.get_participants(chat, limit=0)).total
     # the number will be 0 if the group has less than 25 participants
     modulus = (participant_count // 25) or 1
@@ -73,7 +74,7 @@ async def _cleanup_chat(event, count: bool = False,
             progress = Section(Bold('Cleanup'),
                                KeyValueItem(Bold('Progress'),
                                             f'{user_counter}/{participant_count}'),
-                               KeyValueItem(Bold('Deleted Accounts'), deleted_users))
+                               KeyValueItem(deleted_accounts_label, deleted_users))
             await progress_message.edit(str(progress))
         user_counter += 1
         if user.deleted:
@@ -94,7 +95,7 @@ async def _cleanup_chat(event, count: bool = False,
                                            Bold(f'Got FloodWait for {error.seconds}s. Sleeping.'),
                                            KeyValueItem(Bold('Progress'),
                                                         f'{user_counter}/{participant_count}'),
-                                           KeyValueItem(Bold('Deleted Accounts'), deleted_users))
+                                           KeyValueItem(deleted_accounts_label, deleted_users))
                         await progress_message.edit(str(progress))
 
                     tlog.error(error)
@@ -109,5 +110,5 @@ async def _cleanup_chat(event, count: bool = False,
 
     return MDTeXDocument(
         Section(Bold('Cleanup'),
-                KeyValueItem(Bold('Deleted Accounts'), deleted_users),
+                KeyValueItem(deleted_accounts_label, deleted_users),
                 KeyValueItem(Bold('Deleted Admins'), deleted_admins) if deleted_admins else None))
