@@ -10,7 +10,7 @@ from config import cmd_prefix
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument, Section, Bold, KeyValueItem
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -28,6 +28,7 @@ async def tag(event: NewMessage.Event) -> None:
     client: KantekClient = event.client
     await client.respond(event, MDTeXDocument(
         Section(f"{Bold('kantek')} userbot",
+                KeyValueItem(Bold('source'), 'kv2.spamwat.ch'),
                 KeyValueItem(Bold('version'), client.kantek_version),
                 KeyValueItem(Bold('telethon version'), telethon.__version__),
                 KeyValueItem(Bold('python version'), platform.python_version()),
