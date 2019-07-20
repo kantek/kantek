@@ -123,6 +123,7 @@ async def _check_message(event):
     string_blacklist = db.ab_string_blacklist.get_all()
     channel_blacklist = db.ab_channel_blacklist.get_all()
     domain_blacklist = db.ab_domain_blacklist.get_all()
+    file_blacklist = db.ab_file_blacklist.get_all()
 
     if msg.buttons:
         _buttons = await msg.get_buttons()
@@ -170,5 +171,17 @@ async def _check_message(event):
     for string in string_blacklist:
         if string in msg.raw_text:
             return db.ab_string_blacklist.hex_type, string_blacklist[string]
+
+    if msg.file:
+        # avoid a DoS when getting large files
+        ten_mib = (1024**2)*10
+        # Only download files to avoid downloading photos
+        if msg.document and msg.file.size < ten_mib:
+            dl_filename = await msg.download_media('tmp/polizei_file')
+            filehash = await helpers.hash_file(dl_filename)
+            if filehash in file_blacklist:
+                return db.ab_file_blacklist.hex_type, file_blacklist[filehash]
+        else:
+            logger.warning('Skipped file because it was too large or not a document')
 
     return False, False
