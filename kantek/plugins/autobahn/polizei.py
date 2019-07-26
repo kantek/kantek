@@ -22,7 +22,7 @@ from database.arango import ArangoDB
 from utils import helpers, constants
 from utils.client import KantekClient
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -138,6 +138,10 @@ async def _check_message(event):
                 domain = await helpers.resolve_url(button.url)
                 if domain in domain_blacklist:
                     return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
+                elif domain in constants.TELEGRAM_DOMAINS:
+                    _entity = await client.get_cached_entity(domain)
+                    if _entity and _entity in channel_blacklist:
+                        return db.ab_channel_blacklist.hex_type, channel_blacklist[_entity]
 
     entities = [e for e in msg.get_entities_text()]
     for entity, text in entities:
