@@ -13,10 +13,11 @@ from telethon import events
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
-from telethon.tl.functions.channels import EditBannedRequest
+from telethon.tl.functions.channels import EditBannedRequest, DeleteUserHistoryRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import (Channel, ChatBannedRights,
-                               MessageEntityTextUrl, UserFull, MessageEntityUrl, MessageEntityMention)
+                               MessageEntityTextUrl, UserFull, MessageEntityUrl,
+                               MessageEntityMention)
 
 from database.arango import ArangoDB
 from utils import helpers, constants
@@ -77,6 +78,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     formatted_reason = f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]'
     client: KantekClient = event.client
     db: ArangoDB = client.db
+    chat: Channel = await event.get_chat()
     await event.delete()
     try:
         old_ban_reason = db.banlist[userid]['reason']
@@ -97,6 +99,12 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
             await client.respond(event, f'{bancmd} {userid} {formatted_reason}')
             await asyncio.sleep(0.25)
     await client.gban(userid, formatted_reason)
+
+    message_count = len(await client.get_messages(chat, from_user=userid, limit=10))
+    if message_count <= 5:
+        await client(DeleteUserHistoryRequest(chat, userid))
+
+
 
 
 async def _check_message(event):
