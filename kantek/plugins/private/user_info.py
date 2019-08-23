@@ -12,7 +12,7 @@ from utils import helpers, parsers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, Link, MDTeXDocument, Section, SubSection
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -68,9 +68,9 @@ async def _info_from_arguments(event) -> MDTeXDocument:
     for entity in entities:
         try:
             user: User = await client.get_entity(entity)
+            users.append(await _collect_user_info(user, **keyword_args))
         except constants.GET_ENTITY_ERRORS as err:
             errors.append(str(entity))
-        users.append(await _collect_user_info(user, **keyword_args))
     if users:
         return MDTeXDocument(*users, (Section(Bold('Errors for'), Code(', '.join(errors)))) if errors else '')
 
