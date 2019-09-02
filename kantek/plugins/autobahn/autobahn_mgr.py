@@ -208,12 +208,12 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                                   Code(doc['string'])) for doc in all_strings]
         else:
             items = [Pre(', '.join([doc['string'] for doc in all_strings]))]
-        return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
+        return MDTeXDocument(Section(Bold(f'Items for type: {string_type}[{hex_type}]'), *items))
 
     elif hex_type is not None and code is not None:
         db_key = code.split('x')[-1]
         string = collection.fetchDocument(db_key).getStore()['string']
-        return MDTeXDocument(Section(Bold(f'String for {string_type}[{code}]'), Code(string)))
+        return MDTeXDocument(Section(Bold(f'Items for type: {string_type}[{hex_type}] code: {code}'), Code(string)))
 
     elif hex_type is not None and code_range is not None:
         start, stop = [int(c.split('x')[-1]) for c in code_range.split('-')]
@@ -225,4 +225,4 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                                         'keys': keys})
         items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
                               Code(doc['string'])) for doc in documents]
-        return MDTeXDocument(Section(Bold(f'Strings for {string_type}[{hex_type}]'), *items))
+        return MDTeXDocument(Section(Bold(f'Items for for type: {string_type}[{hex_type}]'), *items))
