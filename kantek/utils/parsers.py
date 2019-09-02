@@ -2,8 +2,9 @@
 import re
 from typing import Dict, List, Pattern, Tuple, Union
 
-KEYWORD_ARGUMENT: Pattern = re.compile(r'(\w+):\s?(\[.+?\]|\".+\"|\w+)')
+KEYWORD_ARGUMENT: Pattern = re.compile(r'(\S+):\s?(\[.+?\]|\".+\"|\S+)')
 QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")')
+RANGE_PATTERN: Pattern = re.compile(r'-?\d+\.\.-?\d+')
 BOOL_MAP = {
     'false': False,
     'true': True,
@@ -50,6 +51,9 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     >>> parse_arguments('arg: [123, 456] arg2: ["abc", "de f", "xyz"]')
     ({'arg': [123, 456], 'arg2': ['abc', 'de f', 'xyz']}, [])
 
+    >>> parse_arguments('arg: 1..10 arg2: -5..5 arg2: -10..0')
+    ({'arg': range(1, 10), 'arg2': range(-10, 0)}, [])
+
     Args:
         arguments: The string with the arguments that should be parsed
 
@@ -67,6 +71,9 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
             if re.search(r'\[.*\]', val):
                 val = re.sub(r'[\[\]]', '', val).split(',')
                 val = [_parse_number(v.strip()) for v in val]
+            elif re.search(RANGE_PATTERN, val):
+                start, stop = val.split('..')
+                val = range(int(start), int(stop))
             else:
                 val = BOOL_MAP.get(val.lower(), val)
         keyword_args.update({name: val})
