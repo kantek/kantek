@@ -195,13 +195,13 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
     string_type = keyword_args.get('type')
     code = keyword_args.get('code')
-    code_range = keyword_args.get('range')
+
     hex_type = None
     collection = None
     if string_type is not None:
         hex_type = AUTOBAHN_TYPES.get(string_type)
         collection = db.ab_collection_map[hex_type]
-    if code is None and code_range is None:
+    if code is None:
         all_strings = collection.fetchAll()
         if not len(all_strings) > 100:
             items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
@@ -211,16 +211,17 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         return MDTeXDocument(Section(Bold(f'Items for type: {string_type}[{hex_type}]'), *items))
 
     elif hex_type is not None and code is not None:
-        string = collection.fetchDocument(code).getStore()['string']
-        return MDTeXDocument(Section(Bold(f'Items for type: {string_type}[{hex_type}] code: {code}'), Code(string)))
-
-    elif hex_type is not None and code_range is not None:
-        keys = [str(i) for i in code_range]
-        documents = db.query(f'FOR doc IN @@collection '
-                             'FILTER doc._key in @keys '
-                             'RETURN doc',
-                             bind_vars={'@collection': collection.name,
-                                        'keys': keys})
-        items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
-                              Code(doc['string'])) for doc in documents]
-        return MDTeXDocument(Section(Bold(f'Items for for type: {string_type}[{hex_type}]'), *items))
+        if isinstance(code, int):
+            string = collection.fetchDocument(code).getStore()['string']
+            return MDTeXDocument(Section(Bold(f'Items for type: {string_type}[{hex_type}] code: {code}'), Code(string)))
+        elif isinstance(code, range) or isinstance(code, list):
+            keys = [str(i) for i in code]
+            documents = db.query(f'FOR doc IN @@collection '
+                                 'FILTER doc._key in @keys '
+                                 'RETURN doc',
+                                 bind_vars={'@collection': collection.name,
+                                            'keys': keys})
+            items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
+                                  Code(doc['string'])) for doc in documents]
+            return MDTeXDocument(
+                Section(Bold(f'Items for for type: {string_type}[{hex_type}]'), *items))
