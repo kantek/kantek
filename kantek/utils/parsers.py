@@ -6,9 +6,7 @@ KEYWORD_ARGUMENT: Pattern = re.compile(r'(\w+):\s?(\[.+?\]|\".+\"|\w+)')
 QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")')
 BOOL_MAP = {
     'false': False,
-    'False': False,
     'true': True,
-    'True': True
 }
 
 
@@ -54,7 +52,7 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     keyword_args: Dict[str, str] = {}
     for name, value in _named_attrs:
         _value = re.sub(r'\"', '', value)
-        val = BOOL_MAP.get(_value, int(_value) if _value.isdecimal() else _value)
+        val = BOOL_MAP.get(_value.lower(), int(_value) if _value.isdecimal() else _value)
         keyword_args.update({name: val})
 
     arguments = re.sub(KEYWORD_ARGUMENT, '', arguments)
