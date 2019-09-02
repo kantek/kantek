@@ -105,14 +105,12 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
         await client(DeleteUserHistoryRequest(chat, userid))
 
 
-
-
 async def _check_message(event):
     client: KantekClient = event.client
     msg: Message = event.message
     # exclude users below a certain id to avoid banning "legit" users
-    if msg.from_id and msg.from_id < 610000000:
-        return False, False
+    # if msg.from_id and msg.from_id < 610000000:
+    #     return False, False
 
     # disabled until the admins are cached to avoid fetching them on every message
     # admins = [p.id for p in (await client.get_participants(event.chat_id,
@@ -172,6 +170,7 @@ async def _check_message(event):
             elif isinstance(entity, MessageEntityMention):
                 _entity = await client.get_cached_entity(text)
         except constants.GET_ENTITY_ERRORS as err:
+            # print(entities[0][0].url)
             logger.error(err)
 
         if _entity:

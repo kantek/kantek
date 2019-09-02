@@ -1,6 +1,6 @@
 """Module containing regex parsers for different occasions."""
 import re
-from typing import Dict, List, Pattern, Tuple
+from typing import Dict, List, Pattern, Tuple, Union
 
 KEYWORD_ARGUMENT: Pattern = re.compile(r'(\w+):\s?(\[.+?\]|\".+\"|\w+)')
 QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")')
@@ -8,6 +8,13 @@ BOOL_MAP = {
     'false': False,
     'true': True,
 }
+
+
+def _parse_number(val: str) -> Union[str, int]:
+    if val.isdecimal():
+        return int(val)
+    else:
+        return val
 
 
 def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
@@ -40,6 +47,9 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     >>> parse_arguments('arg: 123 456 arg2: True')
     ({'arg': 123, 'arg2': True}, [456])
 
+    >>> parse_arguments('arg: [123, 456] arg2: ["abc", "de f", "xyz"]')
+    ({'arg': [123, 456], 'arg2': ['abc', 'de f', 'xyz']}, [])
+
     Args:
         arguments: The string with the arguments that should be parsed
 
@@ -51,8 +61,14 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
     _named_attrs = re.findall(KEYWORD_ARGUMENT, arguments)
     keyword_args: Dict[str, str] = {}
     for name, value in _named_attrs:
-        _value = re.sub(r'\"', '', value)
-        val = BOOL_MAP.get(_value.lower(), int(_value) if _value.isdecimal() else _value)
+        val = re.sub(r'\"', '', value)
+        val = _parse_number(val)
+        if isinstance(val, str):
+            if re.search(r'\[.*\]', val):
+                val = re.sub(r'[\[\]]', '', val).split(',')
+                val = [_parse_number(v.strip()) for v in val]
+            else:
+                val = BOOL_MAP.get(val.lower(), val)
         keyword_args.update({name: val})
 
     arguments = re.sub(KEYWORD_ARGUMENT, '', arguments)
