@@ -215,8 +215,7 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         return MDTeXDocument(Section(Bold(f'Items for type: {string_type}[{hex_type}] code: {code}'), Code(string)))
 
     elif hex_type is not None and code_range is not None:
-        start, stop = [int(c) for c in code_range.split('-')]
-        keys = [str(i) for i in range(start, stop + 1)]
+        keys = [str(i) for i in code_range]
         documents = db.query(f'FOR doc IN @@collection '
                              'FILTER doc._key in @keys '
                              'RETURN doc',
