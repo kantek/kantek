@@ -10,6 +10,9 @@ BOOL_MAP = {
     'true': True,
 }
 
+Value = Union[int, str]
+KeywordArgument = Union[Value, range, List[Value]]
+
 
 def _parse_number(val: str) -> Union[str, int]:
     if val.isdecimal():
@@ -18,7 +21,7 @@ def _parse_number(val: str) -> Union[str, int]:
         return val
 
 
-def parse_arguments(arguments: str) -> Tuple[Dict[str, str], List[str]]:
+def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Value]]:
     """Parse arguments provided as string
 
     >>> parse_arguments('arg1 arg2 arg3')
