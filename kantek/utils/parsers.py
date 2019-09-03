@@ -10,15 +10,25 @@ BOOL_MAP = {
     'true': True,
 }
 
-Value = Union[int, str]
+Value = Union[int, str, float, complex]
 KeywordArgument = Union[Value, range, List[Value]]
 
 
-def _parse_number(val: str) -> Union[str, int]:
+def _parse_number(val: str) -> Value:
     if val.isdecimal():
         return int(val)
-    else:
-        return val
+
+    try:
+        return float(val)
+    except ValueError:
+        pass
+
+    try:
+        # replace i with j since i is more common for imaginary numbers but python wants j
+        return complex(val.replace('i', 'j'))
+    except ValueError:
+        pass
+    return val
 
 
 def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Value]]:
@@ -57,6 +67,15 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
     >>> parse_arguments('arg: 1..10 arg2: -5..5 arg2: -10..0')
     ({'arg': range(1, 10), 'arg2': range(-10, 0)}, [])
 
+    >>> parse_arguments('1.24124 2151.2352 23626.325')
+    ({}, [1.24124, 2151.2352, 23626.325])
+
+    >>> parse_arguments('1e4 2.5e4 125e-5')
+    ({}, [10000.0, 25000.0, 0.00125])
+
+    >>> parse_arguments('3+3j 4+2i')
+    ({}, [(3+3j), (4+2j)])
+
     Args:
         arguments: The string with the arguments that should be parsed
 
@@ -85,5 +104,5 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
     quoted_args = re.findall(QUOTED_ARGUMENT, arguments)
     arguments = re.sub(QUOTED_ARGUMENT, '', arguments)
     # convert any numbers to int
-    args = [int(arg) if arg.isdecimal() else arg for arg in arguments.split()]
+    args = [_parse_number(val) for val in arguments.split()]
     return keyword_args, args + quoted_args
