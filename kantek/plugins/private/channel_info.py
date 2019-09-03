@@ -62,7 +62,7 @@ async def info(event: NewMessage.Event) -> None:
     db_named_tags: Dict = chat_document['named_tags'].getStore()
     db_tags: List = chat_document['tags']
     data = []
-    data += [KeyValueItem(Bold(key), ', '.join(value)) for key, value in db_named_tags.items()]
+    data += [KeyValueItem(Bold(key), value) for key, value in db_named_tags.items()]
     data += [Item(_tag) for _tag in db_tags]
     tags = Section('tags:', *data)
     info_msg = MDTeXDocument(chat_info, user_stats, tags)
