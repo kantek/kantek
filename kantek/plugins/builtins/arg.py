@@ -16,7 +16,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}arg'))
-async def user_info(event: NewMessage.Event) -> None:
+async def show_args(event: NewMessage.Event) -> None:
     """Show the raw output of the argument parser
 
     Args:
