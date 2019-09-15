@@ -90,7 +90,9 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if hex_type is None or collection is None:
             continue
         if hex_type == '0x3':
-            _string = string
+            # remove any query parameters like ?start=
+            # replace @ aswell since some spammers started using it, only Telegram X supports it
+            _string = string.split('?')[0].replace('@', '')
             link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
             string = chat_id
             if string is None:
