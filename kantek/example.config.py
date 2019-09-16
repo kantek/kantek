@@ -1,6 +1,6 @@
 """File containing the settings for kantek."""
 import os
-from typing import Union
+from typing import Union, List
 
 api_id: Union[str, int] = ''
 api_hash: str = ''
@@ -26,3 +26,6 @@ db_host = 'http://127.0.0.1:8529'
 # The file were bans and unbans are stored
 # The extension is .spjson and will be automatically added.
 strafregister_file: str = ''
+
+# Channels to fetch bans from
+vollzugsanstalten: List[int] = []
