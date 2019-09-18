@@ -47,13 +47,12 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         else:
             return await event.respond(msg, reply_to=event.message.id)
 
-    async def gban(self, uid: Union[int, str], reason: str, fedban: bool = True):
+    async def gban(self, uid: Union[int, str], reason: str):
         """Command to gban a user
 
         Args:
             uid: User ID
             reason: Ban reason
-            fedban: If /fban should be used
 
         Returns: None
 
@@ -61,17 +60,21 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         # if the user account is deleted this can be None
         if uid is None:
             return
+        user = self.db.query('For doc in BanList '
+                             'FILTER doc._key == @uid '
+                             'RETURN doc', bind_vars={'uid': str(uid)})
+        if user and ("Spambot" in user[0]['reason']) and ("Spambot" not in reason):
+            return False
         await self.sr.log(Strafregister.BAN, uid, reason)
         await self.send_message(
             config.gban_group,
             f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
         await self.send_message(
             config.gban_group,
-            f'/ban {uid} {reason}')
-        if fedban:
-            await self.send_message(
-                config.gban_group,
-                f'/fban {uid} {reason}')
+            f'/gban {uid} {reason}')
+        await self.send_message(
+            config.gban_group,
+            f'/fban {uid} {reason}')
         time.sleep(0.5)
         await self.send_read_acknowledge(config.gban_group,
                                          max_id=1000000,
@@ -79,22 +82,18 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         data = {'_key': str(uid),
                 'id': str(uid),
                 'reason': reason}
-        user = self.db.query('For doc in BanList '
-                             'FILTER doc._key == @uid '
-                             'RETURN doc', bind_vars={'uid': str(uid)})
-        if user and "Spambot" in user[0]['reason'] and "Spambot" not in reason:
-            return False
+
         self.db.query('UPSERT {"_key": @ban.id} '
                       'INSERT @ban '
                       'UPDATE {"reason": @ban.reason} '
                       'IN BanList ', bind_vars={'ban': data})
+        return True
 
-    async def ungban(self, uid: Union[int, str], fedban: bool = True):
+    async def ungban(self, uid: Union[int, str]):
         """Command to gban a user
 
         Args:
             uid: User ID
-            fedban: If /unfban should be used
 
         Returns: None
 
@@ -105,11 +104,10 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
             f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
         await self.send_message(
             config.gban_group,
-            f'/unban {uid}')
-        if fedban:
-            await self.send_message(
-                config.gban_group,
-                f'/unfban {uid}')
+            f'/ungban {uid}')
+        await self.send_message(
+            config.gban_group,
+            f'/unfban {uid}')
         time.sleep(0.5)
         await self.send_read_acknowledge(config.gban_group,
                                          max_id=1000000,
