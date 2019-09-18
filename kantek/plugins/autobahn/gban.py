@@ -77,10 +77,18 @@ async def gban(event: NewMessage.Event) -> None:
             # sleep to avoid flooding the bots too much
             await asyncio.sleep(0.5)
         if verbose:
-            await client.respond(event, MDTeXDocument(
-                Section(Bold('GBanned Users'),
-                        KeyValueItem(Bold('Reason'), ban_reason),
-                        KeyValueItem(Bold('IDs'), Code(', '.join([str(uid) for uid in uids]))))))
+            banned_users = [str(uid) for uid in uids if uid not in skipped_uids]
+            if banned_users:
+                await client.respond(event, MDTeXDocument(
+                    Section(Bold('GBanned Users'),
+                            KeyValueItem(Bold('Reason'), ban_reason),
+                            KeyValueItem(Bold('IDs'), Code(', '.join(banned_users))))))
+            else:
+                skipped_users = [str(uid) for uid in skipped_uids]
+                await client.respond(event, MDTeXDocument(
+                    Section(Bold('Skipped GBan'),
+                            KeyValueItem(Bold('Reason'), "Already banned by autobahn"),
+                            KeyValueItem(Bold('IDs'), Code(', '.join(skipped_users))))))
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}ungban'))
