@@ -20,6 +20,8 @@ from utils.strafregister import Strafregister
 
 logger: logging.Logger = logzero.logger
 
+AUTOMATED_BAN_REASONS = ['Spambot', 'Vollzugsanstalt']
+
 
 class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
     """Custom telethon client that has the plugin manager as attribute."""
@@ -63,8 +65,9 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         user = self.db.query('For doc in BanList '
                              'FILTER doc._key == @uid '
                              'RETURN doc', bind_vars={'uid': str(uid)})
-        if user and ("Spambot" in user[0]['reason']) and ("Spambot" not in reason):
-            return False
+        for ban_reason in AUTOMATED_BAN_REASONS:
+            if user and (ban_reason in user[0]['reason']) and (ban_reason not in reason):
+                return False
         await self.sr.log(Strafregister.BAN, uid, reason)
         await self.send_message(
             config.gban_group,
