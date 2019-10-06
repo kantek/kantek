@@ -99,7 +99,7 @@ async def resolve_url(url: str, base_domain: bool = True) -> str:
     if not url.startswith('http'):
         url = f'http://{url}'
     try:
-        req = requests.get(url, headers=headers)
+        req = requests.get(url, headers=headers, timeout=2)
         url = req.url
     except ConnectionError:
         pass
