@@ -84,6 +84,9 @@ async def resolve_invite_link(link):
     else:
         return None, None, None
 
+async def netloc(url: str) -> str:
+    return urllib.parse.urlparse(url).netloc
+
 
 async def resolve_url(url: str, base_domain: bool = True) -> str:
     """Follow all redirects and return the base domain
