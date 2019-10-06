@@ -30,7 +30,9 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     delay = 1
     if not kriminalamt_tag:
         return
-    elif kriminalamt_tag.isdigit():
+    elif isinstance(kriminalamt_tag, int):
+        delay = kriminalamt_tag
+    elif isinstance(kriminalamt_tag, str) and kriminalamt_tag.isdigit():
         delay = int(kriminalamt_tag)
     await asyncio.sleep(delay)
 
