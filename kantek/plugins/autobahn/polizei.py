@@ -108,19 +108,22 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
 async def _check_message(event):
     client: KantekClient = event.client
     msg: Message = event.message
+    user_id = msg.from_id
+    if user_id is None:
+        return False, False
     # exclude users below a certain id to avoid banning "legit" users
-    if msg.from_id and msg.from_id < 610000000:
+    if user_id and user_id < 610000000:
         return False, False
 
     # no need to ban bots as they can only be added by users anyway
-    user = await client.get_cached_entity(msg.from_id)
+    user = await client.get_cached_entity(user_id)
     if user.bot:
         return False, False
 
     # disabled until the admins are cached to avoid fetching them on every message
     # admins = [p.id for p in (await client.get_participants(event.chat_id,
     #                                                        filter=ChannelParticipantsAdmins()))]
-    # if msg.from_id in admins:
+    # if user_id in admins:
     #     return False, False
 
     # commands used in bots to blacklist items, these will be used by admins
