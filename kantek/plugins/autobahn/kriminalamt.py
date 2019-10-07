@@ -1,5 +1,6 @@
 """Plugin that automatically bans if a user joins and leaves immediately"""
 import asyncio
+import datetime
 import logging
 from typing import Dict
 
@@ -7,8 +8,10 @@ import logzero
 from telethon import events
 from telethon.errors import UserNotParticipantError
 from telethon.events import ChatAction
-from telethon.tl.functions.channels import GetParticipantRequest
-from telethon.tl.types import Channel
+from telethon.tl.functions.channels import (DeleteUserHistoryRequest,
+                                            EditBannedRequest,
+                                            GetParticipantRequest)
+from telethon.tl.types import Channel, ChatBannedRights
 
 from database.arango import ArangoDB
 from utils.client import KantekClient
@@ -27,6 +30,7 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     chat_document = db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
     kriminalamt_tag = db_named_tags.get('kriminalamt')
+    bancmd = db_named_tags.get('gbancmd')
     delay = 1
     if not kriminalamt_tag:
         return
@@ -39,4 +43,24 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     try:
         await client(GetParticipantRequest(chat, await event.get_input_user()))
     except UserNotParticipantError:
-        await client.gban(event.user_id, f'Kriminalamt #{chat.id} No. {delay}')
+        reason = f'Kriminalamt #{chat.id} No. {delay}'
+        userid = event.user_id
+        await client.gban(userid, reason)
+
+        if chat.creator or chat.admin_rights:
+            if bancmd == 'manual':
+                await client(EditBannedRequest(
+                    chat, userid, ChatBannedRights(
+                        until_date=datetime.datetime(2038, 1, 1),
+                        view_messages=True
+                    )
+                ))
+            elif bancmd is not None:
+                await client.respond(event, f'{bancmd} {userid} {reason}')
+                await asyncio.sleep(0.25)
+
+            messages = await client.get_messages(chat, from_user=userid, limit=0)
+            if messages.total <= 5:
+                await client(DeleteUserHistoryRequest(chat, userid))
+            else:
+                await event.delete()
