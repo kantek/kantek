@@ -20,7 +20,7 @@ from utils.strafregister import Strafregister
 
 logger: logging.Logger = logzero.logger
 
-AUTOMATED_BAN_REASONS = ['Spambot', 'Vollzugsanstalt']
+AUTOMATED_BAN_REASONS = ['Spambot', 'Vollzugsanstalt', 'Kriminalamt']
 
 
 class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
