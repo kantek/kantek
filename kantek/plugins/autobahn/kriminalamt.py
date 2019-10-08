@@ -56,7 +56,7 @@ async def kriminalamt(event: ChatAction.Event) -> None:
                     )
                 ))
             elif bancmd is not None:
-                await client.respond(event, f'{bancmd} {userid} {reason}')
+                await event.reply(f'{bancmd} {userid} {reason}')
                 await asyncio.sleep(0.25)
 
             messages = await client.get_messages(chat, from_user=userid, limit=0)
