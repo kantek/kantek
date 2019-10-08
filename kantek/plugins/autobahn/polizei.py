@@ -38,7 +38,7 @@ async def polizei(event: NewMessage.Event) -> None:
     db: ArangoDB = client.db
     chat_document = db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
-    bancmd = db_named_tags.get('gbancmd')
+    bancmd = db_named_tags.get('gbancmd', 'manual')
     polizei_tag = db_named_tags.get('polizei')
     if polizei_tag == 'exclude':
         return
