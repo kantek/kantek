@@ -133,7 +133,7 @@ class AutobahnDomainBlacklist(AutobahnBlacklist):
 
 
 class AutobahnFileBlacklist(AutobahnBlacklist):
-    """Blacklist with blacklisted domains"""
+    """Blacklist with blacklisted file sha 512 hashes"""
     hex_type = '0x5'
 
 
