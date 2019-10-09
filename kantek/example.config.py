@@ -29,3 +29,6 @@ strafregister_file: str = ''
 
 # Channels to fetch bans from
 vollzugsanstalten: List[int] = []
+
+spamwatch_host: str = 'https://api.spamwat.ch'
+spamwatch_token: str = ''

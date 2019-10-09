@@ -5,6 +5,7 @@ import time
 from typing import Optional, Union
 
 import logzero
+import spamwatch
 from telethon import TelegramClient, hints
 from telethon.errors import UserAdminInvalidError
 from telethon.events import NewMessage
@@ -29,6 +30,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
     db: Optional[ArangoDB] = None
     kantek_version: str = ''
     sr = Strafregister(config.strafregister_file)
+    sw: spamwatch.Client = None
 
     async def respond(self, event: NewMessage.Event,
                       msg: Union[str, FormattedBase, Section, MDTeXDocument],
@@ -90,6 +92,9 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                       'INSERT @ban '
                       'UPDATE {"reason": @ban.reason} '
                       'IN BanList ', bind_vars={'ban': data})
+
+        self.sw.add_ban(uid, reason)
+
         return True
 
     async def ungban(self, uid: Union[int, str]):
@@ -118,6 +123,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
         self.db.query('REMOVE {"_key": @uid} '
                       'IN BanList', bind_vars={'uid': str(uid)})
+        self.sw.delete_ban(uid)
 
     async def ban(self, chat, uid):
         """Bans a user from a chat."""

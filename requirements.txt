@@ -1,7 +1,8 @@
 logzero==1.5.0
-telethon==1.10.3
+telethon==1.10.6
 beautifulsoup4==4.7.1
-requests==2.21.0
+requests==2.22.0
 pyArango==1.3.2
 faker==1.0.7
 cryptg==0.2.post0
+spamwatch==0.1.0
