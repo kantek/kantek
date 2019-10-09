@@ -6,6 +6,7 @@ from typing import Optional, Union
 
 import logzero
 import spamwatch
+from spamwatch.types import Permission
 from telethon import TelegramClient, hints
 from telethon.errors import UserAdminInvalidError
 from telethon.events import NewMessage
@@ -93,8 +94,8 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                       'UPDATE {"reason": @ban.reason} '
                       'IN BanList ', bind_vars={'ban': data})
 
-        if self.sw.permission in [spamwatch.Permission.Admin,
-                                  spamwatch.Permission.Root]:
+        if self.sw and self.sw.permission in [Permission.Admin,
+                                              Permission.Root]:
             self.sw.add_ban(uid, reason)
 
         return True
@@ -125,8 +126,8 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
         self.db.query('REMOVE {"_key": @uid} '
                       'IN BanList', bind_vars={'uid': str(uid)})
-        if self.sw.permission in [spamwatch.Permission.Admin,
-                                  spamwatch.Permission.Root]:
+        if self.sw and self.sw.permission in [Permission.Admin,
+                                              Permission.Root]:
             self.sw.delete_ban(uid)
 
     async def ban(self, chat, uid):
