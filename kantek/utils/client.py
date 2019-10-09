@@ -93,7 +93,9 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                       'UPDATE {"reason": @ban.reason} '
                       'IN BanList ', bind_vars={'ban': data})
 
-        self.sw.add_ban(uid, reason)
+        if self.sw.permission in [spamwatch.Permission.Admin,
+                                  spamwatch.Permission.Root]:
+            self.sw.add_ban(uid, reason)
 
         return True
 
@@ -123,7 +125,9 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
         self.db.query('REMOVE {"_key": @uid} '
                       'IN BanList', bind_vars={'uid': str(uid)})
-        self.sw.delete_ban(uid)
+        if self.sw.permission in [spamwatch.Permission.Admin,
+                                  spamwatch.Permission.Root]:
+            self.sw.delete_ban(uid)
 
     async def ban(self, chat, uid):
         """Bans a user from a chat."""
