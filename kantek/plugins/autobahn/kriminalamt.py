@@ -11,7 +11,7 @@ from telethon.events import ChatAction
 from telethon.tl.functions.channels import (DeleteUserHistoryRequest,
                                             EditBannedRequest,
                                             GetParticipantRequest)
-from telethon.tl.types import Channel, ChatBannedRights
+from telethon.tl.types import Channel, ChatBannedRights, User
 
 from database.arango import ArangoDB
 from utils.client import KantekClient
@@ -26,13 +26,14 @@ logger: logging.Logger = logzero.logger
 async def kriminalamt(event: ChatAction.Event) -> None:
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
+    user: User = await event.get_user()
     db: ArangoDB = client.db
     chat_document = db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
     kriminalamt_tag = db_named_tags.get('kriminalamt')
     bancmd = db_named_tags.get('gbancmd', 'manual')
     delay = 1
-    if not kriminalamt_tag:
+    if not kriminalamt_tag or user.bot:
         return
     elif isinstance(kriminalamt_tag, int):
         delay = kriminalamt_tag
@@ -41,7 +42,7 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     await asyncio.sleep(delay)
 
     try:
-        await client(GetParticipantRequest(chat, await event.get_input_user()))
+        await client(GetParticipantRequest(chat, user))
     except UserNotParticipantError:
         reason = f'Kriminalamt #{chat.id} No. {delay}'
         userid = event.user_id
