@@ -96,7 +96,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
         if self.sw and self.sw.permission in [Permission.Admin,
                                               Permission.Root]:
-            self.sw.add_ban(uid, reason)
+            self.sw.add_ban(int(uid), reason)
 
         return True
 
@@ -128,7 +128,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                       'IN BanList', bind_vars={'uid': str(uid)})
         if self.sw and self.sw.permission in [Permission.Admin,
                                               Permission.Root]:
-            self.sw.delete_ban(uid)
+            self.sw.delete_ban(int(uid))
 
     async def ban(self, chat, uid):
         """Bans a user from a chat."""
