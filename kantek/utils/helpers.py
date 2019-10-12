@@ -1,13 +1,15 @@
 """Helper functions to aid with different tasks that dont require a client."""
 import csv
 import hashlib
+import logging
 import re
 import urllib
 from typing import Dict, List, Tuple
 
+import logzero
 import requests
 from faker import Faker
-from requests import ConnectionError
+from requests import ConnectionError, ReadTimeout
 from telethon import utils
 from telethon.events import NewMessage
 from telethon.tl.types import User
@@ -15,6 +17,8 @@ from telethon.tl.types import User
 from utils import parsers
 
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
+
+logger: logging.Logger = logzero.logger
 
 
 async def get_full_name(user: User) -> str:
@@ -84,6 +88,7 @@ async def resolve_invite_link(link):
     else:
         return None, None, None
 
+
 async def netloc(url: str) -> str:
     return urllib.parse.urlparse(url).netloc
 
@@ -104,8 +109,8 @@ async def resolve_url(url: str, base_domain: bool = True) -> str:
     try:
         req = requests.get(url, headers=headers, timeout=2)
         url = req.url
-    except ConnectionError:
-        pass
+    except (ConnectionError, ReadTimeout) as err:
+        logger.warning(err)
     netloc = urllib.parse.urlparse(url).netloc
     # split up the result to only get the base domain
     # www.sitischu.com => sitischu.com
