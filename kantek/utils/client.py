@@ -9,7 +9,7 @@ import spamwatch
 from spamwatch.types import Permission
 from telethon import TelegramClient, hints
 from telethon.errors import UserAdminInvalidError
-from telethon.events import NewMessage
+from telethon.events import NewMessage, ChatAction
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights
@@ -48,7 +48,11 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         """
         msg = str(msg)
         if reply:
-            return await event.respond(msg, reply_to=(event.reply_to_msg_id or event.message.id))
+            if isinstance(event, ChatAction.Event):
+                reply_to = event.action_message.id
+            else:
+                reply_to = (event.reply_to_msg_id or event.message.id)
+            return await event.respond(msg, reply_to=reply_to)
         else:
             return await event.respond(msg, reply_to=event.message.id)
 

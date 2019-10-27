@@ -17,11 +17,13 @@ from telethon.tl.functions.channels import EditBannedRequest, DeleteUserHistoryR
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import (Channel, ChatBannedRights,
                                MessageEntityTextUrl, UserFull, MessageEntityUrl,
-                               MessageEntityMention)
+                               MessageEntityMention, Photo)
 
 from database.arango import ArangoDB
 from utils import helpers, constants
 from utils.client import KantekClient
+from utils.helpers import hash_photo
+from photohash import hashes_are_similar
 
 __version__ = '0.4.1'
 
@@ -48,7 +50,7 @@ async def polizei(event: NewMessage.Event) -> None:
 
 
 @events.register(events.chataction.ChatAction())
-async def biopolizei(event: ChatAction.Event) -> None:
+async def join_polizei(event: ChatAction.Event) -> None:
     """Plugin to ban users with blacklisted strings in their bio."""
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
@@ -61,6 +63,8 @@ async def biopolizei(event: ChatAction.Event) -> None:
         return
     ban_type, ban_reason = False, False
     bio_blacklist = db.ab_bio_blacklist.get_all()
+    mhash_blacklist = db.ab_mhash_blacklist.get_all()
+
     try:
         user: UserFull = await client(GetFullUserRequest(await event.get_input_user()))
     except TypeError as e:
@@ -70,6 +74,15 @@ async def biopolizei(event: ChatAction.Event) -> None:
     for string in bio_blacklist:
         if user.about and string in user.about:
             ban_type, ban_reason = db.ab_bio_blacklist.hex_type, bio_blacklist[string]
+
+    if user.profile_photo:
+        dl_photo = await client.download_file(user.profile_photo)
+        photo_hash = await hash_photo(dl_photo)
+
+        for mhash in mhash_blacklist:
+            if hashes_are_similar(mhash, photo_hash, tolerance=2):
+                ban_type, ban_reason = db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
+
     if ban_type and ban_reason:
         await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
 
@@ -140,6 +153,7 @@ async def _check_message(event):
     channel_blacklist = db.ab_channel_blacklist.get_all()
     domain_blacklist = db.ab_domain_blacklist.get_all()
     file_blacklist = db.ab_file_blacklist.get_all()
+    mhash_blacklist = db.ab_mhash_blacklist.get_all()
 
     inline_bot = msg.via_bot_id
     if inline_bot is not None and inline_bot in channel_blacklist:
@@ -221,5 +235,13 @@ async def _check_message(event):
                 return db.ab_file_blacklist.hex_type, file_blacklist[filehash]
         else:
             logger.warning('Skipped file because it was too large or not a document')
+
+    if msg.photo:
+        dl_photo = await msg.download_media(bytes)
+        photo_hash = await hash_photo(dl_photo)
+
+        for mhash in mhash_blacklist:
+            if hashes_are_similar(mhash, photo_hash, tolerance=2):
+                return db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
 
     return False, False

@@ -6,3 +6,4 @@ pyArango==1.3.2
 faker==1.0.7
 cryptg==0.2.post0
 spamwatch==0.2.0
+git+git://github.com/mojurasu/photohash@ff4d85ad0117f5368d4d5c4ed1111570aae3096f

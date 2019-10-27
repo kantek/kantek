@@ -29,6 +29,7 @@ AUTOBAHN_TYPES = {
     'channel': '0x3',
     'domain': '0x4',
     'file': '0x5',
+    'mhash': '0x6',
     'preemptive': '0x9'
 }
 
@@ -145,6 +146,26 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                 return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a file'))
         else:
             return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a file'))
+    if not strings and hex_type == '0x6':
+        if msg.is_reply:
+            reply_msg: Message = await msg.get_reply_message()
+            if reply_msg.photo:
+                await msg.edit('Hashing photo, this may take a moment.')
+
+                dl_photo = await reply_msg.download_media(bytes)
+                photo_hash = await helpers.hash_photo(dl_photo)
+                await msg.delete()
+                existing_one = collection.fetchByExample({'string': photo_hash}, batchSize=1)
+
+                if not existing_one:
+                    collection.add_string(photo_hash)
+                    added_items.append(Code(photo_hash))
+                else:
+                    existing_items.append(Code(photo_hash))
+            else:
+                return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
+        else:
+            return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
 
     return MDTeXDocument(Section(Bold('Added Items:'),
                                  SubSection(Bold(string_type),

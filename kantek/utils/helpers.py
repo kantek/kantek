@@ -1,13 +1,17 @@
 """Helper functions to aid with different tasks that dont require a client."""
+import asyncio
 import csv
 import hashlib
 import logging
 import re
 import urllib
+from io import BytesIO
 from typing import Dict, List, Tuple
 
 import logzero
+import photohash
 import requests
+from PIL import Image
 from faker import Faker
 from requests import ConnectionError, ReadTimeout
 from telethon import utils
@@ -126,3 +130,10 @@ async def hash_file(filename: str):
         buffer = f.read()
         hasher.update(buffer)
     return hasher.hexdigest()
+
+
+async def hash_photo(photo):
+    loop = asyncio.get_event_loop()
+    pil_photo = Image.open(BytesIO(photo))
+    photo_hash = await loop.run_in_executor(None, photohash.average_hash, pil_photo)
+    return str(photo_hash)
