@@ -26,7 +26,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         return
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
-    if not chat.creator or not chat.admin_rights:
+    if not chat.creator and not chat.admin_rights:
         return
     if chat.admin_rights:
         if not chat.admin_rights.ban_users:
