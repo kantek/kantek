@@ -203,7 +203,7 @@ class ArangoDB:  # pylint: disable = R0902
         self.ab_file_blacklist: AutobahnFileBlacklist = self._get_collection(
             'AutobahnFileBlacklist')
         self.ab_mhash_blacklist: AutobahnMHashBlacklist = self._get_collection(
-            'AutobahnFileBlacklist')
+            'AutobahnMHashBlacklist')
         self.ab_collection_map = {
             '0x0': self.ab_bio_blacklist,
             '0x1': self.ab_string_blacklist,
