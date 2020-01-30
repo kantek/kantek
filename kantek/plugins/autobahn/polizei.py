@@ -46,7 +46,10 @@ async def polizei(event: NewMessage.Event) -> None:
         return
     ban_type, ban_reason = await _check_message(event)
     if ban_type and ban_reason:
-        await _banuser(event, chat, event.message.from_id, bancmd, ban_type, ban_reason)
+        uid = event.message.from_id
+        admins = [p.id for p in (await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins()))]
+        if uid not in admins:
+            await _banuser(event, chat, uid, bancmd, ban_type, ban_reason)
 
 
 @events.register(events.chataction.ChatAction())
@@ -84,9 +87,7 @@ async def join_polizei(event: ChatAction.Event) -> None:
                 ban_type, ban_reason = db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
 
     if ban_type and ban_reason:
-        admins = [p.id for p in (await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins()))]
-        if event.user_id not in admins:
-            await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
+        await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
 
 
 async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
