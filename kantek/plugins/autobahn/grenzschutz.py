@@ -6,7 +6,7 @@ import logzero
 from telethon import events
 from telethon.errors import UserIdInvalidError
 from telethon.events import ChatAction, NewMessage
-from telethon.tl.types import Channel
+from telethon.tl.types import Channel, ChannelParticipantsAdmins
 
 from database.arango import ArangoDB
 from utils.client import KantekClient
@@ -60,18 +60,20 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         return
     else:
         ban_reason = result[0]['reason']
-    try:
-        await client.ban(chat, uid)
-    except UserIdInvalidError as err:
-        logger.error(f"Error occured while banning {err}")
-        return
+    admins = [p.id for p in (await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins()))]
+    if uid not in admins:
+        try:
+            await client.ban(chat, uid)
+        except UserIdInvalidError as err:
+            logger.error(f"Error occured while banning {err}")
+            return
 
-    if not silent:
-        message = MDTeXDocument(Section(
-            Bold('SpamWatch Grenzschutz Ban'),
-            KeyValueItem(Bold("User"),
-                         f'{Mention(user.first_name, uid)} [{Code(uid)}]'),
-            KeyValueItem(Bold("Reason"),
-                         ban_reason)
-        ))
-        await client.send_message(chat, str(message))
+        if not silent:
+            message = MDTeXDocument(Section(
+                Bold('SpamWatch Grenzschutz Ban'),
+                KeyValueItem(Bold("User"),
+                             f'{Mention(user.first_name, uid)} [{Code(uid)}]'),
+                KeyValueItem(Bold("Reason"),
+                             ban_reason)
+            ))
+            await client.send_message(chat, str(message))

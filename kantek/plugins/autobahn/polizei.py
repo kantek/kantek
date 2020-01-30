@@ -17,7 +17,7 @@ from telethon.tl.functions.channels import EditBannedRequest, DeleteUserHistoryR
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import (Channel, ChatBannedRights,
                                MessageEntityTextUrl, UserFull, MessageEntityUrl,
-                               MessageEntityMention, Photo)
+                               MessageEntityMention, Photo, ChannelParticipantsAdmins)
 
 from database.arango import ArangoDB
 from utils import helpers, constants
@@ -84,7 +84,9 @@ async def join_polizei(event: ChatAction.Event) -> None:
                 ban_type, ban_reason = db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
 
     if ban_type and ban_reason:
-        await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
+        admins = [p.id for p in (await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins()))]
+        if event.user_id not in admins:
+            await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
 
 
 async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
@@ -132,12 +134,6 @@ async def _check_message(event):
     user = await client.get_cached_entity(user_id)
     if user.bot:
         return False, False
-
-    # disabled until the admins are cached to avoid fetching them on every message
-    # admins = [p.id for p in (await client.get_participants(event.chat_id,
-    #                                                        filter=ChannelParticipantsAdmins()))]
-    # if user_id in admins:
-    #     return False, False
 
     # commands used in bots to blacklist items, these will be used by admins
     # so they shouldnt be banned for it
