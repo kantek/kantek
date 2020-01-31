@@ -23,10 +23,6 @@ db_host = 'http://127.0.0.1:8529'
 # Optional
 # if these options are empty the feature will be disabled.
 
-# The file were bans and unbans are stored
-# The extension is .spjson and will be automatically added.
-strafregister_file: str = ''
-
 # Channels to fetch bans from
 vollzugsanstalten: List[int] = []
 
