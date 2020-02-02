@@ -124,11 +124,9 @@ async def resolve_url(url: str, base_domain: bool = True) -> str:
     return url
 
 
-async def hash_file(filename: str):
+def hash_file(file: bytes):
     hasher = hashlib.sha512()
-    with open(filename, 'rb') as f:
-        buffer = f.read()
-        hasher.update(buffer)
+    hasher.update(file)
     return hasher.hexdigest()
 
 

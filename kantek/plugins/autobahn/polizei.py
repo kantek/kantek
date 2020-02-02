@@ -225,9 +225,8 @@ async def _check_message(event):
         ten_mib = (1024 ** 2) * 10
         # Only download files to avoid downloading photos
         if msg.document and msg.file.size < ten_mib:
-            dl_filename = await msg.download_media(f'tmp/{uuid.uuid4()}')
-            filehash = await helpers.hash_file(dl_filename)
-            os.remove(dl_filename)
+            dl_file = await msg.download_media(bytes)
+            filehash = helpers.hash_file(dl_file)
             if filehash in file_blacklist:
                 return db.ab_file_blacklist.hex_type, file_blacklist[filehash]
         else:
