@@ -32,6 +32,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
     db: Optional[ArangoDB] = None
     kantek_version: str = ''
     sw: spamwatch.Client = None
+    sw_url: str = None
     aioclient: ClientSession = None
 
     def __init__(self, *args, **kwargs):

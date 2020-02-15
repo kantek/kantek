@@ -49,8 +49,11 @@ async def _token(event, client, args, keyword_args):
         permission = keyword_args.get('permission', 'User')
         permission = _permission_map.get(permission)
         token = client.sw.create_token(userid, permission)
-        return MDTeXDocument(Section(Bold(f'SpamWatch Token'),
+        return MDTeXDocument(Section(Bold('SpamWatch Token'),
                                      KeyValueItem('ID', Code(token.id)),
                                      KeyValueItem('User', Code(token.userid)),
                                      KeyValueItem('Permission', token.permission.name),
-                                     KeyValueItem('Token', Code(token.token))))
+                                     KeyValueItem('Token', Code(token.token))),
+                             Section(Bold('Links'),
+                                     KeyValueItem('Endpoint', client.sw_url.split('://')[-1]),
+                                     KeyValueItem('Documentation', 'docs.spamwat.ch')))
