@@ -65,7 +65,7 @@ async def _cleanup_chat(event, count: bool = False,
     deleted_users = 0
     deleted_admins = 0
     user_counter = 0
-    deleted_accounts_label = Bold('Removed Deleted Accounts')
+    deleted_accounts_label = Bold('Counted Deleted Accounts' if count else 'Removed Deleted Accounts')
     participant_count = (await client.get_participants(chat, limit=0)).total
     # the number will be 0 if the group has less than 25 participants
     modulus = (participant_count // 25) or 1
