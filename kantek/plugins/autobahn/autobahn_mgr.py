@@ -109,7 +109,7 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                 if entity:
                     string = entity.id
         elif hex_type == '0x4':
-            string = await client.resolve_url(string)
+            string = await client.resolve_url(string).lower()
             if string in constants.TELEGRAM_DOMAINS:
                 skipped_items.append(string)
                 continue

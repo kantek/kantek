@@ -165,6 +165,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         """
         faker = Faker()
         headers = {'User-Agent': faker.user_agent()}
+        old_url = url
         if not url.startswith('http'):
             url = f'http://{url}'
         try:
@@ -172,6 +173,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                 url = response.url.host
         except ClientError as err:
             logger.warning(err)
+            return old_url
 
         if base_domain:
             # split up the result to only get the base domain
