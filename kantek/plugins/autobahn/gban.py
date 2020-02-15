@@ -98,10 +98,19 @@ async def ungban(event: NewMessage.Event) -> None:
     client: KantekClient = event.client
     keyword_args, args = await helpers.get_args(event)
     await msg.delete()
+
+    users_to_unban = [*args]
     if msg.is_reply:
         reply_msg: Message = await msg.get_reply_message()
         uid = reply_msg.from_id
-        await client.ungban(uid)
-    else:
-        for uid in args:
+        users_to_unban.append(uid)
+
+    unbanned_users = []
+    for uid in users_to_unban:
+        if client.db.banlist.get_user(uid):
             await client.ungban(uid)
+            unbanned_users.append(str(uid))
+    if unbanned_users:
+        await client.respond(event, MDTeXDocument(
+            Section(Bold('Un-GBanned Users'),
+                    KeyValueItem(Bold('IDs'), Code(', '.join(unbanned_users))))))

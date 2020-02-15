@@ -181,6 +181,12 @@ class BanList(Collection):
         except CreationError:
             return None
 
+    def get_user(self, uid: int) -> Optional[Document]:
+        try:
+            return self.fetchDocument(uid)
+        except DocumentNotFoundError:
+            return None
+
 
 class ArangoDB:  # pylint: disable = R0902
     """Handle creation of all required Documents."""
