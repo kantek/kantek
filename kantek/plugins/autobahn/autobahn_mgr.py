@@ -3,6 +3,7 @@ import asyncio
 import logging
 import os
 import re
+from collections import Counter
 
 import logzero
 from pyArango.document import Document
@@ -87,6 +88,8 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     skipped_items = []
     hex_type = AUTOBAHN_TYPES.get(string_type)
     collection = db.ab_collection_map.get(hex_type)
+    warn_message = ''
+
     for string in strings:
         if hex_type is None or collection is None:
             continue
@@ -159,6 +162,9 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
 
                 if not existing_one:
                     collection.add_string(photo_hash)
+                    if Counter(photo_hash).get('0', 0) > 8:
+                        warn_message = 'The image seems to contain a lot of the same color. This might lead to false positives.'
+
                     added_items.append(Code(photo_hash))
                 else:
                     existing_items.append(Code(photo_hash))
@@ -176,6 +182,8 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                          Section(Bold('Skipped Items:'),
                                  SubSection(Bold(string_type),
                                             *skipped_items)) if skipped_items else '',
+                         Section(Bold('Warning:'),
+                                 warn_message) if warn_message else ''
                          )
 
 
