@@ -85,7 +85,7 @@ class Section:
 
     def __init__(self, *args: Union[String, 'SubSection'], indent: int = 4) -> None:
         self.header = args[0]
-        self.items = args[1:]
+        self.items = [i for i in args[1:] if i]
         self.indent = indent
 
     def __add__(self, other: Union[String, 'Section']) -> str:
@@ -115,7 +115,7 @@ class MDTeXDocument:
     """Document containing sections."""
 
     def __init__(self, *args: Union[String, 'Section']) -> None:
-        self.sections = args
+        self.sections = [i for i in args if i]
 
     def __str__(self) -> str:
         return '\n\n'.join([str(section) for section in self.sections])
