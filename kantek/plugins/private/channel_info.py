@@ -67,4 +67,3 @@ async def info(event: NewMessage.Event) -> None:
     tags = Section('tags:', *data)
     info_msg = MDTeXDocument(chat_info, user_stats, tags)
     await client.respond(event, info_msg)
-    tlog.info('Ran `info` in `%s`', chat.title)

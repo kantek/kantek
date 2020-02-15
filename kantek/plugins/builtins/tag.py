@@ -56,7 +56,6 @@ async def tag(event: NewMessage.Event) -> None:
         await msg.delete()
     else:
         await client.respond(event, response)
-    tlog.info('Ran `tag` in `%s`. Response: %s', chat.title, response)
 
 
 async def _add_tags(event: NewMessage.Event):

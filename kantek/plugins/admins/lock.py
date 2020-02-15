@@ -53,4 +53,5 @@ async def cleanup_group_admins(event: NewMessage.Event) -> None:
         async for p in client.iter_participants(event.chat_id, filter=ChannelParticipantsAdmins):
             if msg.from_id == p.id:
                 await lock(event)
+                tlog.info(f'lock executed by [{p.id}](tg://user?id={p.id}) in `{(await event.get_chat()).title}`')
                 break
