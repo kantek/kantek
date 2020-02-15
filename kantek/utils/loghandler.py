@@ -49,8 +49,7 @@ class TGChannelLogHandler(Handler):
 
     def emit(self, record: LogRecord) -> None:
         """Send the log message to the specified Telegram channel."""
-        loop = asyncio.get_event_loop()
-        result = loop.run_until_complete(self.bot.send_message(
+        asyncio.ensure_future(self.bot.send_message(
             chat_id=self.channel_id,
             text=self.format(record),
             parse_mode='markdown'))
