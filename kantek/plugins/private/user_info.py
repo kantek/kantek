@@ -68,7 +68,7 @@ async def _info_from_arguments(event) -> MDTeXDocument:
     for entity in entities:
         try:
             user: User = await client.get_entity(entity)
-            users.append(await _collect_user_info(user, **keyword_args))
+            users.append(await _collect_user_info(client, user, **keyword_args))
         except constants.GET_ENTITY_ERRORS as err:
             errors.append(str(entity))
     if users:
@@ -87,10 +87,10 @@ async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
     else:
         user: User = await client.get_entity(reply_msg.sender_id)
 
-    return MDTeXDocument(await _collect_user_info(user, **kwargs))
+    return MDTeXDocument(await _collect_user_info(client, user, **kwargs))
 
 
-async def _collect_user_info(user, **kwargs) -> Union[Section, KeyValueItem]:
+async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueItem]:
     id_only = kwargs.get('id', False)
     show_general = kwargs.get('general', True)
     show_bot = kwargs.get('bot', False)
@@ -109,6 +109,11 @@ async def _collect_user_info(user, **kwargs) -> Union[Section, KeyValueItem]:
         title = Link(full_name, f'tg://user?id={user.id}')
     else:
         title = Bold(full_name)
+
+    ban_reason = client.db.banlist.get_user(user.id)
+    if ban_reason:
+        ban_reason = ban_reason['reason']
+
     if id_only:
         return KeyValueItem(title, Code(user.id))
     else:
@@ -118,7 +123,8 @@ async def _collect_user_info(user, **kwargs) -> Union[Section, KeyValueItem]:
             KeyValueItem('first_name', Code(user.first_name)),
             KeyValueItem('last_name', Code(user.last_name)),
             KeyValueItem('username', Code(user.username)),
-            KeyValueItem('mutual_contact', Code(user.mutual_contact)))
+            KeyValueItem('mutual_contact', Code(user.mutual_contact)),
+            KeyValueItem('ban_reason', Code(ban_reason)) if ban_reason else KeyValueItem('gbanned', Code('False')))
 
         bot = SubSection(
             Bold('bot'),
