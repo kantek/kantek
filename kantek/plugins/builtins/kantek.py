@@ -26,6 +26,7 @@ async def tag(event: NewMessage.Event) -> None:
 
     """
     client: KantekClient = event.client
+    tlog.info("Stuff")
     await client.respond(event, MDTeXDocument(
         Section(f"{Bold('kantek')} userbot",
                 KeyValueItem(Bold('source'), 'kv2.spamwat.ch'),

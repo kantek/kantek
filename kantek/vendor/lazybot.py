@@ -1,5 +1,5 @@
 """Super simple bot class to simply call api methods."""
-import requests
+from aiohttp import ClientSession
 
 
 class Bot:
@@ -7,15 +7,17 @@ class Bot:
 
     def __init__(self, token):
         self.url = f'https://api.telegram.org/bot{token}'
+        self.aioclient = ClientSession()
 
     def __getattr__(self, method_name):
         """Allow any method to be called."""
 
-        def request(**kwargs):
+        async def request(**kwargs):
             """Do the post request to telegram."""
             method = self.snake_to_camel(method_name)
-            req = requests.post(self.url + f'/{method}', data=kwargs)
-            return req.json()
+            req = await self.aioclient.post(self.url + f'/{method}', data=kwargs)
+            result = await req.json()
+            return result
 
         return request
 

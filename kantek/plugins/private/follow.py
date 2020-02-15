@@ -23,4 +23,4 @@ async def follow(event: NewMessage.Event) -> None:
     await client.respond(event, MDTeXDocument(
         Section(Bold('Follow'),
                 KeyValueItem(Bold('Original URL'), Code(link)),
-                KeyValueItem(Bold('Followed URL'), Code(await helpers.resolve_url(link, base_domain=False))))))
+                KeyValueItem(Bold('Followed URL'), Code(await client.resolve_url(link, base_domain=False))))))

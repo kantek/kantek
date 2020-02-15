@@ -10,10 +10,7 @@ from typing import Dict, List, Tuple
 
 import logzero
 import photohash
-import requests
 from PIL import Image
-from faker import Faker
-from requests import ConnectionError, ReadTimeout
 from telethon import utils
 from telethon.events import NewMessage
 from telethon.tl.types import User
@@ -95,33 +92,6 @@ async def resolve_invite_link(link):
 
 async def netloc(url: str) -> str:
     return urllib.parse.urlparse(url).netloc
-
-
-async def resolve_url(url: str, base_domain: bool = True) -> str:
-    """Follow all redirects and return the base domain
-
-    Args:
-        url: The url
-
-    Returns:
-        The base comain as given by urllib.parse
-    """
-    faker = Faker()
-    headers = {'User-Agent': faker.user_agent()}
-    if not url.startswith('http'):
-        url = f'http://{url}'
-    try:
-        req = requests.get(url, headers=headers, timeout=2)
-        url = req.url
-    except (ConnectionError, ReadTimeout) as err:
-        logger.warning(err)
-    netloc = urllib.parse.urlparse(url).netloc
-    # split up the result to only get the base domain
-    # www.sitischu.com => sitischu.com
-    _base_domain = netloc.split('.', maxsplit=netloc.count('.') - 1)[-1]
-    if _base_domain and base_domain:
-        url = _base_domain
-    return url
 
 
 def hash_file(file: bytes):

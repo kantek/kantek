@@ -1,4 +1,5 @@
 """Module with the Custom Logging Handler for logging to a Telegram Channel."""
+import asyncio
 from datetime import datetime
 from logging import Handler, LogRecord, Logger
 from typing import Union, Dict
@@ -15,7 +16,9 @@ class TGChannelLogHandler(Handler):
 
     def __init__(self, bot_token: str, channel_id: Union[str, int]) -> None:
         self.bot = lazybot.Bot(bot_token)
-        self.me: Dict[str, Union[bool, str, int]] = self.bot.get_me()
+        # might want to make this a instance variable if its safe to do so
+        loop = asyncio.get_event_loop()
+        self.me: Dict[str, Union[bool, str, int]] = loop.run_until_complete(self.bot.get_me())
         if not self.me['ok']:
             logger.warning('Got Error: %s %s '
                            'from the bot API. '
@@ -46,7 +49,8 @@ class TGChannelLogHandler(Handler):
 
     def emit(self, record: LogRecord) -> None:
         """Send the log message to the specified Telegram channel."""
-        self.bot.send_message(
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(self.bot.send_message(
             chat_id=self.channel_id,
             text=self.format(record),
-            parse_mode='markdown')
+            parse_mode='markdown'))
