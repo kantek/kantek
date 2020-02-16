@@ -94,12 +94,20 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if hex_type is None or collection is None:
             continue
         if hex_type == '0x3':
-            # remove any query parameters like ?start=
-            # replace @ aswell since some spammers started using it, only Telegram X supports it
-            _string = string.split('?')[0].replace('@', '')
+            _string = string
             link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
             string = chat_id
             if string is None:
+                if _string.startswith('tg://resolve'):
+                    # tg://resolve?domain=<username>&start=<value>
+                    params = re.split(r'[?&]', _string)[1:]
+                    for param in params:
+                        if param.startswith('domain'):
+                            _, _string = param.split('=')
+                else:
+                    # remove any query parameters like ?start=
+                    # replace @ aswell since some spammers started using it, only Telegram X supports it
+                    _string = _string.split('?')[0].replace('@', '')
                 try:
                     entity = await event.client.get_entity(_string)
                 except constants.GET_ENTITY_ERRORS as err:
