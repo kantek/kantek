@@ -1,4 +1,5 @@
 """File containing the Custom TelegramClient"""
+import asyncio
 import datetime
 import logging
 import time
@@ -172,7 +173,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         try:
             async with self.aioclient.get(url, headers=headers) as response:
                 url = response.url.host
-        except ClientError as err:
+        except (ClientError, asyncio.TimeoutError) as err:
             logger.warning(err)
             return old_url
 
