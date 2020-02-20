@@ -29,7 +29,7 @@ async def tag(event: NewMessage.Event) -> None:
 
     await client.respond(event, MDTeXDocument(
         Section(f"{Bold('kantek')} userbot",
-                KeyValueItem(Bold('source'), 'kv2.spamwat.ch'),
+                KeyValueItem(Bold('source'), 'src.kv2.dev'),
                 KeyValueItem(Bold('version'), client.kantek_version),
                 KeyValueItem(Bold('telethon version'), telethon.__version__),
                 KeyValueItem(Bold('python version'), platform.python_version()),
