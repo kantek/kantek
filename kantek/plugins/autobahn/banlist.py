@@ -1,10 +1,12 @@
 """Plugin to manage the banlist of the bot."""
+import asyncio
 import csv
 import logging
 import os
 import time
 from typing import List
 
+from spamwatch.types import Ban, Permission
 from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
@@ -19,6 +21,7 @@ __version__ = '0.2.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
+SWAPI_SLICE_LENGTH = 50
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}b(an)?l(ist)?'))
 async def banlist(event: NewMessage.Event) -> None:
@@ -74,6 +77,7 @@ async def _query_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument
 
 async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     msg: Message = event.message
+    client: KantekClient = event.client
     filename = 'tmp/banlist_import.csv'
     if msg.is_reply:
         reply_msg: Message = await msg.get_reply_message()
@@ -88,6 +92,18 @@ async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocumen
                          'INSERT ban '
                          'UPDATE {"reason": ban.reason} '
                          'IN BanList', bind_vars={'banlist': _banlist})
+                if client.sw and client.sw.permission in [Permission.Admin, Permission.Root]:
+                    bans = {}
+                    for b in _banlist:
+                        bans[b['reason']] = bans.get(b['reason'], []) + [b['id']]
+                    admin_id = (await client.get_me()).id
+                    for reason, uids in bans.items():
+                        uids_copy = uids[:]
+                        while uids_copy:
+                            client.sw.add_bans([Ban(int(uid), reason, admin_id)
+                                                for uid in uids_copy[:SWAPI_SLICE_LENGTH]])
+                            uids_copy = uids_copy[SWAPI_SLICE_LENGTH:]
+
             stop_time = time.time() - start_time
             return MDTeXDocument(Section(Bold('Import Result'),
                                          f'Added {len(_banlist)} entries.'),
