@@ -79,6 +79,9 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
     >>> parse_arguments('https://example.com')
     ({}, ['https://example.com'])
 
+    >>> parse_arguments('keyword: "Something[not a list]"')
+    ({'keyword': "Something[not a list]"}, [])
+
     Args:
         arguments: The string with the arguments that should be parsed
 
@@ -90,6 +93,10 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
     _named_attrs = re.findall(KEYWORD_ARGUMENT, arguments)
     keyword_args: Dict[str, str] = {}
     for name, value in _named_attrs:
+        if value.startswith('"') and value.endswith('"'):
+            keyword_args.update({name: re.sub(r'\"', '', value)})
+            continue
+
         val = re.sub(r'\"', '', value)
         val = _parse_number(val)
         if isinstance(val, str):
