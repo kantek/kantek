@@ -80,7 +80,7 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
     ({}, ['https://example.com'])
 
     >>> parse_arguments('keyword: "Something[not a list]"')
-    ({'keyword': "Something[not a list]"}, [])
+    ({'keyword': 'Something[not a list]'}, [])
 
     Args:
         arguments: The string with the arguments that should be parsed
