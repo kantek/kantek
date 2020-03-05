@@ -84,16 +84,16 @@ class AutobahnBlacklist(Collection):
         }
     }
 
-    def add_string(self, string: str) -> Optional[Document]:
+    def add_item(self, item: str) -> Optional[Document]:
         """Add a Chat to the DB or return an existing one.
 
         Args:
-            string: The id of the chat
+            item: The id of the chat
 
         Returns: The chat Document
 
         """
-        data = {'string': string}
+        data = {'string': item}
 
         try:
             doc = self.createDocument(data)

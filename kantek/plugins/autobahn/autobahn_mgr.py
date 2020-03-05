@@ -50,11 +50,11 @@ async def autobahn(event: NewMessage.Event) -> None:
         pass
 
     elif args[0] == 'add' and len(args) > 1:
-        response = await _add_string(event, db)
+        response = await _add_item(event, db)
     elif args[0] == 'del' and len(args) > 1:
-        response = await _del_string(event, db)
+        response = await _del_item(event, db)
     elif args[0] == 'query' and len(args) > 1:
-        response = await _query_string(event, db)
+        response = await _query_item(event, db)
     if response:
         await client.respond(event, response)
 
@@ -75,66 +75,66 @@ async def _file_callback(received: int, total: int, msg: Message) -> None:
         logger.error(err)
 
 
-async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
-    """Add a string to the Collection of its type"""
+async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+    """Add a item to the Collection of its type"""
     client: KantekClient = event.client
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
     _, args = parsers.parse_arguments(' '.join(args))
-    string_type = args[0]
-    strings = args[1:]
+    item_type = args[0]
+    items = args[1:]
     added_items = []
     existing_items = []
     skipped_items = []
-    hex_type = AUTOBAHN_TYPES.get(string_type)
+    hex_type = AUTOBAHN_TYPES.get(item_type)
     collection = db.ab_collection_map.get(hex_type)
     warn_message = ''
 
-    for string in strings:
+    for item in items:
         if hex_type is None or collection is None:
             continue
         if hex_type == '0x3':
-            _string = string
-            link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
-            string = chat_id
-            if string is None:
-                if _string.startswith('tg://resolve'):
+            _item = item
+            link_creator, chat_id, random_part = await helpers.resolve_invite_link(item)
+            item = chat_id
+            if item is None:
+                if _item.startswith('tg://resolve'):
                     # tg://resolve?domain=<username>&start=<value>
-                    params = re.split(r'[?&]', _string)[1:]
+                    params = re.split(r'[?&]', _item)[1:]
                     for param in params:
                         if param.startswith('domain'):
-                            _, _string = param.split('=')
+                            _, _item = param.split('=')
                 else:
                     # remove any query parameters like ?start=
                     # replace @ aswell since some spammers started using it, only Telegram X supports it
-                    _string = _string.split('?')[0].replace('@', '')
+                    _item = _item.split('?')[0].replace('@', '')
                 try:
-                    entity = await event.client.get_entity(_string)
+                    entity = await event.client.get_entity(_item)
                 except constants.GET_ENTITY_ERRORS as err:
                     logger.error(err)
-                    skipped_items.append(_string)
+                    skipped_items.append(_item)
                     continue
                 if entity:
-                    string = entity.id
+                    item = entity.id
         elif hex_type == '0x4':
-            string = (await client.resolve_url(string)).lower()
-            if string in constants.TELEGRAM_DOMAINS:
-                skipped_items.append(string)
+            item = (await client.resolve_url(item)).lower()
+            if item in constants.TELEGRAM_DOMAINS:
+                skipped_items.append(item)
                 continue
         # avoids "null" being added to the db
-        if string is None:
-            skipped_items.append(string)
+        if item is None:
+            skipped_items.append(item)
             continue
 
-        existing_one = collection.fetchByExample({'string': string}, batchSize=1)
+        existing_one = collection.fetchByExample({'string': item}, batchSize=1)
 
         if not existing_one:
-            collection.add_string(string)
-            added_items.append(Code(string))
+            collection.add_item(item)
+            added_items.append(Code(item))
         else:
-            existing_items.append(Code(string))
+            existing_items.append(Code(item))
 
-    if not strings and hex_type == '0x5':
+    if not items and hex_type == '0x5':
         if msg.is_reply:
             reply_msg: Message = await msg.get_reply_message()
             if reply_msg.file:
@@ -149,7 +149,7 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
 
                 short_hash = f'{file_hash[:15]}[...]'
                 if not existing_one:
-                    collection.add_string(file_hash)
+                    collection.add_item(file_hash)
                     added_items.append(Code(short_hash))
                 else:
                     existing_items.append(Code(short_hash))
@@ -157,7 +157,7 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                 return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a file'))
         else:
             return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a file'))
-    if not strings and hex_type == '0x6':
+    if not items and hex_type == '0x6':
         if msg.is_reply:
             reply_msg: Message = await msg.get_reply_message()
             if reply_msg.photo:
@@ -169,7 +169,7 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                 existing_one = collection.fetchByExample({'string': photo_hash}, batchSize=1)
 
                 if not existing_one:
-                    collection.add_string(photo_hash)
+                    collection.add_item(photo_hash)
                     if Counter(photo_hash).get('0', 0) > 8:
                         warn_message = 'The image seems to contain a lot of the same color. This might lead to false positives.'
 
@@ -182,48 +182,48 @@ async def _add_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
 
     return MDTeXDocument(Section(Bold('Added Items:'),
-                                 SubSection(Bold(string_type),
+                                 SubSection(Bold(item_type),
                                             *added_items)) if added_items else '',
                          Section(Bold('Existing Items:'),
-                                 SubSection(Bold(string_type),
+                                 SubSection(Bold(item_type),
                                             *existing_items)) if existing_items else '',
                          Section(Bold('Skipped Items:'),
-                                 SubSection(Bold(string_type),
+                                 SubSection(Bold(item_type),
                                             *skipped_items)) if skipped_items else '',
                          Section(Bold('Warning:'),
                                  warn_message) if warn_message else ''
                          )
 
 
-async def _del_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
-    """Add a string to the Collection of its type"""
+async def _del_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+    """Add a item to the Collection of its type"""
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
     _, args = parsers.parse_arguments(' '.join(args))
-    string_type = args[0]
-    strings = args[1:]
+    item_type = args[0]
+    items = args[1:]
     removed_items = []
-    for string in strings:
-        hex_type = AUTOBAHN_TYPES.get(string_type)
+    for item in items:
+        hex_type = AUTOBAHN_TYPES.get(item_type)
         collection = db.ab_collection_map.get(hex_type)
         if hex_type is None or collection is None:
             continue
 
         if hex_type == '0x3':
-            link_creator, chat_id, random_part = await helpers.resolve_invite_link(string)
-            string = chat_id
+            link_creator, chat_id, random_part = await helpers.resolve_invite_link(item)
+            item = chat_id
 
-        existing_one: Document = collection.fetchFirstExample({'string': string})
+        existing_one: Document = collection.fetchFirstExample({'string': item})
         if existing_one:
             existing_one[0].delete()
-            removed_items.append(string)
+            removed_items.append(item)
 
     return MDTeXDocument(Section(Bold('Deleted Items:'),
-                                 SubSection(Bold(string_type),
+                                 SubSection(Bold(item_type),
                                             *removed_items)))
 
 
-async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+async def _query_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     """Add a string to the Collection of its type"""
     msg: Message = event.message
     args = msg.raw_text.split()[2:]
@@ -232,13 +232,13 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         return MDTeXDocument(Section(
             Bold('Types'),
             *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
-    string_type = keyword_args.get('type')
+    item_type = keyword_args.get('type')
     code = keyword_args.get('code')
 
     hex_type = None
     collection = None
-    if string_type is not None:
-        hex_type = AUTOBAHN_TYPES.get(string_type)
+    if item_type is not None:
+        hex_type = AUTOBAHN_TYPES.get(item_type)
         collection = db.ab_collection_map[hex_type]
     if code is None:
         all_strings = collection.fetchAll()
@@ -247,12 +247,12 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                                   Code(doc['string'])) for doc in all_strings]
         else:
             items = [Pre(', '.join([doc['string'] for doc in all_strings]))]
-        return MDTeXDocument(Section(Bold(f'Items for type: {string_type}[{hex_type}]'), *items))
+        return MDTeXDocument(Section(Bold(f'Items for type: {item_type}[{hex_type}]'), *items))
 
     elif hex_type is not None and code is not None:
         if isinstance(code, int):
             string = collection.fetchDocument(code).getStore()['string']
-            return MDTeXDocument(Section(Bold(f'Items for type: {string_type}[{hex_type}] code: {code}'), Code(string)))
+            return MDTeXDocument(Section(Bold(f'Items for type: {item_type}[{hex_type}] code: {code}'), Code(string)))
         elif isinstance(code, range) or isinstance(code, list):
             keys = [str(i) for i in code]
             documents = db.query(f'FOR doc IN @@collection '
@@ -263,4 +263,4 @@ async def _query_string(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
                                   Code(doc['string'])) for doc in documents]
             return MDTeXDocument(
-                Section(Bold(f'Items for for type: {string_type}[{hex_type}]'), *items))
+                Section(Bold(f'Items for for type: {item_type}[{hex_type}]'), *items))
