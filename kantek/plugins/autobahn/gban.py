@@ -63,12 +63,17 @@ async def gban(event: NewMessage.Event) -> None:
             await reply_msg.delete()
     else:
         uids = []
-        ban_reason = keyword_args.get('reason', DEFAULT_REASON)
+        ban_reason = []
         for arg in args:
             if isinstance(arg, int):
                 uids.append(arg)
             else:
-                ban_reason = arg
+                ban_reason.append(arg)
+        if ban_reason:
+            ban_reason = ' '.join(ban_reason)
+        else:
+            ban_reason = keyword_args.get('reason', DEFAULT_REASON)
+
         skipped_uids = []
         for uid in uids:
             banned = await client.gban(uid, ban_reason)
