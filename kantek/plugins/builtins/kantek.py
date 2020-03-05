@@ -5,6 +5,8 @@ import platform
 import telethon
 from telethon import events
 from telethon.events import NewMessage
+from telethon.tl.functions.messages import GetStickerSetRequest
+from telethon.tl.types import InputStickerSetShortName, StickerSet, Channel
 
 from config import cmd_prefix
 from utils.client import KantekClient
@@ -16,7 +18,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}kantek'))
-async def tag(event: NewMessage.Event) -> None:
+async def kantek(event: NewMessage.Event) -> None:
     """Show information about kantek.
 
     Args:
@@ -26,11 +28,13 @@ async def tag(event: NewMessage.Event) -> None:
 
     """
     client: KantekClient = event.client
-
-    await client.respond(event, MDTeXDocument(
+    chat: Channel = await event.get_chat()
+    stickerset: StickerSet = await client(GetStickerSetRequest(InputStickerSetShortName("kantek")))
+    await client.send_file(chat, stickerset.documents[0])
+    await client.send_message(chat, str(MDTeXDocument(
         Section(f"{Bold('kantek')} userbot",
                 KeyValueItem(Bold('source'), 'src.kv2.dev'),
                 KeyValueItem(Bold('version'), client.kantek_version),
                 KeyValueItem(Bold('telethon version'), telethon.__version__),
                 KeyValueItem(Bold('python version'), platform.python_version()),
-                KeyValueItem(Bold('plugins loaded'), len(client.plugin_mgr.active_plugins)))))
+                KeyValueItem(Bold('plugins loaded'), len(client.plugin_mgr.active_plugins))))))
