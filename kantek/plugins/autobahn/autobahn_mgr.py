@@ -31,6 +31,7 @@ AUTOBAHN_TYPES = {
     'domain': '0x4',
     'file': '0x5',
     'mhash': '0x6',
+    'tld': '0x7',
     'preemptive': '0x9'
 }
 
@@ -121,6 +122,8 @@ async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             if item in constants.TELEGRAM_DOMAINS:
                 skipped_items.append(item)
                 continue
+        elif hex_type == '0x7':
+            item = item.replace('.', '')
         # avoids "null" being added to the db
         if item is None:
             skipped_items.append(item)
@@ -180,6 +183,8 @@ async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                 return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
         else:
             return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
+
+
 
     return MDTeXDocument(Section(Bold('Added Items:'),
                                  SubSection(Bold(item_type),

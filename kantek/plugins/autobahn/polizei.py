@@ -151,6 +151,7 @@ async def _check_message(event):
     domain_blacklist = db.ab_domain_blacklist.get_all()
     file_blacklist = db.ab_file_blacklist.get_all()
     mhash_blacklist = db.ab_mhash_blacklist.get_all()
+    tld_blacklist = db.ab_tld_blacklist.get_all()
 
     inline_bot = msg.via_bot_id
     if inline_bot is not None and inline_bot in channel_blacklist:
@@ -164,12 +165,20 @@ async def _check_message(event):
                 _, chat_id, _ = await helpers.resolve_invite_link(button.url)
                 if chat_id in channel_blacklist:
                     return db.ab_channel_blacklist.hex_type, channel_blacklist[chat_id]
+
                 domain = await client.resolve_url(button.url)
+
                 if domain in domain_blacklist:
                     return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
+
+                tld_index = await _check_tld(domain, tld_blacklist)
+                if tld_index:
+                    return db.ab_tld_blacklist.hex_type, tld_index
+
                 face_domain = await helpers.netloc(button.url)
                 if face_domain in domain_blacklist:
                     return db.ab_domain_blacklist.hex_type, domain_blacklist[face_domain]
+
                 elif domain in constants.TELEGRAM_DOMAINS:
                     _entity = await client.get_cached_entity(domain)
                     if _entity and _entity in channel_blacklist:
@@ -209,10 +218,26 @@ async def _check_message(event):
             except constants.GET_ENTITY_ERRORS as err:
                 logger.error(err)
 
-        if domain and domain in domain_blacklist:
-            return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
-        if face_domain and face_domain in domain_blacklist:
-            return db.ab_domain_blacklist.hex_type, domain_blacklist[face_domain]
+        # urllib doesnt like urls without a protocol
+        if not face_domain:
+            face_domain = await helpers.netloc(f'http://{domain}')
+
+        if domain:
+            if domain in domain_blacklist:
+                return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
+            else:
+                tld_index = await _check_tld(domain, tld_blacklist)
+                if tld_index:
+                    return db.ab_tld_blacklist.hex_type, tld_index
+
+        if face_domain:
+            if face_domain in domain_blacklist:
+                return db.ab_domain_blacklist.hex_type, domain_blacklist[face_domain]
+            else:
+                tld_index = await _check_tld(face_domain, tld_blacklist)
+                if tld_index:
+                    return db.ab_tld_blacklist.hex_type, tld_index
+
         if channel and channel in channel_blacklist:
             return db.ab_channel_blacklist.hex_type, channel_blacklist[channel]
 
@@ -241,3 +266,11 @@ async def _check_message(event):
                 return db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
 
     return False, False
+
+
+async def _check_tld(domain, tld_blacklist):
+    domain, tld = domain.split('.')
+    if tld in tld_blacklist and domain != 'nic':
+        return tld_blacklist[tld]
+    else:
+        return False

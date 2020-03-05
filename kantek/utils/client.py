@@ -2,6 +2,7 @@
 import asyncio
 import datetime
 import logging
+import socket
 import time
 from typing import Optional, Union
 
@@ -173,7 +174,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         try:
             async with self.aioclient.get(url, headers=headers) as response:
                 url = response.url
-        except (ClientError, asyncio.TimeoutError) as err:
+        except (ClientError, asyncio.TimeoutError, socket.gaierror) as err:
             logger.warning(err)
             return old_url
 
