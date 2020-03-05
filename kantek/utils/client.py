@@ -172,7 +172,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
             url = f'http://{url}'
         try:
             async with self.aioclient.get(url, headers=headers) as response:
-                url = response.url.host
+                url = response.url
         except (ClientError, asyncio.TimeoutError) as err:
             logger.warning(err)
             return old_url
@@ -180,6 +180,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         if base_domain:
             # split up the result to only get the base domain
             # www.sitischu.com => sitischu.com
+            url = url.host
             _base_domain = url.split('.', maxsplit=url.count('.') - 1)[-1]
             if _base_domain:
                 url = _base_domain
