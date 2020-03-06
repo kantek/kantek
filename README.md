@@ -1,4 +1,6 @@
-![Kantek](https://i.sitischu.com/comp_002-010_sw_kantek_fractal_logo_interaction.png)
+<p align="center">
+  <img src="https://i.sitischu.com/kantek_main_smol.png">
+</p>
 # Kantek
 Kantek is a userbot written in Python using Telethon.
 
