@@ -1,6 +1,7 @@
 <p align="center">
-  <img src="https://i.sitischu.com/kantek_main_smol.png">
+  <img src="https://i.sitischu.com/kantek_main_smol_256.png">
 </p>
+
 # Kantek
 Kantek is a userbot written in Python using Telethon.
 
