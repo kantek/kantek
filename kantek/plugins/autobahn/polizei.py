@@ -227,7 +227,7 @@ async def _check_message(event):
         if domain:
             if domain in domain_blacklist:
                 return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
-            else:
+            # else:
                 # tld_index = await _check_tld(domain, tld_blacklist)
                 # if tld_index:
                 #     return db.ab_tld_blacklist.hex_type, tld_index
@@ -235,7 +235,7 @@ async def _check_message(event):
         if face_domain:
             if face_domain in domain_blacklist:
                 return db.ab_domain_blacklist.hex_type, domain_blacklist[face_domain]
-            else:
+            # else:
                 # tld_index = await _check_tld(face_domain, tld_blacklist)
                 # if tld_index:
                 #     return db.ab_tld_blacklist.hex_type, tld_index
