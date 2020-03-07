@@ -139,13 +139,11 @@ class AutobahnFileBlacklist(AutobahnBlacklist):
 
 class AutobahnMHashBlacklist(AutobahnBlacklist):
     """Blacklist with blacklisted photo hashes"""
-    name = 'mhash_blacklist'
     hex_type = '0x6'
 
 
 class AutobahnTLDBlacklist(AutobahnBlacklist):
     """Blacklist with blacklisted top level domains"""
-    name = 'mhash_blacklist'
     hex_type = '0x7'
 
 
