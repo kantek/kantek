@@ -76,7 +76,8 @@ async def gban(event: NewMessage.Event) -> None:
 
         skipped_uids = []
         banned_uids = []
-        progress_message: Message = await client.send_message(chat, f"Processing {len(uids)} User IDs")
+        if verbose:
+            progress_message: Message = await client.send_message(chat, f"Processing {len(uids)} User IDs")
         while uids:
             uid_batch = uids[:10]
             for uid in uid_batch:
@@ -89,10 +90,12 @@ async def gban(event: NewMessage.Event) -> None:
                 await asyncio.sleep(0.5)
             uids = uids[10:]
             if uids:
-                await progress_message.edit(f"Sleeping for 10 seconds after banning {len(uid_batch)} Users. {len(uids)} Users left.")
+                if verbose:
+                    await progress_message.edit(f"Sleeping for 10 seconds after banning {len(uid_batch)} Users. {len(uids)} Users left.")
                 await asyncio.sleep(10)
 
-        await progress_message.delete()
+        if verbose:
+            await progress_message.delete()
 
         if verbose:
             if banned_uids:
