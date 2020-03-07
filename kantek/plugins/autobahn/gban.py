@@ -75,15 +75,28 @@ async def gban(event: NewMessage.Event) -> None:
             ban_reason = keyword_args.get('reason', DEFAULT_REASON)
 
         skipped_uids = []
-        for uid in uids:
-            banned = await client.gban(uid, ban_reason)
-            if not banned:
-                skipped_uids.append(uid)
-            # sleep to avoid flooding the bots too much
-            await asyncio.sleep(0.5)
+        banned_uids = []
+        progress_message: Message = await client.send_message(chat, f"Processing {len(uids)} User IDs")
+        while uids:
+            uid_batch = uids[:10]
+            for uid in uid_batch:
+                banned = await client.gban(uid, ban_reason)
+                if not banned:
+                    skipped_uids.append(uid)
+                # sleep to avoid flooding the bots too much
+                else:
+                    banned_uids.append(uid)
+                await asyncio.sleep(0.5)
+            uids = uids[10:]
+            if uids:
+                await progress_message.edit(f"Sleeping for 10 seconds after banning {len(uid_batch)} Users. {len(uids)} Users left.")
+                await asyncio.sleep(10)
+
+        await progress_message.delete()
+
         if verbose:
-            banned_users = [str(uid) for uid in uids if uid not in skipped_uids]
-            if banned_users:
+            if banned_uids:
+                banned_users = [str(uid) for uid in banned_uids]
                 await client.respond(event, MDTeXDocument(
                     Section(Bold('GBanned Users'),
                             KeyValueItem(Bold('Reason'), ban_reason),
