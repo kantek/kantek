@@ -92,7 +92,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         await self.send_message(
             config.gban_group,
             f'/fban {uid} {reason}')
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
         await self.send_read_acknowledge(config.gban_group,
                                          max_id=1000000,
                                          clear_mentions=True)
@@ -129,7 +129,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         await self.send_message(
             config.gban_group,
             f'/unfban {uid}')
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
         await self.send_read_acknowledge(config.gban_group,
                                          max_id=1000000,
                                          clear_mentions=True)
