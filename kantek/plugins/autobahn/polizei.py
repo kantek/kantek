@@ -195,28 +195,31 @@ async def _check_message(event):
             if domain in constants.TELEGRAM_DOMAINS:
                 # remove any query parameters like ?start=
                 # replace @ since some spammers started using it, only Telegram X supports it
-                username = text.split('?')[0].replace('@', '')
+                url = await client.resolve_url(text, base_domain=False)
+                username = url.split('?')[0].replace('@', '')
                 _entity = username
+
+        elif isinstance(entity, MessageEntityTextUrl):
+            domain = await client.resolve_url(entity.url)
+            face_domain = await helpers.netloc(entity.url)
+            if domain in constants.TELEGRAM_DOMAINS:
+                url = await client.resolve_url(entity.url, base_domain=False)
+                username = url.split('?')[0].replace('@', '')
+                _entity = username
+
+        elif isinstance(entity, MessageEntityMention):
+            _entity = text
+
+        if _entity:
+            try:
                 full_entity = await client.get_cached_entity(_entity)
+                channel = full_entity.id
                 profile_photo = await client.download_profile_photo(full_entity, bytes)
                 photo_hash = await hash_photo(profile_photo)
 
                 for mhash in mhash_blacklist:
                     if hashes_are_similar(mhash, photo_hash, tolerance=2):
                         return db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
-
-        elif isinstance(entity, MessageEntityTextUrl):
-            domain = await client.resolve_url(entity.url)
-            face_domain = await helpers.netloc(entity.url)
-            if domain in constants.TELEGRAM_DOMAINS:
-                username = entity.url.split('?')[0].replace('@', '')
-                _entity = username
-        elif isinstance(entity, MessageEntityMention):
-            _entity = text
-
-        if _entity:
-            try:
-                channel = (await client.get_cached_entity(_entity)).id
             except constants.GET_ENTITY_ERRORS as err:
                 logger.error(err)
 

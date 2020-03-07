@@ -3,7 +3,6 @@ import asyncio
 import datetime
 import logging
 import socket
-import time
 from typing import Optional, Union
 
 import logzero
@@ -17,6 +16,7 @@ from telethon.events import NewMessage, ChatAction
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights
+from yarl import URL
 
 import config
 from database.arango import ArangoDB
@@ -173,7 +173,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
             url = f'http://{url}'
         try:
             async with self.aioclient.get(url, headers=headers) as response:
-                url = response.url
+                url: URL = response.url
         except (ClientError, asyncio.TimeoutError, socket.gaierror) as err:
             logger.warning(err)
             return old_url
@@ -185,4 +185,4 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
             _base_domain = url.split('.', maxsplit=url.count('.') - 1)[-1]
             if _base_domain:
                 url = _base_domain
-        return url
+        return str(url)
