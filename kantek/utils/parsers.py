@@ -2,7 +2,7 @@
 import re
 from typing import Dict, List, Pattern, Tuple, Union
 
-KEYWORD_ARGUMENT: Pattern = re.compile(r'(\S+):\s?(\[.+?\]|\".+\"|[\w-]\S+)')
+KEYWORD_ARGUMENT: Pattern = re.compile(r'(\S+):\s?(\[.+?\]|\".+\"|[\w-]\S*)')
 QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")')
 RANGE_PATTERN: Pattern = re.compile(r'-?\d+\.\.-?\d+')
 BOOL_MAP = {
@@ -81,6 +81,9 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
 
     >>> parse_arguments('keyword: "Something[not a list]"')
     ({'keyword': 'Something[not a list]'}, [])
+
+    >>> parse_arguments('keyword: 1 keyword2: 5')
+    ({'keyword': 1, 'keyword2': 5}, [])
 
     Args:
         arguments: The string with the arguments that should be parsed
