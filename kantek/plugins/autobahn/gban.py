@@ -21,6 +21,7 @@ __version__ = '0.4.0'
 tlog = logging.getLogger('kantek-channel-log')
 
 DEFAULT_REASON = 'spam[gban]'
+CHUNK_SIZE = 10
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}gban'))
@@ -76,10 +77,10 @@ async def gban(event: NewMessage.Event) -> None:
 
         skipped_uids = []
         banned_uids = []
-        if verbose:
+        if verbose and len(uids) > 10:
             progress_message: Message = await client.send_message(chat, f"Processing {len(uids)} User IDs")
         while uids:
-            uid_batch = uids[:10]
+            uid_batch = uids[:CHUNK_SIZE]
             for uid in uid_batch:
                 banned = await client.gban(uid, ban_reason)
                 if not banned:
@@ -88,7 +89,7 @@ async def gban(event: NewMessage.Event) -> None:
                 else:
                     banned_uids.append(uid)
                 await asyncio.sleep(0.5)
-            uids = uids[10:]
+            uids = uids[CHUNK_SIZE:]
             if uids:
                 if verbose:
                     await progress_message.edit(f"Sleeping for 10 seconds after banning {len(uid_batch)} Users. {len(uids)} Users left.")
