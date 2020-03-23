@@ -11,10 +11,12 @@ from utils.client import KantekClient
 
 __version__ = '0.1.0'
 
+from utils.constants import SCHEDULE_DELETION_COMMAND
+
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}del(ete)?'))
+@events.register(events.NewMessage(outgoing=True, pattern=SCHEDULE_DELETION_COMMAND))
 async def delete(event: NewMessage.Event) -> None:
     """Delete the replied to message
 

@@ -23,6 +23,7 @@ from yarl import URL
 import config
 from config import cmd_prefix
 from database.arango import ArangoDB
+from utils.constants import SCHEDULE_DELETION_COMMAND
 from utils.mdtex import FormattedBase, MDTeXDocument, Section
 from utils.pluginmgr import PluginManager
 
@@ -68,9 +69,8 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         else:
             sent_msg: Message = await event.respond(msg, reply_to=event.message.id)
         if delete is not None:
-            # Ugly hack to remove escape characters
-            prefix = ast.literal_eval(f'"{cmd_prefix}"')
-            await self.send_message(sent_msg.chat, f'{prefix}delete [Scheduled deletion]',
+            # While asyncio.sleep would work it would stop the function from returning which is annoying
+            await self.send_message(sent_msg.chat, f'{SCHEDULE_DELETION_COMMAND} [Scheduled deletion]',
                                     schedule=datetime.timedelta(seconds=delete), reply_to=sent_msg.id)
         return sent_msg
 
