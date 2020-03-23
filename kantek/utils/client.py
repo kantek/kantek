@@ -5,7 +5,7 @@ import datetime
 import logging
 import re
 import socket
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 import logzero
 import spamwatch
@@ -76,25 +76,26 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                                     schedule=datetime.timedelta(seconds=delete), reply_to=sent_msg.id)
         return sent_msg
 
-    async def gban(self, uid: Union[int, str], reason: str):
+    async def gban(self, uid: Union[int, str], reason: str) -> Tuple[bool, str]:
         """Command to gban a user
 
         Args:
             uid: User ID
             reason: Ban reason
 
-        Returns: None
+        Returns:
+            True if ban was successful else false, ban reason
 
         """
         # if the user account is deleted this can be None
         if uid is None:
-            return
+            return False, 'Deleted account'
         user = self.db.query('For doc in BanList '
                              'FILTER doc._key == @uid '
                              'RETURN doc', bind_vars={'uid': str(uid)})
         for ban_reason in AUTOMATED_BAN_REASONS:
             if user and ((ban_reason in user[0]['reason'].lower()) and (ban_reason not in reason.lower())):
-                return False
+                return False, 'Already banned by autobahn'
 
         if user:
             count = SPAMADD_PATTERN.search(reason)
@@ -132,7 +133,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         #                                  max_id=1000000,
         #                                  clear_mentions=True)
 
-        return True
+        return True, reason
 
     async def ungban(self, uid: Union[int, str]):
         """Command to gban a user

@@ -2,7 +2,7 @@
 import asyncio
 import datetime
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from telethon import events
 from telethon.events import NewMessage
@@ -75,8 +75,8 @@ async def gban(event: NewMessage.Event) -> None:
         else:
             ban_reason = keyword_args.get('reason', DEFAULT_REASON)
 
-        skipped_uids = []
-        banned_uids = []
+        skipped_uids = {}
+        banned_uids = {}
         progress_message: Optional[Message]
         if verbose and len(uids) > 10:
             progress_message: Message = await client.send_message(chat, f"Processing {len(uids)} User IDs")
@@ -85,35 +85,41 @@ async def gban(event: NewMessage.Event) -> None:
         while uids:
             uid_batch = uids[:CHUNK_SIZE]
             for uid in uid_batch:
-                banned = await client.gban(uid, ban_reason)
+                banned, reason = await client.gban(uid, ban_reason)
                 if not banned:
-                    skipped_uids.append(uid)
+                    skipped_uids[reason] = skipped_uids.get(reason, []) + [str(uid)]
                 # sleep to avoid flooding the bots too much
                 else:
-                    banned_uids.append(uid)
+                    banned_uids[reason] = banned_uids.get(reason, []) + [str(uid)]
                 await asyncio.sleep(0.5)
             uids = uids[CHUNK_SIZE:]
             if uids:
                 if progress_message:
-                    await progress_message.edit(f"Sleeping for 10 seconds after banning {len(uid_batch)} Users. {len(uids)} Users left.")
+                    await progress_message.edit(
+                        f"Sleeping for 10 seconds after banning {len(uid_batch)} Users. {len(uids)} Users left.")
                 await asyncio.sleep(10)
 
         if progress_message:
             await progress_message.delete()
 
         if verbose:
+            sections = []
             if banned_uids:
-                banned_users = [str(uid) for uid in banned_uids]
-                await client.respond(event, MDTeXDocument(
-                    Section(Bold('GBanned Users'),
-                            KeyValueItem(Bold('Reason'), ban_reason),
-                            KeyValueItem(Bold('IDs'), Code(', '.join(banned_users))))))
-            else:
-                skipped_users = [str(uid) for uid in skipped_uids]
-                await client.respond(event, MDTeXDocument(
-                    Section(Bold('Skipped GBan'),
-                            KeyValueItem(Bold('Reason'), "Already banned by autobahn"),
-                            KeyValueItem(Bold('IDs'), Code(', '.join(skipped_users))))))
+                bans = _build_message(banned_uids)
+                sections.append(Section(Bold('GBanned Users'), *bans))
+            if skipped_uids:
+                bans = _build_message(skipped_uids)
+                sections.append(Section(Bold('Skipped GBan'), *bans))
+
+            await client.respond(event, MDTeXDocument(*sections))
+
+
+def _build_message(bans: Dict[str, List[str]]) -> List[KeyValueItem]:
+    sections = []
+    for reason, uids in bans.items():
+        sections.append(KeyValueItem(Bold('Reason'), reason))
+        sections.append(KeyValueItem(Bold('IDs'), Code(', '.join(uids))))
+    return sections
 
 
 @events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}ungban'))
