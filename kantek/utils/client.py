@@ -3,6 +3,7 @@ import ast
 import asyncio
 import datetime
 import logging
+import re
 import socket
 from typing import Optional, Union
 
@@ -30,6 +31,7 @@ from utils.pluginmgr import PluginManager
 logger: logging.Logger = logzero.logger
 
 AUTOMATED_BAN_REASONS = ['spambot', 'vollzugsanstalt', 'kriminalamt']
+SPAMADD_PATTERN = re.compile(r"spam adding (?P<count>\d+)\+ members")
 
 
 class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
@@ -93,6 +95,14 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         for ban_reason in AUTOMATED_BAN_REASONS:
             if user and ((ban_reason in user[0]['reason'].lower()) and (ban_reason not in reason.lower())):
                 return False
+
+        if user:
+            count = SPAMADD_PATTERN.search(reason)
+            previous_count = SPAMADD_PATTERN.search(user[0]['reason'])
+            if count is not None and previous_count is not None:
+                count = int(count.group('count')) + int(previous_count.group('count'))
+                reason = f"spam adding {count}+ members"
+
         await self.send_message(
             config.gban_group,
             f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
