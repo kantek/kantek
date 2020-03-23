@@ -91,7 +91,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                              'FILTER doc._key == @uid '
                              'RETURN doc', bind_vars={'uid': str(uid)})
         for ban_reason in AUTOMATED_BAN_REASONS:
-            if user and ((ban_reason in user[0]['reason'].lower()) or (ban_reason not in reason.lower())):
+            if user and ((ban_reason in user[0]['reason'].lower()) and (ban_reason not in reason.lower())):
                 return False
         await self.send_message(
             config.gban_group,
