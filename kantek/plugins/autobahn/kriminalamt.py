@@ -33,6 +33,8 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     kriminalamt_tag = db_named_tags.get('kriminalamt')
     bancmd = db_named_tags.get('gbancmd', 'manual')
     delay = 1
+    if not event.user_joined:
+        return
     if not kriminalamt_tag or user.bot:
         return
     elif isinstance(kriminalamt_tag, int):
