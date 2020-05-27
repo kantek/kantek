@@ -6,7 +6,4 @@ Python 3.6+ is required to run the bot.
 ArangoDB is used to store bot data.
 
 ## Setup
-- Copy the example config file to `config.py`
-- Create a user and a Database in ArangoDB. Give the user full permissions to the Database.
- - Put the Authentication data into the config file.
-- Run bot.py
+[![Deploy To Heroku](https://www.herokucdn.com/deploy/button.svg)](https://https://github.com/SyearsMain/kantek/edit/patch-1)
