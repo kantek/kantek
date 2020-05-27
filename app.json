@@ -9,8 +9,8 @@
       "modular",
       "productivity"
     ],
-    "repository": "https://github.com/SyearsMain/kantek",
-    "website": "https://github.com/SyearsMain/kantek",
+    "repository": "https://github.com/SyearsMain/kantek/blob/patch-1",
+    "website": "https://github.com/SyearsMain/kantek/blob/patch-1",
     "success_url": "#TODO",
     "stack": "container",
     "env": {
