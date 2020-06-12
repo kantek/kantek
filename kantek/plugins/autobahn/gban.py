@@ -69,18 +69,15 @@ async def gban(event: NewMessage.Event) -> None:
         else:
             ban_reason = keyword_args.get('reason', DEFAULT_REASON)
 
-        if len(uids) == 1:
-            message = keyword_args.get('msg')
-            if not message:
-                link = keyword_args.get('link')
-                if link:
-                    try:
-                        linked_msg: Message = await helpers.get_linked_message(client, link)
-                        message = helpers.textify_message(linked_msg)
-                    except Exception:
-                        message = link
-        else:
-            message = None
+        message = keyword_args.get('msg')
+        if not message:
+            link = keyword_args.get('link')
+            if link:
+                try:
+                    linked_msg: Message = await helpers.get_linked_message(client, link)
+                    message = helpers.textify_message(linked_msg)
+                except Exception:
+                    message = link
 
         skipped_uids = {}
         banned_uids = {}
