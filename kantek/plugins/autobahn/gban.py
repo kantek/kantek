@@ -70,6 +70,11 @@ async def gban(event: NewMessage.Event) -> None:
         else:
             ban_reason = keyword_args.get('reason', DEFAULT_REASON)
 
+        if len(uids) == 1:
+            message = keyword_args.get('msg')
+        else:
+            message = None
+
         skipped_uids = {}
         banned_uids = {}
         progress_message: Optional[Message]
@@ -80,7 +85,7 @@ async def gban(event: NewMessage.Event) -> None:
         while uids:
             uid_batch = uids[:CHUNK_SIZE]
             for uid in uid_batch:
-                banned, reason = await client.gban(uid, ban_reason)
+                banned, reason = await client.gban(uid, ban_reason, message)
                 if not banned:
                     skipped_uids[reason] = skipped_uids.get(reason, []) + [str(uid)]
                 # sleep to avoid flooding the bots too much
