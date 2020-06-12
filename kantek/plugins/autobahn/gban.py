@@ -48,7 +48,7 @@ async def gban(event: NewMessage.Event) -> None:
             ban_reason = args[0]
         else:
             ban_reason = DEFAULT_REASON
-        await client.gban(uid, ban_reason)
+        await client.gban(uid, ban_reason, reply_msg.text)
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
             if bancmd == 'manual' or bancmd is None:
