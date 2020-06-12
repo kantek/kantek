@@ -82,12 +82,7 @@ async def _cleanup_chat(event, count: bool = False,
             deleted_users += 1
             if not count:
                 try:
-                    await client(EditBannedRequest(
-                        chat, user, ChatBannedRights(
-                            until_date=datetime.datetime(2038, 1, 1),
-                            view_messages=True
-                        )
-                    ))
+                    await client.ban(chat, user)
                 except UserAdminInvalidError:
                     deleted_admins += 1
                 except FloodWaitError as error:
@@ -102,12 +97,7 @@ async def _cleanup_chat(event, count: bool = False,
                     tlog.error(error)
                     logger.error(error)
                     await asyncio.sleep(error.seconds)
-                    await client(EditBannedRequest(
-                        chat, user, ChatBannedRights(
-                            until_date=datetime.datetime(2038, 1, 1),
-                            view_messages=True
-                        )
-                    ))
+                    await client.ban(chat, user)
 
     return MDTeXDocument(
         Section(Bold('Cleanup'),

@@ -52,12 +52,7 @@ async def kriminalamt(event: ChatAction.Event) -> None:
 
         if chat.creator or chat.admin_rights:
             if bancmd == 'manual':
-                await client(EditBannedRequest(
-                    chat, userid, ChatBannedRights(
-                        until_date=datetime.datetime(2038, 1, 1),
-                        view_messages=True
-                    )
-                ))
+                await client.ban(chat, userid)
             elif bancmd is not None:
                 await event.reply(f'{bancmd} {userid} {reason}')
                 await asyncio.sleep(0.25)

@@ -52,12 +52,7 @@ async def gban(event: NewMessage.Event) -> None:
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
             if bancmd == 'manual' or bancmd is None:
-                await client(EditBannedRequest(
-                    chat, uid, ChatBannedRights(
-                        until_date=datetime.datetime(2038, 1, 1),
-                        view_messages=True
-                    )
-                ))
+                await client.ban(chat, uid)
             elif bancmd is not None:
                 await reply_msg.reply(f'{bancmd} {ban_reason}')
                 await asyncio.sleep(0.5)
