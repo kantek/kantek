@@ -187,8 +187,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
             input_entity = await self.get_input_entity(entity)
             return await self.get_entity(input_entity)
         except ValueError:
-            return await self.get_entity(entity)
-
+            return None
 
     async def resolve_url(self, url: str, base_domain: bool = True) -> str:
         """Follow all redirects and return the base domain

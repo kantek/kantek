@@ -125,7 +125,7 @@ async def _check_message(event):
 
     # no need to ban bots as they can only be added by users anyway
     user = await client.get_cached_entity(user_id)
-    if user.bot:
+    if user.bot or user is None:
         return False, False
 
     # commands used in bots to blacklist items, these will be used by admins
