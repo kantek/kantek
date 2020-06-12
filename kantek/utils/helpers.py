@@ -13,7 +13,8 @@ import photohash
 from PIL import Image
 from telethon import utils
 from telethon.events import NewMessage
-from telethon.tl.types import User
+from telethon.tl.custom import Message
+from telethon.tl.types import User, DocumentAttributeFilename
 
 from utils import parsers
 from utils.client import KantekClient
@@ -122,3 +123,26 @@ async def get_linked_message(client: KantekClient, link):
             chat = f'@{chat}'
         msg_id = int(match.group('id'))
         return await client.iter_messages(entity=chat, ids=[msg_id]).__anext__()
+
+
+async def textify_message(msg: Message):
+    message = []
+
+    if msg.photo:
+        message.append('[photo]')
+    elif msg.sticker:
+        print(msg.sticker)
+        message.append('[sticker]')
+    elif msg.document:
+        filename = [attr.file_name for attr in msg.document.attributes if isinstance(attr, DocumentAttributeFilename)]
+        message.append(f'[document:{filename[0] if filename else ""}:{msg.document.mime_type}]')
+    elif msg.audio:
+        message.append('[audio]')
+    elif msg.contact:
+        message.append('[contact]')
+    elif msg.sticker:
+        message.append('[sticker]')
+    if message:
+        message.append('')
+    message.append(msg.text if msg.text else '[no text/caption]')
+    return '\n'.join(message)

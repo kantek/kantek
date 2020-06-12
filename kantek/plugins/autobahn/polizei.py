@@ -1,29 +1,25 @@
 """Plugin that automatically bans according to a blacklist"""
 import asyncio
-import datetime
 import itertools
 import logging
-import os
-import uuid
 from typing import Dict
 
 import logzero
+from photohash import hashes_are_similar
 from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
-from telethon.tl.functions.channels import EditBannedRequest, DeleteUserHistoryRequest
+from telethon.tl.functions.channels import DeleteUserHistoryRequest
 from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import (Channel, ChatBannedRights,
-                               MessageEntityTextUrl, UserFull, MessageEntityUrl,
-                               MessageEntityMention, Photo, ChannelParticipantsAdmins)
+from telethon.tl.types import (Channel, MessageEntityTextUrl, UserFull, MessageEntityUrl,
+                               MessageEntityMention, ChannelParticipantsAdmins)
 
 from database.arango import ArangoDB
 from utils import helpers, constants
 from utils.client import KantekClient
 from utils.helpers import hash_photo
-from photohash import hashes_are_similar
 
 __version__ = '0.4.1'
 
@@ -109,7 +105,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
         elif bancmd is not None:
             await client.respond(event, f'{bancmd} {userid} {formatted_reason}')
             await asyncio.sleep(0.25)
-    await client.gban(userid, formatted_reason, event.message.text)
+    await client.gban(userid, formatted_reason, await helpers.textify_message(event.message))
 
     message_count = len(await client.get_messages(chat, from_user=userid, limit=10))
     if message_count <= 5:

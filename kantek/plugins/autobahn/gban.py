@@ -1,15 +1,13 @@
 """Plugin to handle global bans"""
 import asyncio
-import datetime
 import logging
 from typing import Dict, Optional, List
 
 from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
-from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.functions.messages import ReportRequest
-from telethon.tl.types import Channel, InputReportReasonSpam, ChatBannedRights
+from telethon.tl.types import Channel, InputReportReasonSpam
 
 from config import cmd_prefix
 from utils import helpers
@@ -48,7 +46,8 @@ async def gban(event: NewMessage.Event) -> None:
             ban_reason = args[0]
         else:
             ban_reason = DEFAULT_REASON
-        await client.gban(uid, ban_reason, reply_msg.text)
+        message = await helpers.textify_message(reply_msg)
+        await client.gban(uid, ban_reason, message)
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
             if bancmd == 'manual' or bancmd is None:
@@ -76,8 +75,8 @@ async def gban(event: NewMessage.Event) -> None:
                 link = keyword_args.get('link')
                 if link:
                     try:
-                        linked_msg = await helpers.get_linked_message(client, link)
-                        message = linked_msg.text
+                        linked_msg: Message = await helpers.get_linked_message(client, link)
+                        message = helpers.textify_message(linked_msg)
                     except Exception:
                         message = link
         else:
