@@ -16,8 +16,11 @@ from telethon.events import NewMessage
 from telethon.tl.types import User
 
 from utils import parsers
+from utils.client import KantekClient
 
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
+
+MESSAGE_LINK_PATTERN = re.compile(r't\.me/(?:c/)?(?P<chat>\w+)/(?P<id>\d+)')
 
 logger: logging.Logger = logzero.logger
 
@@ -105,3 +108,17 @@ async def hash_photo(photo):
     pil_photo = Image.open(BytesIO(photo))
     photo_hash = await loop.run_in_executor(None, photohash.average_hash, pil_photo)
     return str(photo_hash)
+
+
+async def get_linked_message(client: KantekClient, link):
+    match = MESSAGE_LINK_PATTERN.search(link)
+    if not match:
+        return None
+    else:
+        chat = match.group('chat')
+        if chat.isnumeric():
+            chat = int(chat)
+        else:
+            chat = f'@{chat}'
+        msg_id = int(match.group('id'))
+        return await client.iter_messages(entity=chat, ids=[msg_id]).__anext__()

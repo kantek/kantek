@@ -72,6 +72,14 @@ async def gban(event: NewMessage.Event) -> None:
 
         if len(uids) == 1:
             message = keyword_args.get('msg')
+            if not message:
+                link = keyword_args.get('link')
+                if link:
+                    try:
+                        linked_msg = await helpers.get_linked_message(client, link)
+                        message = linked_msg.text
+                    except Exception:
+                        message = link
         else:
             message = None
 
@@ -105,8 +113,8 @@ async def gban(event: NewMessage.Event) -> None:
         if verbose:
             sections = []
             if banned_uids:
-                bans = _build_message(banned_uids)
-                sections.append(Section(Bold('GBanned Users'), *bans))
+                bans = _build_message(banned_uids, message)
+                sections.append(Section(Bold(f'GBanned User{"s" if len(banned_uids) > 1 else ""}'), *bans))
             if skipped_uids:
                 bans = _build_message(skipped_uids)
                 sections.append(Section(Bold('Skipped GBan'), *bans))
@@ -114,11 +122,13 @@ async def gban(event: NewMessage.Event) -> None:
             await client.respond(event, MDTeXDocument(*sections))
 
 
-def _build_message(bans: Dict[str, List[str]]) -> List[KeyValueItem]:
+def _build_message(bans: Dict[str, List[str]], message: Optional[str]) -> List[KeyValueItem]:
     sections = []
     for reason, uids in bans.items():
         sections.append(KeyValueItem(Bold('Reason'), reason))
         sections.append(KeyValueItem(Bold('IDs'), Code(', '.join(uids))))
+        if message:
+            sections.append(KeyValueItem(Bold('Message'), 'Attached'))
     return sections
 
 
