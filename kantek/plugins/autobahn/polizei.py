@@ -5,6 +5,7 @@ import logging
 from typing import Dict
 
 import logzero
+from PIL import UnidentifiedImageError
 from photohash import hashes_are_similar
 from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
@@ -211,11 +212,15 @@ async def _check_message(event):
                 full_entity = await client.get_cached_entity(_entity)
                 channel = full_entity.id
                 profile_photo = await client.download_profile_photo(full_entity, bytes)
-                photo_hash = await hash_photo(profile_photo)
+                try:
+                    photo_hash = await hash_photo(profile_photo)
+                    for mhash in mhash_blacklist:
+                        if hashes_are_similar(mhash, photo_hash, tolerance=2):
+                            return db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
+                except UnidentifiedImageError:
+                    pass
 
-                for mhash in mhash_blacklist:
-                    if hashes_are_similar(mhash, photo_hash, tolerance=2):
-                        return db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
+
             except constants.GET_ENTITY_ERRORS as err:
                 logger.error(err)
 
