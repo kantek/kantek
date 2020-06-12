@@ -75,7 +75,7 @@ async def gban(event: NewMessage.Event) -> None:
             if link:
                 try:
                     linked_msg: Message = await helpers.get_linked_message(client, link)
-                    message = helpers.textify_message(linked_msg)
+                    message = await helpers.textify_message(linked_msg)
                 except Exception:
                     message = link
 
