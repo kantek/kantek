@@ -121,7 +121,6 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
             KeyValueItem('first_name', Code(user.first_name)),
             KeyValueItem('last_name', Code(user.last_name)),
             KeyValueItem('username', Code(user.username)),
-            KeyValueItem('mutual_contact', Code(user.mutual_contact)),
             KeyValueItem('ban_reason', Code(ban_reason)) if ban_reason else KeyValueItem('gbanned', Code('False')))
 
         bot = SubSection(
@@ -135,6 +134,7 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
             KeyValueItem('bot_nochats', Code(user.bot_nochats)))
         misc = SubSection(
             Bold('misc'),
+            KeyValueItem('mutual_contact', Code(user.mutual_contact)),
             KeyValueItem('restricted', Code(user.restricted)),
             KeyValueItem('restriction_reason', Code(user.restriction_reason)),
             KeyValueItem('deleted', Code(user.deleted)),
