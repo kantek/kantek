@@ -125,7 +125,7 @@ async def _check_message(event):
 
     # no need to ban bots as they can only be added by users anyway
     user = await client.get_cached_entity(user_id)
-    if user.bot or user is None:
+    if user is None or user.bot:
         return False, False
 
     # commands used in bots to blacklist items, these will be used by admins
@@ -210,16 +210,16 @@ async def _check_message(event):
         if _entity:
             try:
                 full_entity = await client.get_cached_entity(_entity)
-                channel = full_entity.id
-                profile_photo = await client.download_profile_photo(full_entity, bytes)
-                try:
-                    photo_hash = await hash_photo(profile_photo)
-                    for mhash in mhash_blacklist:
-                        if hashes_are_similar(mhash, photo_hash, tolerance=2):
-                            return db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
-                except UnidentifiedImageError:
-                    pass
-
+                if full_entity:
+                    channel = full_entity.id
+                    profile_photo = await client.download_profile_photo(full_entity, bytes)
+                    try:
+                        photo_hash = await hash_photo(profile_photo)
+                        for mhash in mhash_blacklist:
+                            if hashes_are_similar(mhash, photo_hash, tolerance=2):
+                                return db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
+                    except UnidentifiedImageError:
+                        pass
 
             except constants.GET_ENTITY_ERRORS as err:
                 logger.error(err)
