@@ -69,7 +69,8 @@ async def _info_from_arguments(event) -> MDTeXDocument:
             users.append(await _collect_user_info(client, user, **keyword_args))
         except constants.GET_ENTITY_ERRORS as err:
             errors.append(str(entity))
-    if users:
+
+    if users or errors:
         return MDTeXDocument(*users, (Section(Bold('Errors for'), Code(', '.join(errors)))) if errors else '')
 
 
@@ -81,6 +82,8 @@ async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
 
     if get_forward and reply_msg.forward is not None:
         forward: Forward = reply_msg.forward
+        if forward.sender_id is None:
+            return MDTeXDocument(Section(Bold('Error'), 'User has forward privacy enabled'))
         user: User = await client.get_entity(forward.sender_id)
     else:
         user: User = await client.get_entity(reply_msg.sender_id)
