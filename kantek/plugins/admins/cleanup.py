@@ -5,7 +5,7 @@ from typing import Optional
 
 import logzero
 from telethon import events
-from telethon.errors import FloodWaitError, UserAdminInvalidError
+from telethon.errors import FloodWaitError, UserAdminInvalidError, MessageIdInvalidError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
@@ -75,7 +75,10 @@ async def _cleanup_chat(event, count: bool = False,
                                KeyValueItem(Bold('Progress'),
                                             f'{user_counter}/{participant_count}'),
                                KeyValueItem(deleted_accounts_label, deleted_users))
-            await progress_message.edit(str(progress))
+            try:
+                await progress_message.edit(str(progress))
+            except MessageIdInvalidError:
+                progress_message = None
         user_counter += 1
         if user.deleted:
             deleted_users += 1
