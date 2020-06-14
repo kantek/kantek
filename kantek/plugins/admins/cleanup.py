@@ -1,6 +1,5 @@
 """Plugin to remove deleted Accounts from a group"""
 import asyncio
-import datetime
 import logging
 from typing import Optional
 
@@ -9,8 +8,8 @@ from telethon import events
 from telethon.errors import FloodWaitError, UserAdminInvalidError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
-from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.types import (Channel, ChannelParticipantsAdmins, ChatBannedRights, User)
+from telethon.tl.functions.channels import GetParticipantRequest
+from telethon.tl.types import (Channel, User, ChannelParticipantAdmin)
 
 from config import cmd_prefix
 from utils import helpers
@@ -51,11 +50,11 @@ async def cleanup_group_admins(event: NewMessage.Event) -> None:
     if event.is_channel:
         msg: Message = event.message
         client: KantekClient = event.client
-        async for p in client.iter_participants(event.chat_id, filter=ChannelParticipantsAdmins):
-            if msg.from_id == p.id:
-                await cleanup(event)
-                tlog.info(f'cleanup executed by [{p.id}](tg://user?id={p.id}) in `{(await event.get_chat()).title}`')
-                break
+        uid = msg.from_id
+        result = await client(GetParticipantRequest(event.chat_id, uid))
+        if isinstance(result.participant, ChannelParticipantAdmin):
+            await cleanup(event)
+            tlog.info(f'cleanup executed by [{uid}](tg://user?id={uid}) in `{(await event.get_chat()).title}`')
 
 
 async def _cleanup_chat(event, count: bool = False,
