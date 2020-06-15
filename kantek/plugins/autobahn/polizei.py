@@ -12,10 +12,10 @@ from telethon import events
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
-from telethon.tl.functions.channels import DeleteUserHistoryRequest
+from telethon.tl.functions.channels import DeleteUserHistoryRequest, GetParticipantRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import (Channel, MessageEntityTextUrl, UserFull, MessageEntityUrl,
-                               MessageEntityMention, ChannelParticipantsAdmins)
+                               MessageEntityMention, ChannelParticipantsAdmins, ChannelParticipantAdmin)
 
 from database.arango import ArangoDB
 from utils import helpers, constants
@@ -123,6 +123,10 @@ async def _check_message(event):
     if user_id and user_id < 610000000:
         return False, False
 
+    result = await client(GetParticipantRequest(event.chat_id, user_id))
+    if isinstance(result.participant, ChannelParticipantAdmin):
+        return False, False
+
     # no need to ban bots as they can only be added by users anyway
     user = await client.get_cached_entity(user_id)
     if user is None or user.bot:
@@ -133,6 +137,7 @@ async def _check_message(event):
     blacklisting_commands = [
         '/addblacklist',
     ]
+
     for cmd in blacklisting_commands:
         if msg.text and msg.text.startswith(cmd):
             return False, False
