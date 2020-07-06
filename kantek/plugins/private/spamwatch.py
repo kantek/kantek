@@ -4,6 +4,7 @@ import logging
 from spamwatch.types import Permission
 from telethon import events
 from telethon.events import NewMessage
+from telethon.tl.patched import Message
 
 from config import cmd_prefix
 from utils import helpers
@@ -38,12 +39,17 @@ async def sw(event: NewMessage.Event) -> None:
 
 async def _token(event, client, args, keyword_args):
     command, *args = args
-
+    msg: Message = event.message
     userid = [uid for uid in args if isinstance(uid, int)]
     if not userid:
-        return MDTeXDocument(Section(Bold('Missing Argument'),
+        if msg.is_reply:
+            reply_message: Message = await msg.get_reply_message()
+            userid = reply_message.from_id
+        else:
+            return MDTeXDocument(Section(Bold('Missing Argument'),
                                      'A User ID is required.'))
-    userid = userid[0]
+    else:
+        userid = userid[0]
     if command == 'create':
         from spamwatch.types import _permission_map
         permission = keyword_args.get('permission', 'User')
