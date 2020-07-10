@@ -3,6 +3,7 @@ import re
 from typing import Dict, List, Pattern, Tuple, Union
 
 KEYWORD_ARGUMENT: Pattern = re.compile(r'(\S+):\s?(\[.+?\]|\".+\"|[\w-]\S*)')
+FLAG_ARGUMENT: Pattern = re.compile(r'(?:\s|^)-\w+')
 QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")')
 RANGE_PATTERN: Pattern = re.compile(r'-?\d+\.\.-?\d+')
 BOOL_MAP = {
@@ -85,6 +86,15 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
     >>> parse_arguments('keyword: 1 keyword2: 5')
     ({'keyword': 1, 'keyword2': 5}, [])
 
+    >>> parse_arguments('posarg -flag')
+    ({'flag': True}, ['posarg'])
+
+    >>> parse_arguments('-flag')
+    ({'flag': True}, [])
+
+    >>> parse_arguments('posarg -flag 125e-5')
+    ({'flag': True}, ['posarg', 0.00125])
+
     Args:
         arguments: The string with the arguments that should be parsed
 
@@ -114,6 +124,12 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
         keyword_args.update({name: val})
 
     arguments = re.sub(KEYWORD_ARGUMENT, '', arguments)
+
+    flag_args = re.findall(FLAG_ARGUMENT, arguments)
+    for flag in flag_args:
+        keyword_args[flag.strip()[1:]] = True
+    arguments = re.sub(FLAG_ARGUMENT, '', arguments)
+
     quoted_args = re.findall(QUOTED_ARGUMENT, arguments)
     arguments = re.sub(QUOTED_ARGUMENT, '', arguments)
     # convert any numbers to int
