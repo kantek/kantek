@@ -50,6 +50,7 @@ async def _info_from_arguments(event) -> MDTeXDocument:
     client: KantekClient = event.client
     keyword_args, args = await helpers.get_args(event)
     search_name = keyword_args.get('search', False)
+    gban_format = keyword_args.get('gban', False)
     if search_name:
         entities = [search_name]
     else:
@@ -69,7 +70,8 @@ async def _info_from_arguments(event) -> MDTeXDocument:
             users.append(await _collect_user_info(client, user, **keyword_args))
         except constants.GET_ENTITY_ERRORS as err:
             errors.append(str(entity))
-
+    if users and gban_format:
+        users = [Code(' '.join(users))]
     if users or errors:
         return MDTeXDocument(*users, (Section(Bold('Errors for'), Code(', '.join(errors)))) if errors else '')
 
@@ -93,6 +95,7 @@ async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
 
 async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueItem]:
     id_only = kwargs.get('id', False)
+    gban_format = kwargs.get('gban', False)
     show_general = kwargs.get('general', True)
     show_bot = kwargs.get('bot', False)
     show_misc = kwargs.get('misc', False)
@@ -117,6 +120,8 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
 
     if id_only:
         return KeyValueItem(title, Code(user.id))
+    elif gban_format:
+        return str(user.id)
     else:
         general = SubSection(
             Bold('general'),
