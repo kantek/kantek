@@ -127,8 +127,8 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
             Bold('general'),
             KeyValueItem('id', Code(user.id)),
             KeyValueItem('first_name', Code(user.first_name)),
-            KeyValueItem('last_name', Code(user.last_name)),
-            KeyValueItem('username', Code(user.username)),
+            KeyValueItem('last_name', Code(user.last_name)) if user.last_name is not None or show_all else '',
+            KeyValueItem('username', Code(user.username)) if user.username is not None or show_all else '',
             KeyValueItem('ban_reason', Code(ban_reason)) if ban_reason else KeyValueItem('gbanned', Code('False')))
 
         bot = SubSection(
