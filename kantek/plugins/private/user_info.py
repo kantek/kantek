@@ -54,8 +54,13 @@ async def _info_from_arguments(event) -> MDTeXDocument:
     if search_name:
         entities = [search_name]
     else:
-        entities = [entity[0].user_id for entity in msg.get_entities_text()
-                    if isinstance(entity[0], (MessageEntityMention, MessageEntityMentionName))]
+        entities = []
+        for entity in msg.get_entities_text():
+            obj, text = entity
+            if isinstance(obj, MessageEntityMentionName):
+                entities.append(obj.user_id)
+            elif isinstance(obj, MessageEntityMention):
+                entities.append(text)
     # append any user ids to the list
     for uid in args:
         if isinstance(uid, int):
