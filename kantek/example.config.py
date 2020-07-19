@@ -5,7 +5,8 @@ from typing import Union, List
 api_id: Union[str, int] = ''
 api_hash: str = ''
 phone: str = ''
-session_name: str = f'sessions/{os.environ.get("KANTEK_SESSION", "kantek-session")}'
+_sessions_dir = os.path.dirname(__file__)
+session_name: str = os.path.join(_sessions_dir, 'sessions', os.environ.get("KANTEK_SESSION", "kantek-session"))
 
 log_bot_token: str = ''
 log_channel_id: Union[str, int] = ''
