@@ -11,7 +11,7 @@ BOOL_MAP = {
     'true': True,
 }
 
-Value = Union[int, str, float, complex]
+Value = Union[int, str, float, complex, bool]
 KeywordArgument = Union[Value, range, List[Value]]
 
 
@@ -104,7 +104,7 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
     """
 
     _named_attrs = re.findall(KEYWORD_ARGUMENT, arguments)
-    keyword_args: Dict[str, str] = {}
+    keyword_args: Dict[str, KeywordArgument] = {}
     for name, value in _named_attrs:
         if value.startswith('"') and value.endswith('"'):
             keyword_args.update({name: re.sub(r'\"', '', value)})

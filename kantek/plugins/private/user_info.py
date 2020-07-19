@@ -66,7 +66,7 @@ async def _info_from_arguments(event) -> MDTeXDocument:
     for entity in entities:
         try:
             user: User = await client.get_entity(entity)
-            users.append(await _collect_user_info(client, user, **keyword_args))
+            users.append(str(await _collect_user_info(client, user, **keyword_args)))
         except constants.GET_ENTITY_ERRORS as err:
             errors.append(str(entity))
     if users and gban_format:
@@ -92,7 +92,7 @@ async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
     return MDTeXDocument(await _collect_user_info(client, user, **kwargs))
 
 
-async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueItem]:
+async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyValueItem]:
     id_only = kwargs.get('id', False)
     gban_format = kwargs.get('gban', False)
     show_general = kwargs.get('general', True)

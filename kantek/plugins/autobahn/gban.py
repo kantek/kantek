@@ -8,7 +8,7 @@ from telethon.errors import UserNotParticipantError
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
-from telethon.tl.types import Channel, InputReportReasonSpam
+from telethon.tl.types import Channel, InputReportReasonSpam, InputPeerChannel
 
 from utils import helpers
 from utils.client import KantekClient
@@ -57,7 +57,8 @@ async def gban(client: KantekClient, tags: TagManager, chat: Channel, msg: Messa
 
         message = await helpers.textify_message(reply_msg)
         await client.gban(uid, ban_reason, message)
-        await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
+        peer_channel: InputPeerChannel = await event.get_input_chat()
+        await client(ReportRequest(peer_channel, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
             if bancmd == 'manual' or bancmd is None:
                 await client.ban(chat, uid)

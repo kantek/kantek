@@ -107,7 +107,7 @@ async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocumen
             return MDTeXDocument(Section(Bold('Error'), 'File is not a CSV'))
 
 
-async def _export_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+async def _export_banlist(event: NewMessage.Event, db: ArangoDB) -> None:
     client: KantekClient = event.client
     chat = await event.get_chat()
     users = db.query('For doc in BanList '

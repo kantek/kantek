@@ -203,7 +203,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         headers = {'User-Agent': faker.user_agent()}
         old_url = url
         if not url.startswith('http'):
-            url = f'http://{url}'
+            url: str = f'http://{url}'
         try:
             async with self.aioclient.get(url, headers=headers) as response:
                 url: URL = response.url
@@ -214,8 +214,8 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         if base_domain:
             # split up the result to only get the base domain
             # www.sitischu.com => sitischu.com
-            url = url.host
+            url: Optional[str] = url.host
             _base_domain = url.split('.', maxsplit=url.count('.') - 1)[-1]
             if _base_domain:
-                url = _base_domain
+                url: str = _base_domain
         return str(url)

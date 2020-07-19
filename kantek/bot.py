@@ -32,6 +32,7 @@ def main() -> None:
         os.path.abspath(config.session_name),
         config.api_id,
         config.api_hash)
+    # noinspection PyTypeChecker
     client.start(config.phone)
 
     client.config = config

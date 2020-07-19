@@ -52,7 +52,7 @@ class PluginManager:
         self._get_plugin_list()
 
     def _get_plugin_list(self) -> None:
-        for root, dirs, files in os.walk(self.config.plugin_path):  # pylint: disable = W0612
+        for root, dirs, files in os.walk(str(self.config.plugin_path)):  # pylint: disable = W0612
             for file in files:
                 path = os.path.join(root, file)
                 name, ext = os.path.splitext(file)
