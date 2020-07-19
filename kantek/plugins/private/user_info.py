@@ -2,6 +2,7 @@
 import logging
 from typing import Union
 
+from spamwatch.types import Permission
 from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Forward, Message
@@ -104,6 +105,7 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
     show_bot = kwargs.get('bot', False)
     show_misc = kwargs.get('misc', False)
     show_all = kwargs.get('all', False)
+    full_ban_msg = kwargs.get('full', False)
 
     if show_all:
         show_general = True
@@ -121,6 +123,11 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
     ban_reason = client.db.banlist.get_user(user.id)
     if ban_reason:
         ban_reason = ban_reason['reason']
+        if client.sw and client.sw.permission.value <= Permission.User.value:
+            ban = client.sw.get_ban(int(user.id))
+            ban_message = ban.message
+            if not full_ban_msg:
+                ban_message = f'{ban_message[:128]}[...]'
 
     if id_only:
         return KeyValueItem(title, Code(user.id))
@@ -133,7 +140,8 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
             KeyValueItem('first_name', Code(user.first_name)),
             KeyValueItem('last_name', Code(user.last_name)) if user.last_name is not None or show_all else '',
             KeyValueItem('username', Code(user.username)) if user.username is not None or show_all else '',
-            KeyValueItem('ban_reason', Code(ban_reason)) if ban_reason else KeyValueItem('gbanned', Code('False')))
+            KeyValueItem('ban_reason', Code(ban_reason)) if ban_reason else KeyValueItem('gbanned', Code('False')),
+            KeyValueItem('ban_msg', Code(ban_message)) if ban_reason else '')
 
         bot = SubSection(
             Bold('bot'),
