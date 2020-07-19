@@ -1,11 +1,14 @@
 """Plugin to handle global bans"""
 import asyncio
+import datetime
 import logging
 from typing import Dict, Optional, List
 
 from telethon import events
+from telethon.errors import UserNotParticipantError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
+from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.types import Channel, InputReportReasonSpam
 
@@ -46,6 +49,16 @@ async def gban(event: NewMessage.Event) -> None:
             ban_reason = args[0]
         else:
             ban_reason = DEFAULT_REASON
+            try:
+                participant = await client(GetParticipantRequest(event.chat_id, reply_msg.from_id))
+                join_date = participant.participant.date
+
+                now = datetime.datetime.now(tz=join_date.tzinfo)
+                if (now - datetime.timedelta(hours=1)) < join_date:
+                    ban_reason = 'joinspam'
+            except UserNotParticipantError:
+                pass
+
         message = await helpers.textify_message(reply_msg)
         await client.gban(uid, ban_reason, message)
         await client(ReportRequest(chat, [reply_msg.id], InputReportReasonSpam()))
