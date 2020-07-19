@@ -30,15 +30,21 @@ class Config:
             import config
             legacy_config = config
         except ImportError:
-            pass
+            legacy_config = None
 
-        repo_dir = Path(botfile).parent.parent
-        new_config = repo_dir.joinpath('config.json')
+        bot_dir = Path(botfile).parent
+        sessions_dir = bot_dir / 'sessions'
+
+        repo_dir = bot_dir.parent
+        new_config = repo_dir / 'config.json'
+
         if new_config.is_file():
             with open(new_config) as f:
                 config = json.load(f)
             error = False if legacy_config else True
             self.from_json(config, error)
+        # legacy config used a full path instead of just a name
+        self.session_name = sessions_dir / self.session_name
 
         if legacy_config:
             self.from_legacy_module(legacy_config)
