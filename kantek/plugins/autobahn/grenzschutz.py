@@ -1,12 +1,13 @@
 """Plugin to manage the autobahn"""
 import logging
-from typing import Dict, Union
+from typing import Union
 
 import logzero
 from telethon import events
 from telethon.errors import UserIdInvalidError
 from telethon.events import ChatAction, NewMessage
-from telethon.tl.types import Channel, ChannelParticipantsAdmins
+from telethon.tl.types import (Channel, ChannelParticipantsAdmins, MessageActionChatJoinedByLink,
+                               MessageActionChatAddUser)
 
 from database.arango import ArangoDB
 from utils.client import KantekClient
@@ -26,6 +27,10 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     """Plugin to ban blacklisted users."""
     if event.is_private:
         return
+    if isinstance(event, ChatAction.Event):
+        if not isinstance(event.action_message.action,
+                          (MessageActionChatJoinedByLink, MessageActionChatAddUser)):
+            return
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
     if not chat.creator and not chat.admin_rights:
