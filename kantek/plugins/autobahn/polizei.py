@@ -24,6 +24,8 @@ from utils.helpers import hash_photo
 
 __version__ = '0.4.1'
 
+from utils.tagmgr import TagManager
+
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
@@ -35,10 +37,9 @@ async def polizei(event: NewMessage.Event) -> None:
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
     db: ArangoDB = client.db
-    chat_document = db.groups.get_chat(event.chat_id)
-    db_named_tags: Dict = chat_document['named_tags'].getStore()
-    bancmd = db_named_tags.get('gbancmd', 'manual')
-    polizei_tag = db_named_tags.get('polizei')
+    tags = TagManager(event)
+    bancmd = tags.get('gbancmd', 'manual')
+    polizei_tag = tags.get('polizei')
     if polizei_tag == 'exclude':
         return
     ban_type, ban_reason = await _check_message(event)
@@ -55,10 +56,9 @@ async def join_polizei(event: ChatAction.Event) -> None:
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
     db: ArangoDB = client.db
-    chat_document = db.groups.get_chat(event.chat_id)
-    db_named_tags: Dict = chat_document['named_tags'].getStore()
-    bancmd = db_named_tags.get('gbancmd')
-    polizei_tag = db_named_tags.get('polizei')
+    tags = TagManager(event)
+    bancmd = tags.get('gbancmd')
+    polizei_tag = tags.get('polizei')
     if polizei_tag == 'exclude':
         return
     ban_type, ban_reason = False, False

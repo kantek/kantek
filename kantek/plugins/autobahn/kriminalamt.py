@@ -18,6 +18,8 @@ from utils.client import KantekClient
 
 __version__ = '0.1.0'
 
+from utils.tagmgr import TagManager
+
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
@@ -28,10 +30,9 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     chat: Channel = await event.get_chat()
     user: User = await event.get_user()
     db: ArangoDB = client.db
-    chat_document = db.groups.get_chat(event.chat_id)
-    db_named_tags: Dict = chat_document['named_tags'].getStore()
-    kriminalamt_tag = db_named_tags.get('kriminalamt')
-    bancmd = db_named_tags.get('gbancmd', 'manual')
+    tags = TagManager(event)
+    kriminalamt_tag = tags.get('kriminalamt')
+    bancmd = tags.get('gbancmd', 'manual')
     delay = 1
     if not event.user_joined:
         return

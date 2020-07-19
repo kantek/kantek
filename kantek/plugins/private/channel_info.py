@@ -12,6 +12,8 @@ from utils.mdtex import Bold, Code, Item, KeyValueItem, MDTeXDocument, Section
 
 __version__ = '0.1.0'
 
+from utils.tagmgr import TagManager
+
 tlog = logging.getLogger('kantek-channel-log')
 
 
@@ -58,12 +60,10 @@ async def info(event: NewMessage.Event) -> None:
                          KeyValueItem(Bold('bots'), Code(bot_accounts)),
                          KeyValueItem(Bold('deleted_accounts'), Code(deleted_accounts)))
 
-    chat_document = client.db.groups.get_chat(event.chat_id)
-    db_named_tags: Dict = chat_document['named_tags'].getStore()
-    db_tags: List = chat_document['tags']
+    tags = TagManager(event)
     data = []
-    data += [KeyValueItem(Bold(key), value) for key, value in db_named_tags.items()]
-    data += [Item(_tag) for _tag in db_tags]
+    data += [KeyValueItem(Bold(key), value) for key, value in tags.named_tags.items()]
+    data += [Item(_tag) for _tag in tags.tags]
     tags = Section('tags:', *data)
     info_msg = MDTeXDocument(chat_info, user_stats, tags)
     await client.respond(event, info_msg)

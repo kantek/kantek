@@ -14,6 +14,8 @@ from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Mention, Sectio
 
 __version__ = '0.1.1'
 
+from utils.tagmgr import TagManager
+
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
@@ -32,10 +34,9 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         if not chat.admin_rights.ban_users:
             return
     db: ArangoDB = client.db
-    chat_document = db.groups.get_chat(event.chat_id)
-    db_named_tags: Dict = chat_document['named_tags'].getStore()
-    polizei_tag = db_named_tags.get('polizei')
-    grenzschutz_tag = db_named_tags.get('grenzschutz')
+    tags = TagManager(event)
+    polizei_tag = tags.get('polizei')
+    grenzschutz_tag = tags.get('grenzschutz')
     silent = grenzschutz_tag == 'silent'
     if grenzschutz_tag == 'exclude' or polizei_tag == 'exclude':
         return

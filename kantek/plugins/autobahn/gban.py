@@ -19,6 +19,8 @@ from utils.mdtex import MDTeXDocument, Section, KeyValueItem, Bold, Code
 
 __version__ = '0.4.0'
 
+from utils.tagmgr import TagManager
+
 tlog = logging.getLogger('kantek-channel-log')
 
 DEFAULT_REASON = 'spam[gban]'
@@ -33,9 +35,8 @@ async def gban(event: NewMessage.Event) -> None:
     msg: Message = event.message
     client: KantekClient = event.client
     keyword_args, args = await helpers.get_args(event)
-    chat_document = client.db.groups.get_chat(event.chat_id)
-    db_named_tags: Dict = chat_document['named_tags'].getStore()
-    gban = db_named_tags.get('gban')
+    tags = TagManager(event)
+    gban = tags.get('gban')
 
     only_joinspam = keyword_args.get('only_joinspam', False) or keyword_args.get('oj', False)
 
@@ -45,7 +46,7 @@ async def gban(event: NewMessage.Event) -> None:
     await msg.delete()
     if msg.is_reply:
 
-        bancmd = db_named_tags.get('gbancmd')
+        bancmd = tags.get('gbancmd')
         reply_msg: Message = await msg.get_reply_message()
         uid = reply_msg.from_id
         if args:
