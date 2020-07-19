@@ -23,10 +23,9 @@ CHUNK_SIZE = 10
 
 
 @k.command('gban')
-async def gban(client: KantekClient, chat: Channel, msg: Message,
+async def gban(client: KantekClient, tags: TagManager, chat: Channel, msg: Message,
                args: List, kwargs: Dict, event: Command) -> None:
     """Command to globally ban a user."""
-    tags = TagManager(event)
     gban = tags.get('gban')
 
     only_joinspam = kwargs.get('only_joinspam', False) or kwargs.get('oj', False)

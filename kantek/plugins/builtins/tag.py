@@ -6,7 +6,6 @@ from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.types import Message, Channel
 
-from database.arango import ArangoDB
 from utils import parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Item, KeyValueItem, Section
@@ -17,7 +16,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('tag')
-async def tag(client: KantekClient, chat: Channel, msg: Message, event: Command) -> None:
+async def tag(client: KantekClient, chat: Channel, msg: Message, tags: TagManager, event: Command) -> None:
     """Add or remove tags from groups and channels.
 
     Args:
@@ -26,14 +25,12 @@ async def tag(client: KantekClient, chat: Channel, msg: Message, event: Command)
     Returns: None
 
     """
-    db: ArangoDB = client.db
-    tag_mgr = TagManager(event)
     args = msg.raw_text.split()[1:]
     response = ''
     # TODO Replace with subcommand implementation
     if not args:
-        named_tags: Dict = tag_mgr.named_tags
-        tags: List = tag_mgr.tags
+        named_tags: Dict = tags.named_tags
+        tags: List = tags.tags
         data = []
         data += [KeyValueItem(Bold(key), value) for key, value in named_tags.items()]
         data += [Item(_tag) for _tag in tags]
@@ -44,7 +41,7 @@ async def tag(client: KantekClient, chat: Channel, msg: Message, event: Command)
     elif args[0] == 'add' and len(args) > 1:
         await _add_tags(event)
     elif args[0] == 'clear':
-        tag_mgr.clear()
+        tags.clear()
     elif args[0] == 'del' and len(args) > 1:
         await _delete_tags(event)
     if not response:

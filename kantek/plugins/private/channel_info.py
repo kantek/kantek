@@ -12,7 +12,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('info')
-async def info(client: KantekClient, chat: Channel, event: Command) -> None:
+async def info(client: KantekClient, tags: TagManager, chat: Channel, event: Command) -> None:
     """Show information about a group or channel.
 
     Args:
@@ -52,7 +52,6 @@ async def info(client: KantekClient, chat: Channel, event: Command) -> None:
                          KeyValueItem(Bold('bots'), Code(bot_accounts)),
                          KeyValueItem(Bold('deleted_accounts'), Code(deleted_accounts)))
 
-    tags = TagManager(event)
     data = []
     data += [KeyValueItem(Bold(key), value) for key, value in tags.named_tags.items()]
     data += [Item(_tag) for _tag in tags.tags]

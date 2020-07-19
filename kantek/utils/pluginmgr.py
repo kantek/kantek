@@ -14,6 +14,7 @@ from telethon.tl.types import Channel
 
 from utils import helpers
 from utils._config import Config
+from utils.tagmgr import TagManager
 
 
 @dataclass
@@ -38,6 +39,7 @@ class Signature:
     args: bool = False
     kwargs: bool = False
     event: bool = False
+    tags: bool = False
 
 
 class PluginManager:
@@ -94,6 +96,9 @@ class PluginManager:
 
         if args.event:
             callback_args['event'] = event
+
+        if args.tags:
+            callback_args['tags'] = TagManager(event)
 
         await callback(**callback_args)
 
