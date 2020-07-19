@@ -106,11 +106,14 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
     show_misc = kwargs.get('misc', False)
     show_all = kwargs.get('all', False)
     full_ban_msg = kwargs.get('full', False)
+    show_spamwatch = kwargs.get('sw', False)
 
     if show_all:
         show_general = True
         show_bot = True
         show_misc = True
+        show_spamwatch = True
+
 
     mention_name = kwargs.get('mention', False)
 
@@ -144,12 +147,27 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
             general.append(KeyValueItem('last_name', Code(user.last_name)))
         if user.username is not None or show_all:
             general.append(KeyValueItem('username', Code(user.username)))
-        if ban_reason:
+
+        if ban_reason and not show_spamwatch:
             general.append(KeyValueItem('ban_reason', Code(ban_reason)))
-        else:
+        elif not show_spamwatch:
             general.append(KeyValueItem('gbanned', Code('False')))
-        if sw_ban:
+        if sw_ban and not show_spamwatch:
             general.append(KeyValueItem('ban_msg', Code(ban_message)))
+
+        spamwatch = SubSection(Bold('SpamWatch'))
+        if sw_ban:
+            spamwatch.extend([
+                KeyValueItem('reason', Code(sw_ban.reason)),
+                KeyValueItem('date', Code(sw_ban.date)),
+                KeyValueItem('timestamp', Code(sw_ban.timestamp)),
+                KeyValueItem('admin', Code(sw_ban.admin)),
+                KeyValueItem('message', Code(ban_message)),
+            ])
+        else:
+            spamwatch.append(KeyValueItem('banned', Code('False')))
+
+
 
         bot = SubSection(
             Bold('bot'),
@@ -172,5 +190,6 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
 
         return Section(title,
                        general if show_general else None,
+                       spamwatch if show_spamwatch else None,
                        misc if show_misc else None,
                        bot if show_bot else None)
