@@ -71,7 +71,7 @@ class Config:
             assert self.gban_group is not None, "gban_group is not set"
         self.db_username = config.get('db_username', self.db_username)
         self.db_name = config.get('db_name', self.db_name)
-        self.db_password = config.get('db_password', self.db_password)
+        self.db_password = config.get('db_password')
         if error:
             assert self.db_password is not None, "db_password is not set"
         self.db_host = config.get('db_host', self.db_host)
