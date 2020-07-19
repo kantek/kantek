@@ -1,24 +1,24 @@
 """Plugin to manage the autobahn"""
 import logging
+from typing import List, Dict
 
 from telethon.errors import ChatNotModifiedError
-from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
-from telethon.tl.types import ChatBannedRights, InputPeerChannel, ChannelParticipantAdmin
+from telethon.tl.types import ChatBannedRights, InputPeerChannel, ChannelParticipantAdmin, Channel
 
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('lock')
-async def lock(event: NewMessage.Event) -> None:
+async def lock(client: KantekClient, chat: Channel, msg: Message,
+               args: List, kwargs: Dict, event: Command) -> None:
     """Command to quickly lock a chat to readonly for normal users."""
-    client: KantekClient = event.client
     chat: InputPeerChannel = await event.get_input_chat()
     try:
         await client(EditChatDefaultBannedRightsRequest(
@@ -43,7 +43,8 @@ async def lock(event: NewMessage.Event) -> None:
 
 
 @k.command('lock', False)
-async def lock_group_admins(event: NewMessage.Event) -> None:
+async def lock_group_admins(client: KantekClient, chat: Channel, msg: Message,
+                            args: List, kwargs: Dict, event: Command) -> None:
     """Check if the issuer of the command is group admin. Then execute the cleanup command."""
     if event.is_channel:
         msg: Message = event.message

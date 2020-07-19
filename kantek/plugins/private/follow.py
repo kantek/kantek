@@ -1,21 +1,21 @@
 """Get information on a invite link."""
 import logging
+from typing import List, Dict
 
-from telethon.events import NewMessage
+from telethon.tl.patched import Message
+from telethon.tl.types import Channel
 
-from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('f(ollow)?')
-async def follow(event: NewMessage.Event) -> None:
+async def follow(client: KantekClient, chat: Channel, msg: Message,
+                  args: List, kwargs: Dict, event: Command) -> None:
     """Command to follow where a URL redirects to."""
-    client: KantekClient = event.client
-    _, args = await helpers.get_args(event)
     link = args[0]
     await client.respond(event, MDTeXDocument(
         Section(Bold('Follow'),

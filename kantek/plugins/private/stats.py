@@ -1,23 +1,23 @@
 """Plugin to get statistics of the user account"""
 import logging
 import time
+from typing import Dict, List
 
-from telethon.events import NewMessage
 from telethon.tl.custom import Dialog
-from telethon.tl.types import Channel, Chat, User
+from telethon.tl.types import Channel, Chat, User, Message
 
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Italic, KeyValueItem, MDTeXDocument, Section, SubSection
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('stats')
-async def stats(event: NewMessage.Event) -> None:  # pylint: disable = R0912, R0914, R0915
+async def stats(client: KantekClient, chat: Channel, msg: Message,
+                  args: List, kwargs: Dict, event: Command) -> None:  # pylint: disable = R0912, R0914, R0915
     """Command to get stats about the account"""
-    client: KantekClient = event.client
     waiting_message = await client.respond(event, 'Collecting stats. This might take a while.')
     start_time = time.time()
     private_chats = 0

@@ -4,20 +4,21 @@ from typing import Dict, List
 
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
-from telethon.tl.types import Chat, Message
+from telethon.tl.types import Message, Channel
 
 from database.arango import ArangoDB
 from utils import parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Item, KeyValueItem, Section
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('tag')
-async def tag(event: NewMessage.Event) -> None:
+async def tag(client: KantekClient, chat: Channel, msg: Message,
+                  args: List, kwargs: Dict, event: Command) -> None:
     """Add or remove tags from groups and channels.
 
     Args:
@@ -26,13 +27,11 @@ async def tag(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    chat: Chat = event.chat
-    client: KantekClient = event.client
     db: ArangoDB = client.db
-    msg: Message = event.message
     tag_mgr = TagManager(event)
     args = msg.raw_text.split()[1:]
     response = ''
+    # TODO Replace with subcommand implementation
     if not args:
         named_tags: Dict = tag_mgr.named_tags
         tags: List = tag_mgr.tags

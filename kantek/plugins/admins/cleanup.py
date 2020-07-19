@@ -1,37 +1,33 @@
 """Plugin to remove deleted Accounts from a group"""
 import asyncio
 import logging
-from typing import Optional
+from typing import Optional, List, Dict
 
 import logzero
 from telethon.errors import FloodWaitError, UserAdminInvalidError, MessageIdInvalidError
-from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import (Channel, User, ChannelParticipantAdmin)
 
-from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, KeyValueItem, MDTeXDocument, Section
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
 
 @k.command('cleanup')
-async def cleanup(event: NewMessage.Event) -> None:
+async def cleanup(client: KantekClient, chat: Channel, msg: Message,
+                  args: List, kwargs: Dict, event: Command) -> None:
     """Command to remove Deleted Accounts from a group or network."""
-    chat: Channel = await event.get_chat()
-    client: KantekClient = event.client
-    keyword_args, _ = await helpers.get_args(event)
-    count_only = keyword_args.get('count', False)
-    silent = keyword_args.get('silent', False)
+    count_only = kwargs.get('count', False)
+    silent = kwargs.get('silent', False)
     if not chat.creator and not chat.admin_rights:
         count_only = True
     waiting_message = None
     if silent:
-        await event.message.delete()
+        await msg.delete()
     else:
         waiting_message = await client.respond(event, 'Starting cleanup. This might take a while.')
     response = await _cleanup_chat(event, count=count_only, progress_message=waiting_message)
@@ -42,7 +38,8 @@ async def cleanup(event: NewMessage.Event) -> None:
 
 
 @k.command('cleanup', private=False)
-async def cleanup_group_admins(event: NewMessage.Event) -> None:
+async def cleanup_group_admins(client: KantekClient, chat: Channel, msg: Message,
+                               args: List, kwargs: Dict, event: Command) -> None:
     """Check if the issuer of the command is group admin. Then execute the cleanup command."""
     if event.is_channel:
         msg: Message = event.message

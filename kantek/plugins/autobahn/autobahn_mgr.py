@@ -4,18 +4,20 @@ import logging
 import os
 import re
 from collections import Counter
+from typing import Dict, List
 
 import logzero
 from pyArango.document import Document
 from telethon.errors import MessageIdInvalidError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
+from telethon.tl.types import Channel
 
 from database.arango import ArangoDB
 from utils import helpers, parsers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -36,17 +38,15 @@ INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
 @k.command('a(uto)?b(ahn)?')
-async def autobahn(event: NewMessage.Event) -> None:
+async def autobahn(client: KantekClient, chat: Channel, msg: Message,
+                    args: List, kwargs: Dict, event: Command) -> None:
     """Command to manage autobahn blacklists"""
-    client: KantekClient = event.client
-    msg: Message = event.message
-    db: ArangoDB = client.db
+    db = client.db
     args = msg.raw_text.split()[1:]
-
     response = ''
     if not args:
         pass
-
+    # TODO Needs to be replaced by a proper subcommand implementation
     elif args[0] == 'add' and len(args) > 1:
         response = await _add_item(event, db)
     elif args[0] == 'del' and len(args) > 1:

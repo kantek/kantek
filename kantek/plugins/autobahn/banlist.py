@@ -3,17 +3,18 @@ import csv
 import logging
 import os
 import time
-from typing import List
+from typing import List, Dict
 
 from spamwatch.types import Ban, Permission
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
+from telethon.tl.types import Channel
 
 from database.arango import ArangoDB
 from utils import helpers, parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Section
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -21,11 +22,11 @@ SWAPI_SLICE_LENGTH = 50
 
 
 @k.command('b(an)?l(ist)?')
-async def banlist(event: NewMessage.Event) -> None:
+async def banlist(client: KantekClient, chat: Channel, msg: Message,
+                  args: List, kwargs: Dict, event: Command) -> None:
     """Command to query and manage the banlist."""
-    client: KantekClient = event.client
-    msg: Message = event.message
     db: ArangoDB = client.db
+    # TODO Replaced with subcomamnd implementation
     args = msg.raw_text.split()[1:]
     response = ''
     if not args:

@@ -1,43 +1,41 @@
 """Plugin to get information about a user."""
 import logging
-from typing import Union
+from typing import Union, Dict, List
 
 from spamwatch.types import Permission
-from telethon.events import NewMessage
 from telethon.tl.custom import Forward, Message
 from telethon.tl.types import Channel, MessageEntityMention, MessageEntityMentionName, User
 
-from utils import helpers, parsers, constants
+from utils import helpers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, Link, MDTeXDocument, Section, SubSection
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('u(ser)?')
-async def user_info(event: NewMessage.Event) -> None:
+async def user_info(client: KantekClient, chat: Channel, msg: Message,
+                    args: List, kwargs: Dict, event: Command) -> None:
     """Show information about a user.
 
     Args:
-        event: The event of the command
-
-    Returns: None
+        client:
+        chat:
+        msg:
+        args:
+        kwargs:
+        event:
 
     """
-    chat: Channel = await event.get_chat()
-    client: KantekClient = event.client
-    msg: Message = event.message
     # crude hack until I have a proper way to have commands with short options
     # without this ungban will always trigger user too
     if 'ungban' in msg.text:
         return
-    _args = msg.raw_text.split()[1:]
-    keyword_args, args = parsers.parse_arguments(' '.join(_args))
     response = ''
     if not args and msg.is_reply:
-        response = await _info_from_reply(event, **keyword_args)
-    elif args or 'search' in keyword_args:
+        response = await _info_from_reply(event, **kwargs)
+    elif args or 'search' in kwargs:
         response = await _info_from_arguments(event)
     if response:
         await client.respond(event, response)

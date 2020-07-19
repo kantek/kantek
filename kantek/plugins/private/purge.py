@@ -1,22 +1,20 @@
 """Plugin to purge messages up to a specific point"""
 import logging
+from typing import Dict, List
 
-from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.types import Channel
 
 from utils.client import KantekClient
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('purge')
-async def purge(event: NewMessage.Event) -> None:
+async def purge(client: KantekClient, chat: Channel, msg: Message,
+                  args: List, kwargs: Dict, event: Command) -> None:
     """Plugin to purge messages up to a specific point."""
-    chat: Channel = await event.get_chat()
-    msg: Message = event.message
-    client: KantekClient = event.client
     await msg.delete()
     if not msg.is_reply:
         return

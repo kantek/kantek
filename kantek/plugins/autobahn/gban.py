@@ -5,7 +5,6 @@ import logging
 from typing import Dict, Optional, List
 
 from telethon.errors import UserNotParticipantError
-from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
@@ -14,7 +13,7 @@ from telethon.tl.types import Channel, InputReportReasonSpam
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument, Section, KeyValueItem, Bold, Code
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -24,17 +23,13 @@ CHUNK_SIZE = 10
 
 
 @k.command('gban')
-async def gban(event: NewMessage.Event) -> None:
+async def gban(client: KantekClient, chat: Channel, msg: Message,
+               args: List, kwargs: Dict, event: Command) -> None:
     """Command to globally ban a user."""
-
-    chat: Channel = await event.get_chat()
-    msg: Message = event.message
-    client: KantekClient = event.client
-    keyword_args, args = await helpers.get_args(event)
     tags = TagManager(event)
     gban = tags.get('gban')
 
-    only_joinspam = keyword_args.get('only_joinspam', False) or keyword_args.get('oj', False)
+    only_joinspam = kwargs.get('only_joinspam', False) or kwargs.get('oj', False)
 
     verbose = False
     if gban == 'verbose' or event.is_private:
@@ -82,11 +77,11 @@ async def gban(event: NewMessage.Event) -> None:
         if ban_reason:
             ban_reason = ' '.join(ban_reason)
         else:
-            ban_reason = keyword_args.get('reason', DEFAULT_REASON)
+            ban_reason = kwargs.get('reason', DEFAULT_REASON)
 
-        message = keyword_args.get('msg')
+        message = kwargs.get('msg')
         if not message:
-            link = keyword_args.get('link')
+            link = kwargs.get('link')
             if link:
                 try:
                     linked_msg: Message = await helpers.get_linked_message(client, link)
@@ -144,11 +139,9 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str]) -> List[K
 
 
 @k.command('ungban')
-async def ungban(event: NewMessage.Event) -> None:
+async def ungban(client: KantekClient, chat: Channel, msg: Message,
+                 args: List, kwargs: Dict, event: Command) -> None:
     """Command to globally unban a user."""
-    msg: Message = event.message
-    client: KantekClient = event.client
-    keyword_args, args = await helpers.get_args(event)
     await msg.delete()
 
     users_to_unban = [*args]

@@ -1,3 +1,4 @@
+import functools
 import importlib
 import os
 from dataclasses import dataclass
@@ -6,13 +7,17 @@ from importlib._bootstrap_external import SourceFileLoader
 from typing import Callable, List
 
 from telethon import events
+from telethon.events import NewMessage
 from telethon.events.common import EventBuilder
+from telethon.tl.patched import Message
+from telethon.tl.types import Channel
 
+from utils import helpers
 from utils._config import Config
 
 
 @dataclass
-class Command:
+class _Command:
     callback: Callable
     private: bool
     command: str
@@ -25,7 +30,7 @@ class Event:
 
 
 class PluginManager:
-    commands: List[Command] = []
+    commands: List[_Command] = []
     events: List[Event] = []
 
     def __init__(self, client):
@@ -52,12 +57,19 @@ class PluginManager:
         for e in self.events:
             self.client.add_event_handler(e.callback, e.event)
 
+    @staticmethod
+    async def _callback(callback, event):
+        chat: Channel = await event.get_chat()
+        client = event.client
+        kwargs, args = await helpers.get_args(event)
+        await callback(client=client, chat=chat, msg=event.message, args=args, kwargs=kwargs, event=event)
+
     @classmethod
     def command(cls, command, private=True):
         def decorator(callback):
-            plugin = Command(callback, private, command)
+            plugin = _Command(functools.partial(cls._callback, callback),
+                              private, command)
             cls.commands.append(plugin)
-            return callback
 
         return decorator
 
@@ -71,3 +83,5 @@ class PluginManager:
 
 
 k = PluginManager
+
+Command = NewMessage.Event

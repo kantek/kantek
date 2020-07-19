@@ -17,7 +17,6 @@ from telethon.tl.custom import Message
 from telethon.tl.types import User, DocumentAttributeFilename
 
 from utils import parsers
-from utils.client import KantekClient
 
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
@@ -111,7 +110,7 @@ async def hash_photo(photo):
     return str(photo_hash)
 
 
-async def get_linked_message(client: KantekClient, link):
+async def get_linked_message(client, link):
     match = MESSAGE_LINK_PATTERN.search(link)
     if not match:
         return None

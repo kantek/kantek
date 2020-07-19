@@ -1,22 +1,23 @@
 """Plugin to get information about kantek."""
 import logging
 import platform
+from typing import Dict, List
 
 import telethon
 from telethon.errors import ChatSendStickersForbiddenError
-from telethon.events import NewMessage
 from telethon.tl.functions.messages import GetStickerSetRequest
-from telethon.tl.types import InputStickerSetShortName, StickerSet, Channel
+from telethon.tl.types import InputStickerSetShortName, StickerSet, Channel, Message
 
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument, Section, Bold, KeyValueItem
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('kantek')
-async def kantek(event: NewMessage.Event) -> None:
+async def kantek(client: KantekClient, chat: Channel, msg: Message,
+                  args: List, kwargs: Dict, event: Command) -> None:
     """Show information about kantek.
 
     Args:
@@ -25,8 +26,6 @@ async def kantek(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    client: KantekClient = event.client
-    chat: Channel = await event.get_chat()
     stickerset: StickerSet = await client(GetStickerSetRequest(InputStickerSetShortName("kantek")))
     try:
         await client.send_file(chat, stickerset.documents[0])

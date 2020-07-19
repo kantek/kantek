@@ -1,19 +1,21 @@
 """Plugin to test the argument parser"""
 import logging
 from pprint import pformat
+from typing import Dict, List
 
-from telethon.events import NewMessage
 from telethon.tl.custom import Message
+from telethon.tl.types import Channel
 
-from utils import parsers
+from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section, SubSection, Pre
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('arg')
-async def show_args(event: NewMessage.Event) -> None:
+async def show_args(client: KantekClient, chat: Channel, msg: Message,
+                    args: List, kwargs: Dict, event: Command) -> None:
     """Show the raw output of the argument parser
 
     Args:
@@ -22,23 +24,21 @@ async def show_args(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    msg: Message = event.message
     _args = msg.raw_text.split()[1:]
-    keyword_args, args = parsers.parse_arguments(' '.join(_args))
     _args = []
     for arg in args:
         _args.append(SubSection(Code(arg),
                                 KeyValueItem('type', Code(type(arg).__name__))))
-    kwargs = []
-    for k, v in keyword_args.items():
-        kwargs.append(SubSection(Code(k),
-                                 KeyValueItem('value', Code(v)),
-                                 KeyValueItem('type', Code(type(v).__name__))))
+    keyword_args = []
+    for k, v in kwargs.items():
+        keyword_args.append(SubSection(Code(k),
+                                       KeyValueItem('value', Code(v)),
+                                       KeyValueItem('type', Code(type(v).__name__))))
     doc = MDTeXDocument(
         Section(Bold('Args'), *_args),
-        Section(Bold('Keyword Args'), *kwargs),
+        Section(Bold('Keyword Args'), *keyword_args),
         Section(Bold('Raw'),
                 KeyValueItem('args', Pre(pformat(args, width=30))),
-                KeyValueItem('keyword_args', Pre(pformat(keyword_args, width=30))))
+                KeyValueItem('keyword_args', Pre(pformat(kwargs, width=30))))
     )
     await msg.reply(str(doc))

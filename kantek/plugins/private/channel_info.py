@@ -1,19 +1,20 @@
 """Plugin to get information about a channel."""
 import logging
+from typing import Dict, List
 
-from telethon.events import NewMessage
-from telethon.tl.types import Channel, User
+from telethon.tl.types import Channel, User, Message
 
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Item, KeyValueItem, MDTeXDocument, Section
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('info')
-async def info(event: NewMessage.Event) -> None:
+async def info(client: KantekClient, chat: Channel, msg: Message,
+               args: List, kwargs: Dict, event: Command) -> None:
     """Show information about a group or channel.
 
     Args:
@@ -22,8 +23,6 @@ async def info(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    chat: Channel = await event.get_chat()
-    client: KantekClient = event.client
     if event.is_private:
         return
     chat_info = Section(f'info for {chat.title}:',

@@ -1,22 +1,22 @@
 """Plugin to schedule gbans from a file."""
 import logging
 from datetime import datetime, timedelta
+from typing import List, Dict
 
-from telethon.events import NewMessage
 from telethon.tl.functions.messages import GetScheduledHistoryRequest, DeleteScheduledMessagesRequest
 from telethon.tl.patched import Message
 from telethon.tl.types import Channel, MessageMediaDocument
 
-from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('schedule')
-async def schedule(event: NewMessage.Event) -> None:
+async def schedule(client: KantekClient, chat: Channel, msg: Message,
+                  args: List, kwargs: Dict, event: Command) -> None:
     """Schedule gbans from a file
 
     Args:
@@ -25,13 +25,8 @@ async def schedule(event: NewMessage.Event) -> None:
     Returns: None
 
     """
-    client: KantekClient = event.client
-    msg = event.message
-    chat: Channel = await event.get_chat()
-
-    keyword_args, _ = await helpers.get_args(event)
-    offset = keyword_args.get('offset', 1)
-    if keyword_args.get('overwrite'):
+    offset = kwargs.get('offset', 1)
+    if kwargs.get('overwrite'):
         scheduled = await client(GetScheduledHistoryRequest(chat, 0))
         scheduled_ids = [smsg.id for smsg in scheduled.messages]
         await client(DeleteScheduledMessagesRequest(chat, scheduled_ids))
