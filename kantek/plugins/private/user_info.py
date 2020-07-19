@@ -120,12 +120,14 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
     else:
         title = Bold(full_name)
 
+    sw_ban = None
     ban_reason = client.db.banlist.get_user(user.id)
     if ban_reason:
         ban_reason = ban_reason['reason']
         if client.sw and client.sw.permission.value <= Permission.User.value:
-            ban = client.sw.get_ban(int(user.id))
-            ban_message = ban.message
+            sw_ban = client.sw.get_ban(int(user.id))
+            ban_message = sw_ban.message
+            ban_date = sw_ban.date
             if not full_ban_msg:
                 ban_message = f'{ban_message[:128]}[...]'
 
@@ -137,11 +139,17 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
         general = SubSection(
             Bold('general'),
             KeyValueItem('id', Code(user.id)),
-            KeyValueItem('first_name', Code(user.first_name)),
-            KeyValueItem('last_name', Code(user.last_name)) if user.last_name is not None or show_all else '',
-            KeyValueItem('username', Code(user.username)) if user.username is not None or show_all else '',
-            KeyValueItem('ban_reason', Code(ban_reason)) if ban_reason else KeyValueItem('gbanned', Code('False')),
-            KeyValueItem('ban_msg', Code(ban_message)) if ban_reason else '')
+            KeyValueItem('first_name', Code(user.first_name)))
+        if user.last_name is not None or show_all:
+            general.append(KeyValueItem('last_name', Code(user.last_name)))
+        if user.username is not None or show_all:
+            general.append(KeyValueItem('username', Code(user.username)))
+        if ban_reason:
+            general.append(KeyValueItem('ban_reason', Code(ban_reason)))
+        else:
+            general.append(KeyValueItem('gbanned', Code('False')))
+        if sw_ban:
+            general.append(KeyValueItem('ban_msg', Code(ban_message)))
 
         bot = SubSection(
             Bold('bot'),
