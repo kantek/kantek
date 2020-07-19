@@ -1,5 +1,6 @@
 import functools
 import importlib
+import inspect
 import os
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
@@ -9,7 +10,6 @@ from typing import Callable, List
 from telethon import events
 from telethon.events import NewMessage
 from telethon.events.common import EventBuilder
-from telethon.tl.patched import Message
 from telethon.tl.types import Channel
 
 from utils import helpers
@@ -27,6 +27,17 @@ class _Command:
 class Event:
     callback: Callable
     event: EventBuilder
+
+
+@dataclass
+class Signature:
+    client: bool = False
+    db: bool = False
+    chat: bool = False
+    msg: bool = False
+    args: bool = False
+    kwargs: bool = False
+    event: bool = False
 
 
 class PluginManager:
@@ -58,16 +69,41 @@ class PluginManager:
             self.client.add_event_handler(e.callback, e.event)
 
     @staticmethod
-    async def _callback(callback, event):
-        chat: Channel = await event.get_chat()
+    async def _callback(callback, args: Signature, event):
+        callback_args = {}
         client = event.client
-        kwargs, args = await helpers.get_args(event)
-        await callback(client=client, chat=chat, msg=event.message, args=args, kwargs=kwargs, event=event)
+
+        if args.client:
+            callback_args['client'] = client
+
+        if args.db:
+            callback_args['db'] = client.db
+
+        if args.chat:
+            callback_args['chat'] = await event.get_chat()
+
+        if args.msg:
+            callback_args['msg'] = event.message
+
+        if args.args or args.kwargs:
+            _kwargs, _args = await helpers.get_args(event)
+            if args.args:
+                callback_args['args'] = _args
+            if args.kwargs:
+                callback_args['kwargs'] = _kwargs
+
+        if args.event:
+            callback_args['event'] = event
+
+        await callback(**callback_args)
 
     @classmethod
     def command(cls, command, private=True):
         def decorator(callback):
-            plugin = _Command(functools.partial(cls._callback, callback),
+            signature = inspect.signature(callback)
+            args = Signature(**{n: True for n in signature.parameters.keys()})
+            new_callback = functools.partial(cls._callback, callback, args)
+            plugin = _Command(new_callback,
                               private, command)
             cls.commands.append(plugin)
 
