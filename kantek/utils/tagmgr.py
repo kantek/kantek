@@ -20,7 +20,7 @@ class TagManager:
         self.named_tags = self._document['named_tags'].getStore()
         self.tags = self._document['tags']
 
-    def get(self, tag_name: TagName) -> Optional[TagValue]:
+    def get(self, tag_name: TagName, default: TagValue = None) -> Optional[TagValue]:
         """Get a Tags Value
 
         Args:
@@ -32,7 +32,7 @@ class TagManager:
             None if the tag doesn't exist
 
         """
-        return self.named_tags.get(tag_name, tag_name in self.tags or None)
+        return self.named_tags.get(tag_name, tag_name in self.tags or default)
 
     def __getitem__(self, item: TagName) -> TagValue:
         return self.get(item)
