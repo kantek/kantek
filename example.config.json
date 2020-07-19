@@ -1,0 +1,10 @@
+{
+    "api_id": 123456,
+    "api_hash": "abcdefhijkl",
+    "phone": "+123456789",
+
+    "db_password": "PASSWORD",
+
+    "log_bot_token": "123456789:AABBCCDDEEFFGGHH",
+    "log_channel_id": -100123456789
+}
