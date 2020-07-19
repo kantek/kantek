@@ -31,6 +31,8 @@ logger: logging.Logger = logzero.logger
 @k.event(events.NewMessage(outgoing=False))
 async def polizei(event: NewMessage.Event) -> None:
     """Plugin to automatically ban users for certain messages."""
+    if event.is_private:
+        return
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
     tags = TagManager(event)
