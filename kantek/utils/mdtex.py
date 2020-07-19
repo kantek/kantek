@@ -96,6 +96,9 @@ class Section:
                          + [' ' * self.indent + str(item) for item in self.items
                             if item is not None])
 
+    def append(self, item):
+        self.items.append(item)
+
 
 class SubSection(Section):
     """A subsection Header"""
