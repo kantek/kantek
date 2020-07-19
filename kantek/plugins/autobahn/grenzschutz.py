@@ -29,9 +29,12 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     """Plugin to ban blacklisted users."""
     if event.is_private:
         return
+
     if isinstance(event, ChatAction.Event):
-        if not isinstance(event.action_message.action,
-                          (MessageActionChatJoinedByLink, MessageActionChatAddUser)):
+        if event.action_message is None:
+            return
+        elif not isinstance(event.action_message.action,
+                            (MessageActionChatJoinedByLink, MessageActionChatAddUser)):
             return
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
