@@ -1,10 +1,9 @@
 """Plugin to get statistics of the user account"""
 import logging
 import time
-from typing import Dict, List
 
 from telethon.tl.custom import Dialog
-from telethon.tl.types import Channel, Chat, User, Message
+from telethon.tl.types import Channel, Chat, User
 
 from utils import helpers
 from utils.client import KantekClient
@@ -15,8 +14,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('stats')
-async def stats(client: KantekClient, chat: Channel, msg: Message,
-                  args: List, kwargs: Dict, event: Command) -> None:  # pylint: disable = R0912, R0914, R0915
+async def stats(client: KantekClient, event: Command) -> None:  # pylint: disable = R0912, R0914, R0915
     """Command to get stats about the account"""
     waiting_message = await client.respond(event, 'Collecting stats. This might take a while.')
     start_time = time.time()

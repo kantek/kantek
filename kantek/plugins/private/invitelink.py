@@ -1,8 +1,6 @@
 """Get information on a invite link."""
 import logging
-from typing import List, Dict
-
-from telethon.tl.types import Channel, Message
+from typing import List
 
 from utils import helpers
 from utils.client import KantekClient
@@ -13,8 +11,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('i(nvite)?l(ink)?')
-async def invitelink(client: KantekClient, chat: Channel, msg: Message,
-                     args: List, kwargs: Dict, event: Command) -> None:
+async def invitelink(client: KantekClient, args: List, event: Command) -> None:
     """Command to get link creator, chatid and the random part of an invite link."""
     link = args[0]
     link_creator, chatid, random_part = await helpers.resolve_invite_link(link)

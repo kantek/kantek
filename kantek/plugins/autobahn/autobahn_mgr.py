@@ -4,14 +4,12 @@ import logging
 import os
 import re
 from collections import Counter
-from typing import Dict, List
 
 import logzero
 from pyArango.document import Document
 from telethon.errors import MessageIdInvalidError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
-from telethon.tl.types import Channel
 
 from database.arango import ArangoDB
 from utils import helpers, parsers, constants
@@ -38,8 +36,7 @@ INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
 @k.command('a(uto)?b(ahn)?')
-async def autobahn(client: KantekClient, chat: Channel, msg: Message,
-                    args: List, kwargs: Dict, event: Command) -> None:
+async def autobahn(client: KantekClient, msg: Message, event: Command) -> None:
     """Command to manage autobahn blacklists"""
     db = client.db
     args = msg.raw_text.split()[1:]

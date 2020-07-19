@@ -4,22 +4,16 @@ from pprint import pformat
 from typing import Dict, List
 
 from telethon.tl.custom import Message
-from telethon.tl.types import Channel
 
-from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section, SubSection, Pre
-from utils.pluginmgr import k, Command
+from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('arg')
-async def show_args(client: KantekClient, chat: Channel, msg: Message,
-                    args: List, kwargs: Dict, event: Command) -> None:
+async def show_args(msg: Message, args: List, kwargs: Dict) -> None:
     """Show the raw output of the argument parser
-
-    Args:
-        event: The event of the command
 
     Returns: None
 

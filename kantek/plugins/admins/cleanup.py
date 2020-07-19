@@ -19,7 +19,7 @@ logger: logging.Logger = logzero.logger
 
 @k.command('cleanup')
 async def cleanup(client: KantekClient, chat: Channel, msg: Message,
-                  args: List, kwargs: Dict, event: Command) -> None:
+                  kwargs: Dict, event: Command) -> None:
     """Command to remove Deleted Accounts from a group or network."""
     count_only = kwargs.get('count', False)
     silent = kwargs.get('silent', False)

@@ -17,8 +17,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('tag')
-async def tag(client: KantekClient, chat: Channel, msg: Message,
-                  args: List, kwargs: Dict, event: Command) -> None:
+async def tag(client: KantekClient, chat: Channel, msg: Message, event: Command) -> None:
     """Add or remove tags from groups and channels.
 
     Args:

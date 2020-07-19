@@ -1,7 +1,7 @@
 """Plugin to schedule gbans from a file."""
 import logging
 from datetime import datetime, timedelta
-from typing import List, Dict
+from typing import Dict
 
 from telethon.tl.functions.messages import GetScheduledHistoryRequest, DeleteScheduledMessagesRequest
 from telethon.tl.patched import Message
@@ -15,8 +15,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('schedule')
-async def schedule(client: KantekClient, chat: Channel, msg: Message,
-                  args: List, kwargs: Dict, event: Command) -> None:
+async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> None:
     """Schedule gbans from a file
 
     Args:

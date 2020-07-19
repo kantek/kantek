@@ -139,8 +139,8 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str]) -> List[K
 
 
 @k.command('ungban')
-async def ungban(client: KantekClient, chat: Channel, msg: Message,
-                 args: List, kwargs: Dict, event: Command) -> None:
+async def ungban(client: KantekClient, msg: Message,
+                 args: List, event: Command) -> None:
     """Command to globally unban a user."""
     await msg.delete()
 

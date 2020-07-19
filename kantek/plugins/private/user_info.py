@@ -4,7 +4,7 @@ from typing import Union, Dict, List
 
 from spamwatch.types import Permission
 from telethon.tl.custom import Forward, Message
-from telethon.tl.types import Channel, MessageEntityMention, MessageEntityMentionName, User
+from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, User
 
 from utils import helpers, constants
 from utils.client import KantekClient
@@ -15,13 +15,12 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('u(ser)?')
-async def user_info(client: KantekClient, chat: Channel, msg: Message,
+async def user_info(client: KantekClient, msg: Message,
                     args: List, kwargs: Dict, event: Command) -> None:
     """Show information about a user.
 
     Args:
         client:
-        chat:
         msg:
         args:
         kwargs:

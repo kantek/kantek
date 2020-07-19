@@ -16,8 +16,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('lock')
-async def lock(client: KantekClient, chat: Channel, msg: Message,
-               args: List, kwargs: Dict, event: Command) -> None:
+async def lock(client: KantekClient, event: Command) -> None:
     """Command to quickly lock a chat to readonly for normal users."""
     chat: InputPeerChannel = await event.get_input_chat()
     try:
