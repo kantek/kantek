@@ -108,5 +108,5 @@ venv.bak/
 .idea
 
 sessions
-config.py
+kantek/config.py
 kantek/tmp
