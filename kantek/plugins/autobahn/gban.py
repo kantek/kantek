@@ -36,6 +36,9 @@ async def gban(event: NewMessage.Event) -> None:
     chat_document = client.db.groups.get_chat(event.chat_id)
     db_named_tags: Dict = chat_document['named_tags'].getStore()
     gban = db_named_tags.get('gban')
+
+    only_joinspam = keyword_args.get('only_joinspam', False) or keyword_args.get('oj', False)
+
     verbose = False
     if gban == 'verbose' or event.is_private:
         verbose = True
@@ -56,6 +59,8 @@ async def gban(event: NewMessage.Event) -> None:
                 now = datetime.datetime.now(tz=join_date.tzinfo)
                 if (now - datetime.timedelta(hours=1)) < join_date:
                     ban_reason = 'joinspam'
+                elif only_joinspam:
+                    return
             except UserNotParticipantError:
                 pass
 
