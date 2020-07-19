@@ -53,7 +53,7 @@ class PluginManager:
             self.client.add_event_handler(e.callback, e.event)
 
     @classmethod
-    def command(cls, command, private=True, *args, **kwargs):
+    def command(cls, command, private=True):
         def decorator(callback):
             plugin = Command(callback, private, command)
             cls.commands.append(plugin)
