@@ -7,7 +7,6 @@ class Config:
     api_id: int
     api_hash: str
     phone: str
-    session_name: str
 
     db_username: str
     db_name: str
@@ -20,6 +19,7 @@ class Config:
     gban_group: int
 
     cmd_prefix: str = r'\.'
+    session_name: str = 'kantek-session'
     vollzugsanstalten: List[int] = []
 
     spamwatch_host: str = 'https://api.spamwat.ch'
@@ -54,9 +54,7 @@ class Config:
         self.phone = config.get('phone')
         if error:
             assert self.phone is not None, "phone is not set"
-        self.session_name = config.get('session_name')
-        if error:
-            assert self.session_name is not None, "session_name is not set"
+
         self.log_bot_token = config.get('log_bot_token')
         if error:
             assert self.log_bot_token is not None, "log_bot_token is not set"
@@ -79,6 +77,7 @@ class Config:
         if error:
             assert self.db_host is not None, "db_host is not set"
 
+        self.session_name = config.get('session_name', self.session_name)
         self.cmd_prefix = config.get('cmd_prefix', self.cmd_prefix)
         self.vollzugsanstalten.extend(config.get('vollzugsanstalten', self.vollzugsanstalten))
         self.spamwatch_host = config.get('spamwatch_host', self.spamwatch_host)
@@ -88,7 +87,7 @@ class Config:
         self.api_id = getattr(module, 'api_id')
         self.api_hash = getattr(module, 'api_hash')
         self.phone = getattr(module, 'phone')
-        self.session_name = getattr(module, 'session_name')
+
         self.db_username = getattr(module, 'db_username')
         self.db_name = getattr(module, 'db_name')
         self.db_password = getattr(module, 'db_password')
@@ -97,6 +96,7 @@ class Config:
         self.log_channel_id = getattr(module, 'log_channel_id')
         self.gban_group = getattr(module, 'gban_group')
 
+        self.session_name = getattr(module, 'session_name', self.session_name)
         self.cmd_prefix = getattr(module, 'cmd_prefix', self.cmd_prefix)
         self.vollzugsanstalten.extend(getattr(module, 'vollzugsanstalten', self.vollzugsanstalten))
         self.spamwatch_host = getattr(module, 'spamwatch_host', self.spamwatch_host)
