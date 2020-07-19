@@ -130,9 +130,8 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
         if client.sw and client.sw.permission.value <= Permission.User.value:
             sw_ban = client.sw.get_ban(int(user.id))
             ban_message = sw_ban.message
-            ban_date = sw_ban.date
             if not full_ban_msg:
-                ban_message = f'{ban_message[:128]}[...]'
+                ban_message = f'{ban_message[:128]}{"[...]" if len(ban_message) > 128 else ""}'
 
     if id_only:
         return KeyValueItem(title, Code(user.id))
