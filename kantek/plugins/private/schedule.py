@@ -35,7 +35,7 @@ async def schedule(event: NewMessage.Event) -> None:
 
     keyword_args, _ = await helpers.get_args(event)
     offset = keyword_args.get('offset', 1)
-    if keyword_args['overwrite']:
+    if keyword_args.get('overwrite'):
         scheduled = await client(GetScheduledHistoryRequest(chat, 0))
         scheduled_ids = [smsg.id for smsg in scheduled.messages]
         await client(DeleteScheduledMessagesRequest(chat, scheduled_ids))
