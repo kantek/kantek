@@ -184,6 +184,14 @@ class BanList(Collection):
             return None
 
     def get_user(self, uid: int) -> Optional[Document]:
+        """Fetch a users document
+
+        Args:
+            uid: User ID
+
+        Returns: None or the Document
+
+        """
         try:
             return self.fetchDocument(uid)
         except DocumentNotFoundError:

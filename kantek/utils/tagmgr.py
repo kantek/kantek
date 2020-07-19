@@ -1,22 +1,18 @@
 from typing import Optional, Union
 
-from pyArango.document import DocumentStore
 from telethon.events import NewMessage
-
-from utils.client import KantekClient
 
 TagValue = Union[bool, str, int]
 TagName = Union[int, str]
 
 
 class TagManager:
+    """Class to manage the tags of a chat"""
+
     def __init__(self, event: NewMessage.Event):
-        self._client: KantekClient = event.client
-        self._db = self._client.db
-        self.chat_id = event.chat_id
-        self._collection = self._db.groups
-        self._document = self._collection[self.chat_id]
-        self._named_tags: DocumentStore = self._document['named_tags']
+        db = event.client.db
+        collection = db.groups
+        self._document = collection[event.chat_id]
         self.named_tags = self._document['named_tags'].getStore()
         self.tags = self._document['tags']
 
@@ -25,6 +21,7 @@ class TagManager:
 
         Args:
             tag_name: Name of the tag
+            default: Default value to return if the tag does not exist
 
         Returns:
             The tags value for named tags

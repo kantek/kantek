@@ -121,6 +121,11 @@ disable=print-statement,
  bad-continuation,  # clashes with flake8 and I prefer the flake8 style
  no-member,  # Find a better way
  too-few-public-methods,
+ too-many-locals,
+ too-many-arguments,
+ too-many-branches,
+ too-many-statements,
+ missing-module-docstring,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

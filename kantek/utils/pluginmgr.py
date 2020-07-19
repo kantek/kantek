@@ -24,13 +24,13 @@ class _Command:
 
 
 @dataclass
-class Event:
+class _Event:
     callback: Callable
     event: EventBuilder
 
 
 @dataclass
-class Signature:
+class _Signature:
     client: bool = False
     db: bool = False
     chat: bool = False
@@ -42,15 +42,17 @@ class Signature:
 
 
 class PluginManager:
+    """Load plugins add them as event handlers to the client"""
     commands: List[_Command] = []
-    events: List[Event] = []
+    events: List[_Event] = []
 
     def __init__(self, client):
         self.client = client
         self.config = Config()
-        self._get_plugin_list()
+        self._import_plugins()
 
-    def _get_plugin_list(self) -> None:
+    def _import_plugins(self) -> None:
+        """Import all plugins so the decorators are run"""
         for root, dirs, files in os.walk(str(self.config.plugin_path)):  # pylint: disable = W0612
             for file in files:
                 path = os.path.join(root, file)
@@ -61,6 +63,7 @@ class PluginManager:
                     loader.load_module()
 
     def register_all(self):
+        """Add all commands and events to the client"""
         for p in self.commands:
             event = events.NewMessage(outgoing=p.private,
                                       pattern=f'{self.config.cmd_prefix}{p.command}')
@@ -70,7 +73,14 @@ class PluginManager:
             self.client.add_event_handler(e.callback, e.event)
 
     @staticmethod
-    async def _callback(callback, args: Signature, event):
+    async def _callback(callback, args: _Signature, event) -> None:
+        """Wrapper around a plugins callback to dynamically pass requested arguments
+
+        Args:
+            callback: The plugins callback
+            args: The arguments of the plugin callback
+            event: The NewMessage Event
+        """
         callback_args = {}
         client = event.client
 
@@ -102,10 +112,19 @@ class PluginManager:
         await callback(**callback_args)
 
     @classmethod
-    def command(cls, command, private=True):
+    def command(cls, command: str, private: bool=True):
+        """Add a command to the client
+
+        Args:
+            command: Regex pattern without command prefix
+            private: True if the command should only be run when sent from the user
+
+        Returns:
+
+        """
         def decorator(callback):
             signature = inspect.signature(callback)
-            args = Signature(**{n: True for n in signature.parameters.keys()})
+            args = _Signature(**{n: True for n in signature.parameters.keys()})
             new_callback = functools.partial(cls._callback, callback, args)
             plugin = _Command(new_callback,
                               private, command)
@@ -116,7 +135,7 @@ class PluginManager:
     @classmethod
     def event(cls, event):
         def decorator(callback):
-            cls.events.append(Event(callback, event))
+            cls.events.append(_Event(callback, event))
             return callback
 
         return decorator
