@@ -131,7 +131,6 @@ async def textify_message(msg: Message):
     if msg.photo:
         message.append('[photo]')
     elif msg.sticker:
-        print(msg.sticker)
         message.append('[sticker]')
     elif msg.document:
         filename = [attr.file_name for attr in msg.document.attributes if isinstance(attr, DocumentAttributeFilename)]
