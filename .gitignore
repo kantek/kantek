@@ -110,3 +110,4 @@ venv.bak/
 sessions
 kantek/config.py
 kantek/tmp
+config.json
