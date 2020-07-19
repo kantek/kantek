@@ -6,11 +6,7 @@ from telethon.tl.types import Channel, User
 
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Item, KeyValueItem, MDTeXDocument, Section
-
-__version__ = '0.1.0'
-
 from utils.pluginmgr import k
-
 from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')

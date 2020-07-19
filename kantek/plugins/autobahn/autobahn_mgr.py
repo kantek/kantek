@@ -15,9 +15,6 @@ from database.arango import ArangoDB
 from utils import helpers, parsers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
-
-__version__ = '0.2.1'
-
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')

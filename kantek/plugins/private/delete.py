@@ -5,8 +5,6 @@ from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 
-__version__ = '0.1.0'
-
 from utils.constants import SCHEDULE_DELETION_COMMAND
 from utils.pluginmgr import k
 

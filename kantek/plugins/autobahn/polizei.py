@@ -20,11 +20,7 @@ from database.arango import ArangoDB
 from utils import helpers, constants
 from utils.client import KantekClient
 from utils.helpers import hash_photo
-
-__version__ = '0.4.1'
-
 from utils.pluginmgr import k
-
 from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')

@@ -8,9 +8,6 @@ from telethon.tl.patched import Message
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
-
-__version__ = '0.1.0'
-
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')

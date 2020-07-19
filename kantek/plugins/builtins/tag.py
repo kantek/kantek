@@ -13,8 +13,6 @@ from utils.mdtex import Bold, Code, Item, KeyValueItem, Section
 from utils.pluginmgr import k
 from utils.tagmgr import TagManager
 
-__version__ = '0.1.0'
-
 tlog = logging.getLogger('kantek-channel-log')
 
 

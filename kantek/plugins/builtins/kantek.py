@@ -12,8 +12,6 @@ from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument, Section, Bold, KeyValueItem
 from utils.pluginmgr import k
 
-__version__ = '0.3.0'
-
 tlog = logging.getLogger('kantek-channel-log')
 
 

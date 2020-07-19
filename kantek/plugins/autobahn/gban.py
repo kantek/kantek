@@ -14,11 +14,7 @@ from telethon.tl.types import Channel, InputReportReasonSpam
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument, Section, KeyValueItem, Bold, Code
-
-__version__ = '0.4.0'
-
 from utils.pluginmgr import k
-
 from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')

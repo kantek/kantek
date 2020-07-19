@@ -9,8 +9,6 @@ from utils import parsers
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section, SubSection, Pre
 from utils.pluginmgr import k
 
-__version__ = '0.1.0'
-
 tlog = logging.getLogger('kantek-channel-log')
 
 

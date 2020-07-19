@@ -6,9 +6,6 @@ from telethon.tl.custom import Message
 from telethon.tl.types import Channel
 
 from utils.client import KantekClient
-
-__version__ = '0.1.0'
-
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')

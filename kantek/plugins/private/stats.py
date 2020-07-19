@@ -9,9 +9,6 @@ from telethon.tl.types import Channel, Chat, User
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Italic, KeyValueItem, MDTeXDocument, Section, SubSection
-
-__version__ = '0.1.1'
-
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')

@@ -9,9 +9,6 @@ from telethon.tl.types import Channel, MessageMediaDocument
 
 from utils import helpers
 from utils.client import KantekClient
-
-__version__ = '0.1.0'
-
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
 from utils.pluginmgr import k
 
