@@ -195,11 +195,11 @@ class BanList(Collection):
 class ArangoDB:  # pylint: disable = R0902
     """Handle creation of all required Documents."""
 
-    def __init__(self) -> None:
-        self.conn = Connection(arangoURL=config.db_host,
-                               username=config.db_username,
-                               password=config.db_password)
-        self.db = self._get_db(config.db_name)
+    def __init__(self, host, username, password, name) -> None:
+        self.conn = Connection(arangoURL=host,
+                               username=username,
+                               password=password)
+        self.db = self._get_db(name)
         self.groups: Chats = self._get_collection('Chats')
         self.ab_bio_blacklist: AutobahnBioBlacklist = self._get_collection('AutobahnBioBlacklist')
         self.ab_string_blacklist: AutobahnStringBlacklist = self._get_collection(

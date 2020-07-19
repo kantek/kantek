@@ -21,9 +21,8 @@ from telethon.tl.patched import Message
 from telethon.tl.types import ChatBannedRights
 from yarl import URL
 
-import config
-from config import cmd_prefix
 from database.arango import ArangoDB
+from utils._config import Config
 from utils.constants import SCHEDULE_DELETION_COMMAND
 from utils.mdtex import FormattedBase, MDTeXDocument, Section
 from utils.pluginmgr import PluginManager
@@ -42,6 +41,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
     sw: spamwatch.Client = None
     sw_url: str = None
     aioclient: ClientSession = None
+    config: Config
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -108,13 +108,13 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                 reason = f"spam adding {count}+ members"
 
         await self.send_message(
-            config.gban_group,
+            self.config.gban_group,
             f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
         await self.send_message(
-            config.gban_group,
+            self.config.gban_group,
             f'/gban {uid} {reason}')
         await self.send_message(
-            config.gban_group,
+            self.config.gban_group,
             f'/fban {uid} {reason}')
 
         data = {'_key': str(uid),
@@ -148,19 +148,19 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
         """
         await self.send_message(
-            config.gban_group,
+            self.config.gban_group,
             f'<a href="tg://user?id={uid}">{uid}</a>', parse_mode='html')
         await self.send_message(
-            config.gban_group,
+            self.config.gban_group,
             f'/ungban {uid}')
         await self.send_message(
-            config.gban_group,
+            self.config.gban_group,
             f'/unfban {uid}')
         await self.send_message(
-            config.gban_group,
+            self.config.gban_group,
             f'/unban {uid}')
         await asyncio.sleep(0.5)
-        await self.send_read_acknowledge(config.gban_group,
+        await self.send_read_acknowledge(self.config.gban_group,
                                          max_id=1000000,
                                          clear_mentions=True)
 
