@@ -122,9 +122,11 @@ async def _check_message(event):
     # exclude users below a certain id to avoid banning "legit" users
     if user_id and user_id < 610000000:
         return False, False
-
-    result = await client(GetParticipantRequest(event.chat_id, user_id))
-    if isinstance(result.participant, ChannelParticipantAdmin):
+    try:
+        result = await client(GetParticipantRequest(event.chat_id, user_id))
+        if isinstance(result.participant, ChannelParticipantAdmin):
+            return False, False
+    except ValueError:
         return False, False
 
     # no need to ban bots as they can only be added by users anyway
