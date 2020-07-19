@@ -2,7 +2,7 @@
 I called it MDTeX because I'm uncreative and the idea of SubSection and SubSubSection
  was taken from LaTeX
 """
-from typing import Union
+from typing import Union, Iterable
 
 
 class FormattedBase:
@@ -98,6 +98,9 @@ class Section:
 
     def append(self, item):
         self.items.append(item)
+
+    def extend(self, items: Iterable):
+        self.items.extend(items)
 
 
 class SubSection(Section):
