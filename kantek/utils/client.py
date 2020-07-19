@@ -69,7 +69,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                 reply_to = (event.reply_to_msg_id or event.message.id)
             sent_msg: Message = await event.respond(msg, reply_to=reply_to)
         else:
-            sent_msg: Message = await event.respond(msg, reply_to=event.message.id)
+            sent_msg: Message = await event.respond(msg)
         if delete is not None:
             # While asyncio.sleep would work it would stop the function from returning which is annoying
             await self.send_message(sent_msg.chat, f'{SCHEDULE_DELETION_COMMAND} [Scheduled deletion]',
