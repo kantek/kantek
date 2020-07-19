@@ -10,6 +10,8 @@ from typing import Callable, List
 from telethon import events
 from telethon.events import NewMessage
 from telethon.events.common import EventBuilder
+from telethon.tl.functions.channels import GetParticipantRequest
+from telethon.tl.types import ChannelParticipantAdmin
 
 from utils import helpers
 from utils._config import Config
@@ -20,6 +22,7 @@ from utils.tagmgr import TagManager
 class _Command:
     callback: Callable
     private: bool
+    admins: bool
     command: str
 
 
@@ -65,7 +68,7 @@ class PluginManager:
     def register_all(self):
         """Add all commands and events to the client"""
         for p in self.commands:
-            event = events.NewMessage(outgoing=p.private,
+            event = events.NewMessage(outgoing=False if p.admins else p.private,
                                       pattern=f'{self.config.cmd_prefix}{p.command}')
             self.client.add_event_handler(p.callback, event)
 
@@ -73,7 +76,7 @@ class PluginManager:
             self.client.add_event_handler(e.callback, e.event)
 
     @staticmethod
-    async def _callback(callback, args: _Signature, event) -> None:
+    async def _callback(callback, args: _Signature, admins: bool, event) -> None:
         """Wrapper around a plugins callback to dynamically pass requested arguments
 
         Args:
@@ -81,8 +84,14 @@ class PluginManager:
             args: The arguments of the plugin callback
             event: The NewMessage Event
         """
-        callback_args = {}
         client = event.client
+        if admins and event.is_channel:
+            uid = event.message.from_id
+            result = await client(GetParticipantRequest(event.chat_id, uid))
+            if not isinstance(result.participant, ChannelParticipantAdmin):
+                return
+
+        callback_args = {}
 
         if args.client:
             callback_args['client'] = client
@@ -112,12 +121,13 @@ class PluginManager:
         await callback(**callback_args)
 
     @classmethod
-    def command(cls, command: str, private: bool = True):
+    def command(cls, command: str, private: bool = True, admins: bool = False):
         """Add a command to the client
 
         Args:
             command: Regex pattern without command prefix
             private: True if the command should only be run when sent from the user
+            admins: Set to True if chat admins should be allowed to use the command too
 
         Returns:
 
@@ -126,10 +136,10 @@ class PluginManager:
         def decorator(callback):
             signature = inspect.signature(callback)
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            new_callback = functools.partial(cls._callback, callback, args)
-            plugin = _Command(new_callback,
-                              private, command)
+            new_callback = functools.partial(cls._callback, callback, args, admins)
+            plugin = _Command(new_callback, private, admins, command)
             cls.commands.append(plugin)
+            return callback
 
         return decorator
 

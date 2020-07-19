@@ -14,7 +14,7 @@ from utils.pluginmgr import k, Command
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@k.command('lock')
+@k.command('lock', admins=True)
 async def lock(client: KantekClient, event: Command) -> None:
     """Command to quickly lock a chat to readonly for normal users."""
     chat: InputPeerChannel = await event.get_input_chat()
@@ -38,16 +38,3 @@ async def lock(client: KantekClient, event: Command) -> None:
         await client.respond(event, MDTeXDocument('Chat locked.'))
     except ChatNotModifiedError:
         await client.respond(event, MDTeXDocument('Chat already locked.'))
-
-
-@k.command('lock', False)
-async def lock_group_admins(client: KantekClient, event: Command) -> None:
-    """Check if the issuer of the command is group admin. Then execute the cleanup command."""
-    if event.is_channel:
-        msg: Message = event.message
-        client: KantekClient = event.client
-        uid = msg.from_id
-        result = await client(GetParticipantRequest(event.chat_id, uid))
-        if isinstance(result.participant, ChannelParticipantAdmin):
-            await lock(client, event)
-            tlog.info(f'lock executed by [{uid}](tg://user?id={uid}) in `{(await event.get_chat()).title}`')

@@ -17,7 +17,7 @@ tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
 
-@k.command('cleanup')
+@k.command('cleanup', admins=True)
 async def cleanup(client: KantekClient, chat: Channel, msg: Message,
                   kwargs: Dict, event: Command) -> None:
     """Command to remove Deleted Accounts from a group or network."""
@@ -35,18 +35,6 @@ async def cleanup(client: KantekClient, chat: Channel, msg: Message,
         await client.respond(event, response, reply=False)
     if waiting_message:
         await waiting_message.delete()
-
-
-@k.command('cleanup', private=False)
-async def cleanup_group_admins(client: KantekClient, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> None:
-    """Check if the issuer of the command is group admin. Then execute the cleanup command."""
-    if event.is_channel:
-        uid = msg.from_id
-        result = await client(GetParticipantRequest(event.chat_id, uid))
-        if isinstance(result.participant, ChannelParticipantAdmin):
-            await cleanup(client, chat, msg, kwargs, event)
-            tlog.info(f'cleanup executed by [{uid}](tg://user?id={uid}) in `{(await event.get_chat()).title}`')
-
 
 async def _cleanup_chat(event, count: bool = False,
                         progress_message: Optional[Message] = None) -> MDTeXDocument:
