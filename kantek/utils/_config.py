@@ -8,10 +8,10 @@ class Config:
     api_hash: str
     phone: str
 
-    db_username: str
-    db_name: str
+    db_username: str = "kantek"
+    db_name: str = "kantek"
     db_password: str
-    db_host: str
+    db_host: str = 'http://127.0.0.1:8529'
 
     log_bot_token: str
     log_channel_id: int
@@ -64,18 +64,12 @@ class Config:
         self.gban_group = config.get('gban_group')
         if error:
             assert self.gban_group is not None, "gban_group is not set"
-        self.db_username = config.get('db_username')
-        if error:
-            assert self.db_username is not None, "db_username is not set"
-        self.db_name = config.get('db_name')
-        if error:
-            assert self.db_name is not None, "db_name is not set"
-        self.db_password = config.get('db_password')
+        self.db_username = config.get('db_username', self.db_username)
+        self.db_name = config.get('db_name', self.db_name)
+        self.db_password = config.get('db_password', self.db_password)
         if error:
             assert self.db_password is not None, "db_password is not set"
-        self.db_host = config.get('db_host')
-        if error:
-            assert self.db_host is not None, "db_host is not set"
+        self.db_host = config.get('db_host', self.db_host)
 
         self.session_name = config.get('session_name', self.session_name)
         self.cmd_prefix = config.get('cmd_prefix', self.cmd_prefix)
@@ -88,10 +82,10 @@ class Config:
         self.api_hash = getattr(module, 'api_hash')
         self.phone = getattr(module, 'phone')
 
-        self.db_username = getattr(module, 'db_username')
-        self.db_name = getattr(module, 'db_name')
+        self.db_username = getattr(module, 'db_username', self.db_username)
+        self.db_name = getattr(module, 'db_name', self.db_name)
         self.db_password = getattr(module, 'db_password')
-        self.db_host = getattr(module, 'db_host')
+        self.db_host = getattr(module, 'db_host', self.db_host)
         self.log_bot_token = getattr(module, 'log_bot_token')
         self.log_channel_id = getattr(module, 'log_channel_id')
         self.gban_group = getattr(module, 'gban_group')
