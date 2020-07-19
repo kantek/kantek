@@ -10,7 +10,6 @@ from telethon.tl.functions.channels import (DeleteUserHistoryRequest,
                                             GetParticipantRequest)
 from telethon.tl.types import Channel, User
 
-from database.arango import ArangoDB
 from utils.client import KantekClient
 from utils.pluginmgr import k
 from utils.tagmgr import TagManager
@@ -24,7 +23,6 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
     user: User = await event.get_user()
-    db: ArangoDB = client.db
     tags = TagManager(event)
     kriminalamt_tag = tags.get('kriminalamt')
     bancmd = tags.get('gbancmd', 'manual')

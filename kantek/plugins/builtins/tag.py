@@ -3,7 +3,6 @@ import logging
 from typing import Dict, List
 
 from telethon.events import NewMessage
-from telethon.tl.custom import Message
 from telethon.tl.types import Message, Channel
 
 from utils import parsers

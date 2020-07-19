@@ -33,7 +33,6 @@ async def polizei(event: NewMessage.Event) -> None:
     """Plugin to automatically ban users for certain messages."""
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
-    db: ArangoDB = client.db
     tags = TagManager(event)
     bancmd = tags.get('gbancmd', 'manual')
     polizei_tag = tags.get('polizei')

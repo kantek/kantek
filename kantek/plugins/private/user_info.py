@@ -67,7 +67,7 @@ async def _info_from_arguments(event) -> MDTeXDocument:
         try:
             user: User = await client.get_entity(entity)
             users.append(str(await _collect_user_info(client, user, **keyword_args)))
-        except constants.GET_ENTITY_ERRORS as err:
+        except constants.GET_ENTITY_ERRORS:
             errors.append(str(entity))
     if users and gban_format:
         users = [Code(' '.join(users))]

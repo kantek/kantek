@@ -61,9 +61,11 @@ def _sync_file_callback(received: int, total: int, msg: Message) -> None:
 
 
 async def _file_callback(received: int, total: int, msg: Message) -> None:
-    text = MDTeXDocument(Section(Bold('Downloading File'),
-                                 KeyValueItem('Progress',
-                                              f'{received / 1024 ** 2:.2f}/{total / 1024 ** 2:.2f}MB ({(received / total) * 100:.0f}%)')))
+    text = MDTeXDocument(
+        Section(Bold('Downloading File'),
+                KeyValueItem('Progress',
+                             f'{received / 1024 ** 2:.2f}/{total / 1024 ** 2:.2f}MB'
+                             f' ({(received / total) * 100:.0f}%)')))
     try:
         await msg.edit(str(text))
     except MessageIdInvalidError as err:
@@ -169,7 +171,8 @@ async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                 if not existing_one:
                     collection.add_item(photo_hash)
                     if Counter(photo_hash).get('0', 0) > 8:
-                        warn_message = 'The image seems to contain a lot of the same color. This might lead to false positives.'
+                        warn_message = ('The image seems to contain a lot of the same color.'
+                                        ' This might lead to false positives.')
 
                     added_items.append(Code(photo_hash))
                 else:
@@ -253,7 +256,7 @@ async def _query_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             return MDTeXDocument(Section(Bold(f'Items for type: {item_type}[{hex_type}] code: {code}'), Code(string)))
         elif isinstance(code, range) or isinstance(code, list):
             keys = [str(i) for i in code]
-            documents = db.query(f'FOR doc IN @@collection '
+            documents = db.query('FOR doc IN @@collection '
                                  'FILTER doc._key in @keys '
                                  'RETURN doc',
                                  bind_vars={'@collection': collection.name,

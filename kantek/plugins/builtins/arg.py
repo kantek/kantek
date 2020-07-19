@@ -24,10 +24,10 @@ async def show_args(msg: Message, args: List, kwargs: Dict) -> None:
         _args.append(SubSection(Code(arg),
                                 KeyValueItem('type', Code(type(arg).__name__))))
     keyword_args = []
-    for k, v in kwargs.items():
-        keyword_args.append(SubSection(Code(k),
-                                       KeyValueItem('value', Code(v)),
-                                       KeyValueItem('type', Code(type(v).__name__))))
+    for key, value in kwargs.items():
+        keyword_args.append(SubSection(Code(key),
+                                       KeyValueItem('value', Code(value)),
+                                       KeyValueItem('type', Code(type(value).__name__))))
     doc = MDTeXDocument(
         Section(Bold('Args'), *_args),
         Section(Bold('Keyword Args'), *keyword_args),

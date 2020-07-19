@@ -64,9 +64,6 @@ class Mention(Link):
         super().__init__(label, f'tg://user?id={uid}')
 
 
-
-
-
 class KeyValueItem(FormattedBase):
     """A item that has a key and a value divided by a colon."""
 

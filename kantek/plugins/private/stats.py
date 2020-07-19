@@ -28,14 +28,11 @@ async def stats(client: KantekClient, event: Command) -> None:  # pylint: disabl
     creator_in_channels = 0
     unread_mentions = 0
     unread = 0
-    largest_group_member_count = 0
-    largest_group_with_admin = 0
     dialog: Dialog
     async for dialog in client.iter_dialogs():
         entity = dialog.entity
 
         if isinstance(entity, Channel):
-            # participants_count = (await client.get_participants(dialog, limit=0)).total
             if entity.broadcast:
                 broadcast_channels += 1
                 if entity.creator or entity.admin_rights:
@@ -45,11 +42,7 @@ async def stats(client: KantekClient, event: Command) -> None:  # pylint: disabl
 
             elif entity.megagroup:
                 groups += 1
-                # if participants_count > largest_group_member_count:
-                #     largest_group_member_count = participants_count
                 if entity.creator or entity.admin_rights:
-                    # if participants_count > largest_group_with_admin:
-                    #     largest_group_with_admin = participants_count
                     admin_in_groups += 1
                 if entity.creator:
                     creator_in_groups += 1
@@ -89,8 +82,6 @@ async def stats(client: KantekClient, event: Command) -> None:  # pylint: disabl
             KeyValueItem(Bold('Admin Rights'), admin_in_broadcast_channels - creator_in_channels)),
         KeyValueItem(Bold('Unread'), unread),
         KeyValueItem(Bold('Unread Mentions'), unread_mentions)),
-        # KeyValueItem(Bold('Largest Group'), largest_group_member_count),
-        # KeyValueItem(Bold('Largest Group with Admin'), largest_group_with_admin)),
         Italic(f'Took {stop_time:.02f}s'))
 
     await client.respond(event, response, reply=False)

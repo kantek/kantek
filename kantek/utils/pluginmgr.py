@@ -10,7 +10,6 @@ from typing import Callable, List
 from telethon import events
 from telethon.events import NewMessage
 from telethon.events.common import EventBuilder
-from telethon.tl.types import Channel
 
 from utils import helpers
 from utils._config import Config
@@ -59,7 +58,7 @@ class PluginManager:
                 if ext == '.py':
                     _module: ModuleSpec = importlib.util.spec_from_file_location(name, path)
                     loader: SourceFileLoader = _module.loader
-                    module = loader.load_module()
+                    loader.load_module()
 
     def register_all(self):
         for p in self.commands:

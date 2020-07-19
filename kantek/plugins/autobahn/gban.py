@@ -26,12 +26,12 @@ CHUNK_SIZE = 10
 async def gban(client: KantekClient, tags: TagManager, chat: Channel, msg: Message,
                args: List, kwargs: Dict, event: Command) -> None:
     """Command to globally ban a user."""
-    gban = tags.get('gban')
+    _gban = tags.get('gban')
 
     only_joinspam = kwargs.get('only_joinspam', False) or kwargs.get('oj', False)
 
     verbose = False
-    if gban == 'verbose' or event.is_private:
+    if _gban == 'verbose' or event.is_private:
         verbose = True
     await msg.delete()
     if msg.is_reply:

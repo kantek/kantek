@@ -1,5 +1,4 @@
 """File containing the Custom TelegramClient"""
-import ast
 import asyncio
 import datetime
 import logging
@@ -15,7 +14,6 @@ from spamwatch.types import Permission
 from telethon import TelegramClient, hints
 from telethon.errors import UserAdminInvalidError
 from telethon.events import NewMessage, ChatAction
-from telethon.tl.custom import Message
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.patched import Message
 from telethon.tl.types import ChatBannedRights
