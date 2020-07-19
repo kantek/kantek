@@ -88,8 +88,8 @@ class Section:
         self.items = [i for i in args[1:] if i]
         self.indent = indent
 
-    def __add__(self, other: Union[String, 'Section']) -> str:
-        return str(self) + '\n\n' + str(other)
+    def __add__(self, other: Union[String, 'Section']) -> 'MDTeXDocument':
+        return MDTeXDocument(self, *other)
 
     def __str__(self) -> str:
         return '\n'.join([str(self.header)]
