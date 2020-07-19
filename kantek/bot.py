@@ -22,7 +22,7 @@ __version__ = '0.3.1'
 
 def main() -> None:
     """Register logger and components."""
-    config = Config(__file__)
+    config = Config()
 
     handler = TGChannelLogHandler(config.log_bot_token,
                                   config.log_channel_id)

@@ -24,14 +24,14 @@ class Config:
     spamwatch_host: str = 'https://api.spamwat.ch'
     spamwatch_token: str = None
 
-    def __init__(self, botfile):
+    def __init__(self):
         try:
             import config
             legacy_config = config
         except ImportError:
             legacy_config = None
 
-        bot_dir = Path(botfile).parent
+        bot_dir = Path(__file__).parent
         sessions_dir = bot_dir / 'sessions'
 
         repo_dir = bot_dir.parent
