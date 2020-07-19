@@ -73,7 +73,7 @@ async def _add_tags(event: NewMessage.Event):
     for name, value in named_tags.items():
         tag_mgr[name] = value
     for _tag in tags:
-        tag_mgr.set_tag(_tag)
+        tag_mgr.set(_tag)
 
 
 async def _delete_tags(event: NewMessage.Event):

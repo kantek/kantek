@@ -20,7 +20,7 @@ class TagManager:
         self.named_tags = self._document['named_tags'].getStore()
         self.tags = self._document['tags']
 
-    def get_tag(self, tag_name: TagName) -> Optional[TagValue]:
+    def get(self, tag_name: TagName) -> Optional[TagValue]:
         """Get a Tags Value
 
         Args:
@@ -35,9 +35,9 @@ class TagManager:
         return self.named_tags.get(tag_name, tag_name in self.tags or None)
 
     def __getitem__(self, item: TagName) -> TagValue:
-        return self.get_tag(item)
+        return self.get(item)
 
-    def set_tag(self, tag_name: TagName, value: Optional[TagValue] = None) -> None:
+    def set(self, tag_name: TagName, value: Optional[TagValue] = None) -> None:
         """Set a tags value or create it.
         If value is None a normal tag will be created. If the value is not None a named tag with
          that value will be created
@@ -56,7 +56,7 @@ class TagManager:
         self._save()
 
     def __setitem__(self, key: TagName, value: TagValue) -> None:
-        self.set_tag(key, value)
+        self.set(key, value)
 
     def clear(self) -> None:
         """Clears all tags that a Chat has."""
@@ -64,7 +64,7 @@ class TagManager:
         self._document['tags'] = []
         self._document.save()
 
-    def del_tag(self, tag_name: TagName) -> None:
+    def remove(self, tag_name: TagName) -> None:
         """Delete a tag.
 
         Args:
@@ -80,7 +80,7 @@ class TagManager:
         self._save()
 
     def __delitem__(self, key: TagName) -> None:
-        self.del_tag(key)
+        self.remove(key)
 
     def _save(self):
         self._document['tags'] = self.tags
