@@ -20,7 +20,6 @@ class Config:
 
     cmd_prefix: str = r'\.'
     session_name: str = 'kantek-session'
-    vollzugsanstalten: List[int] = []
 
     spamwatch_host: str = 'https://api.spamwat.ch'
     spamwatch_token: str = None
@@ -79,7 +78,6 @@ class Config:
 
         self.session_name = config.get('session_name', self.session_name)
         self.cmd_prefix = config.get('cmd_prefix', self.cmd_prefix)
-        self.vollzugsanstalten.extend(config.get('vollzugsanstalten', self.vollzugsanstalten))
         self.spamwatch_host = config.get('spamwatch_host', self.spamwatch_host)
         self.spamwatch_token = config.get('spamwatch_token', self.spamwatch_token)
 
@@ -98,6 +96,5 @@ class Config:
 
         self.session_name = getattr(module, 'session_name', self.session_name)
         self.cmd_prefix = getattr(module, 'cmd_prefix', self.cmd_prefix)
-        self.vollzugsanstalten.extend(getattr(module, 'vollzugsanstalten', self.vollzugsanstalten))
         self.spamwatch_host = getattr(module, 'spamwatch_host', self.spamwatch_host)
         self.spamwatch_token = getattr(module, 'spamwatch_token', self.spamwatch_token)
