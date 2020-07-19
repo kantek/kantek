@@ -86,7 +86,7 @@ async def gban(client: KantekClient, tags: TagManager, chat: Channel, msg: Messa
                 try:
                     linked_msg: Message = await helpers.get_linked_message(client, link)
                     message = await helpers.textify_message(linked_msg)
-                except Exception:
+                except Exception:  # pylint: disable = W0703
                     message = link
 
         skipped_uids = {}
@@ -128,7 +128,7 @@ async def gban(client: KantekClient, tags: TagManager, chat: Channel, msg: Messa
             await client.respond(event, MDTeXDocument(*sections))
 
 
-def _build_message(bans: Dict[str, List[str]], message: Optional[str]) -> List[KeyValueItem]:
+def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) -> List[KeyValueItem]:
     sections = []
     for reason, uids in bans.items():
         sections.append(KeyValueItem(Bold('Reason'), reason))

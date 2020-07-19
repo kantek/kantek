@@ -74,7 +74,7 @@ async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocumen
     msg: Message = event.message
     client: KantekClient = event.client
     filename = 'tmp/banlist_import.csv'
-    if msg.is_reply:
+    if msg.is_reply:  # pylint: disable = R1702
         reply_msg: Message = await msg.get_reply_message()
         _, ext = os.path.splitext(reply_msg.document.attributes[0].file_name)
         if ext == '.csv':

@@ -21,7 +21,7 @@ logger: logging.Logger = logzero.logger
 
 @k.event(events.chataction.ChatAction())
 @k.event(events.NewMessage())
-async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
+async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:  # pylint: disable = R0911
     """Plugin to ban blacklisted users."""
     if event.is_private:
         return
@@ -67,12 +67,12 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         return
     else:
         ban_reason = result[0]['reason']
-    admins = [p.id for p in (await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins()))]
+    admins = [p.id for p in await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins())]
     if uid not in admins:
         try:
             await client.ban(chat, uid)
         except UserIdInvalidError as err:
-            logger.error(f"Error occured while banning {err}")
+            logger.error("Error occured while banning %s", err)
             return
 
         if not silent:

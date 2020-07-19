@@ -1,0 +1,19 @@
+
+pylint
+************* Module kantek.plugins.private.spamwatch
+kantek/plugins/private/spamwatch.py:15: [W0511(fixme)] TODO: Make this nice, this is just a skeleton so I have an easy way of creating tokens,
+************* Module kantek.plugins.builtins.test
+kantek/plugins/builtins/test.py:14: [W0613(unused-argument)] Unused argument 'client'
+kantek/plugins/builtins/test.py:14: [W0613(unused-argument)] Unused argument 'chat'
+kantek/plugins/builtins/test.py:15: [W0613(unused-argument)] Unused argument 'args'
+kantek/plugins/builtins/test.py:15: [W0613(unused-argument)] Unused argument 'kwargs'
+kantek/plugins/builtins/test.py:15: [W0613(unused-argument)] Unused argument 'event'
+************* Module kantek.plugins.builtins.tag
+kantek/plugins/builtins/tag.py:29: [W0511(fixme)] TODO Replace with subcommand implementation
+************* Module kantek.plugins.autobahn.autobahn_mgr
+kantek/plugins/autobahn/autobahn_mgr.py:46: [W0511(fixme)] TODO Needs to be replaced by a proper subcommand implementation
+************* Module kantek.plugins.autobahn.polizei
+kantek/plugins/autobahn/polizei.py:97: [W1309(f-string-without-interpolation)] Using an f-string that does not have any interpolated variables
+************* Module kantek.plugins.autobahn.banlist
+kantek/plugins/autobahn/banlist.py:26: [W0511(fixme)] TODO Replaced with subcomamnd implementation
+kantek/plugins/autobahn/banlist.py:77: [R1702(too-many-nested-blocks)] Too many nested blocks (6/5)

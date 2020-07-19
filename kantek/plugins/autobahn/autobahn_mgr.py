@@ -72,7 +72,7 @@ async def _file_callback(received: int, total: int, msg: Message) -> None:
         logger.error(err)
 
 
-async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:  # pylint: disable = R1702
     """Add a item to the Collection of its type"""
     client: KantekClient = event.client
     msg: Message = event.message
@@ -87,12 +87,12 @@ async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     collection = db.ab_collection_map.get(hex_type)
     warn_message = ''
 
-    for item in items:
+    for item in items:  # pylint: disable = R1702
         if hex_type is None or collection is None:
             continue
         if hex_type == '0x3':
             _item = item
-            link_creator, chat_id, random_part = await helpers.resolve_invite_link(item)
+            _, chat_id, _ = await helpers.resolve_invite_link(item)
             item = chat_id
             if item is None:
                 if _item.startswith('tg://resolve'):
@@ -211,7 +211,7 @@ async def _del_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             continue
 
         if hex_type == '0x3':
-            link_creator, chat_id, random_part = await helpers.resolve_invite_link(str(item))
+            _, chat_id, _ = await helpers.resolve_invite_link(str(item))
             item = chat_id
 
         existing_one: Document = collection.fetchFirstExample({'string': item})
@@ -254,7 +254,7 @@ async def _query_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
         if isinstance(code, int):
             string = collection.fetchDocument(code).getStore()['string']
             return MDTeXDocument(Section(Bold(f'Items for type: {item_type}[{hex_type}] code: {code}'), Code(string)))
-        elif isinstance(code, range) or isinstance(code, list):
+        elif isinstance(code, (range, list)):
             keys = [str(i) for i in code]
             documents = db.query('FOR doc IN @@collection '
                                  'FILTER doc._key in @keys '

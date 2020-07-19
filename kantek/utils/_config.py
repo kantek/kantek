@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import Dict
 
 
-class Config:
+class Config:  # pylint: disable = R0902
+    """Handle loading config options from the new and old config and combining them."""
     api_id: int
     api_hash: str
     phone: str
@@ -28,7 +29,7 @@ class Config:
 
     def __init__(self):
         try:
-            import config
+            import config  # pylint: disable = C0415
             legacy_config = config
         except ImportError:
             legacy_config = None
@@ -42,7 +43,7 @@ class Config:
         if new_config.is_file():
             with open(new_config) as f:
                 config = json.load(f)
-            error = False if legacy_config else True
+            error = not legacy_config
             self.from_json(config, error)
         # legacy config used a full path instead of just a name
         self.session_name = sessions_dir / self.session_name
@@ -51,6 +52,7 @@ class Config:
             self.from_legacy_module(legacy_config)
 
     def from_json(self, config: Dict, error):
+        """Fetch config options from the config.json"""
         # error keyword is temporary until the old config is removed fully
         self.api_id = config.get('api_id')
         if error:
@@ -84,6 +86,7 @@ class Config:
         self.spamwatch_token = config.get('spamwatch_token', self.spamwatch_token)
 
     def from_legacy_module(self, module):
+        """Fetch config options from the legacy config.py"""
         self.api_id = getattr(module, 'api_id')
         self.api_hash = getattr(module, 'api_hash')
         self.phone = getattr(module, 'phone')

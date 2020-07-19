@@ -20,6 +20,7 @@ logger: logging.Logger = logzero.logger
 
 @k.event(events.chataction.ChatAction())
 async def kriminalamt(event: ChatAction.Event) -> None:
+    """Ban a user when he joins and leaves in the configured interval"""
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
     user: User = await event.get_user()

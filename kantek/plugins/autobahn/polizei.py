@@ -43,7 +43,7 @@ async def polizei(event: NewMessage.Event) -> None:
     ban_type, ban_reason = await _check_message(event)
     if ban_type and ban_reason:
         uid = event.message.from_id
-        admins = [p.id for p in (await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins()))]
+        admins = [p.id for p in await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins())]
         if uid not in admins:
             await _banuser(event, chat, uid, bancmd, ban_type, ban_reason)
 
@@ -94,7 +94,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     try:
         old_ban_reason = db.banlist[userid]['reason']
         if old_ban_reason == formatted_reason:
-            logger.info(f'User ID `{userid}` already banned for the same reason.')
+            logger.info('User ID `%s` already banned for the same reason.', userid)
             return
     except DocumentNotFoundError:
         pass
@@ -111,7 +111,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
         await client(DeleteUserHistoryRequest(chat, userid))
 
 
-async def _check_message(event):
+async def _check_message(event):  # pylint: disable = R0911
     client: KantekClient = event.client
     msg: Message = event.message
     user_id = msg.from_id
@@ -181,9 +181,9 @@ async def _check_message(event):
                     if _entity and _entity in channel_blacklist:
                         return db.ab_channel_blacklist.hex_type, channel_blacklist[_entity]
 
-    entities = [e for e in msg.get_entities_text()]
-    for entity, text in entities:
-        link_creator, chat_id, random_part = await helpers.resolve_invite_link(text)
+    entities = msg.get_entities_text()
+    for entity, text in entities:  # pylint: disable = R1702
+        _, chat_id, _ = await helpers.resolve_invite_link(text)
         if chat_id in channel_blacklist.keys():
             return db.ab_channel_blacklist.hex_type, channel_blacklist[chat_id]
 
@@ -237,17 +237,17 @@ async def _check_message(event):
             if domain in domain_blacklist:
                 return db.ab_domain_blacklist.hex_type, domain_blacklist[domain]
             # else:
-                # tld_index = await _check_tld(domain, tld_blacklist)
-                # if tld_index:
-                #     return db.ab_tld_blacklist.hex_type, tld_index
+            # tld_index = await _check_tld(domain, tld_blacklist)
+            # if tld_index:
+            #     return db.ab_tld_blacklist.hex_type, tld_index
 
         if face_domain:
             if face_domain in domain_blacklist:
                 return db.ab_domain_blacklist.hex_type, domain_blacklist[face_domain]
             # else:
-                # tld_index = await _check_tld(face_domain, tld_blacklist)
-                # if tld_index:
-                #     return db.ab_tld_blacklist.hex_type, tld_index
+            # tld_index = await _check_tld(face_domain, tld_blacklist)
+            # if tld_index:
+            #     return db.ab_tld_blacklist.hex_type, tld_index
 
         if channel and channel in channel_blacklist:
             return db.ab_channel_blacklist.hex_type, channel_blacklist[channel]
@@ -277,7 +277,6 @@ async def _check_message(event):
                 return db.ab_mhash_blacklist.hex_type, mhash_blacklist[mhash]
 
     return False, False
-
 
 # async def _check_tld(domain, tld_blacklist):
 #     domain, tld = domain.split('.')

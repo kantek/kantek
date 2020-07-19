@@ -30,7 +30,7 @@ class _Event:
 
 
 @dataclass
-class _Signature:
+class _Signature:  # pylint: disable = R0902
     client: bool = False
     db: bool = False
     chat: bool = False
@@ -112,7 +112,7 @@ class PluginManager:
         await callback(**callback_args)
 
     @classmethod
-    def command(cls, command: str, private: bool=True):
+    def command(cls, command: str, private: bool = True):
         """Add a command to the client
 
         Args:
@@ -122,6 +122,7 @@ class PluginManager:
         Returns:
 
         """
+
         def decorator(callback):
             signature = inspect.signature(callback)
             args = _Signature(**{n: True for n in signature.parameters.keys()})
@@ -134,6 +135,8 @@ class PluginManager:
 
     @classmethod
     def event(cls, event):
+        """Add a Event to the client"""
+
         def decorator(callback):
             cls.events.append(_Event(callback, event))
             return callback

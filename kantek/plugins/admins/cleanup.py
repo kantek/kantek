@@ -1,7 +1,7 @@
 """Plugin to remove deleted Accounts from a group"""
 import asyncio
 import logging
-from typing import Optional, List, Dict
+from typing import Optional, Dict
 
 import logzero
 from telethon.errors import FloodWaitError, UserAdminInvalidError, MessageIdInvalidError
@@ -38,16 +38,13 @@ async def cleanup(client: KantekClient, chat: Channel, msg: Message,
 
 
 @k.command('cleanup', private=False)
-async def cleanup_group_admins(client: KantekClient, chat: Channel, msg: Message,
-                               args: List, kwargs: Dict, event: Command) -> None:
+async def cleanup_group_admins(client: KantekClient, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> None:
     """Check if the issuer of the command is group admin. Then execute the cleanup command."""
     if event.is_channel:
-        msg: Message = event.message
-        client: KantekClient = event.client
         uid = msg.from_id
         result = await client(GetParticipantRequest(event.chat_id, uid))
         if isinstance(result.participant, ChannelParticipantAdmin):
-            await cleanup(event)
+            await cleanup(client, chat, msg, kwargs, event)
             tlog.info(f'cleanup executed by [{uid}](tg://user?id={uid}) in `{(await event.get_chat()).title}`')
 
 

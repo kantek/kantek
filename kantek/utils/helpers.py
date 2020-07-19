@@ -94,16 +94,19 @@ async def resolve_invite_link(link):
 
 
 async def netloc(url: str) -> str:
+    """Return the domain + port from a URL"""
     return urllib.parse.urlparse(url).netloc
 
 
 def hash_file(file: bytes):
+    """SHA512 hash the passed file"""
     hasher = hashlib.sha512()
     hasher.update(file)
     return hasher.hexdigest()
 
 
 async def hash_photo(photo):
+    """Create the average hash of a photo"""
     loop = asyncio.get_event_loop()
     pil_photo = Image.open(BytesIO(photo))
     photo_hash = await loop.run_in_executor(None, photohash.average_hash, pil_photo)
@@ -111,6 +114,7 @@ async def hash_photo(photo):
 
 
 async def get_linked_message(client, link):
+    """Get the message from a message link"""
     match = MESSAGE_LINK_PATTERN.search(link)
     if not match:
         return None
@@ -125,6 +129,7 @@ async def get_linked_message(client, link):
 
 
 async def textify_message(msg: Message):
+    """Turn a message with media into a textual representation for the SpamWatch API"""
     message = []
 
     if msg.photo:

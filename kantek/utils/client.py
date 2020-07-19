@@ -181,6 +181,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
             logger.error(err)
 
     async def get_cached_entity(self, entity: hints.EntitiesLike):
+        """Get the cached version of a entity"""
         try:
             input_entity = await self.get_input_entity(entity)
             return await self.get_entity(input_entity)

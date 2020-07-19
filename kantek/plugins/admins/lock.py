@@ -1,12 +1,11 @@
 """Plugin to manage the autobahn"""
 import logging
-from typing import List, Dict
 
 from telethon.errors import ChatNotModifiedError
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
-from telethon.tl.types import ChatBannedRights, InputPeerChannel, ChannelParticipantAdmin, Channel
+from telethon.tl.types import ChatBannedRights, InputPeerChannel, ChannelParticipantAdmin
 
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument
@@ -42,8 +41,7 @@ async def lock(client: KantekClient, event: Command) -> None:
 
 
 @k.command('lock', False)
-async def lock_group_admins(client: KantekClient, chat: Channel, msg: Message,
-                            args: List, kwargs: Dict, event: Command) -> None:
+async def lock_group_admins(client: KantekClient, event: Command) -> None:
     """Check if the issuer of the command is group admin. Then execute the cleanup command."""
     if event.is_channel:
         msg: Message = event.message
@@ -51,5 +49,5 @@ async def lock_group_admins(client: KantekClient, chat: Channel, msg: Message,
         uid = msg.from_id
         result = await client(GetParticipantRequest(event.chat_id, uid))
         if isinstance(result.participant, ChannelParticipantAdmin):
-            await lock(event)
+            await lock(client, event)
             tlog.info(f'lock executed by [{uid}](tg://user?id={uid}) in `{(await event.get_chat()).title}`')
