@@ -1,22 +1,21 @@
 """Plugin that automatically bans if a user joins and leaves immediately"""
 import asyncio
-import datetime
 import logging
-from typing import Dict
 
 import logzero
 from telethon import events
 from telethon.errors import UserNotParticipantError
 from telethon.events import ChatAction
 from telethon.tl.functions.channels import (DeleteUserHistoryRequest,
-                                            EditBannedRequest,
                                             GetParticipantRequest)
-from telethon.tl.types import Channel, ChatBannedRights, User
+from telethon.tl.types import Channel, User
 
 from database.arango import ArangoDB
 from utils.client import KantekClient
 
 __version__ = '0.1.0'
+
+from utils.pluginmgr import k
 
 from utils.tagmgr import TagManager
 
@@ -24,7 +23,7 @@ tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
 
-@events.register(events.ChatAction())
+@k.event(events.chataction.ChatAction())
 async def kriminalamt(event: ChatAction.Event) -> None:
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()

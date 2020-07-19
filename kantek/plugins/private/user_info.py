@@ -3,22 +3,22 @@ import logging
 from typing import Union
 
 from spamwatch.types import Permission
-from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Forward, Message
 from telethon.tl.types import Channel, MessageEntityMention, MessageEntityMentionName, User
 
-from config import cmd_prefix
 from utils import helpers, parsers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, Link, MDTeXDocument, Section, SubSection
 
 __version__ = '0.1.2'
 
+from utils.pluginmgr import k
+
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}u(ser)?'))
+@k.command('u(ser)?')
 async def user_info(event: NewMessage.Event) -> None:
     """Show information about a user.
 
@@ -114,7 +114,6 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
         show_misc = True
         show_spamwatch = True
 
-
     mention_name = kwargs.get('mention', False)
 
     full_name = await helpers.get_full_name(user)
@@ -165,8 +164,6 @@ async def _collect_user_info(client, user, **kwargs) -> Union[Section, KeyValueI
             ])
         else:
             spamwatch.append(KeyValueItem('banned', Code('False')))
-
-
 
         bot = SubSection(
             Bold('bot'),

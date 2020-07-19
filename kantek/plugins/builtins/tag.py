@@ -2,16 +2,15 @@
 import logging
 from typing import Dict, List
 
-from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.types import Chat, Message
 
-from config import cmd_prefix
 from database.arango import ArangoDB
 from utils import parsers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, Item, KeyValueItem, Section
+from utils.pluginmgr import k
 from utils.tagmgr import TagManager
 
 __version__ = '0.1.0'
@@ -19,7 +18,7 @@ __version__ = '0.1.0'
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}tag'))
+@k.command('tag')
 async def tag(event: NewMessage.Event) -> None:
     """Add or remove tags from groups and channels.
 

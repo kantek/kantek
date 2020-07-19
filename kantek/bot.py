@@ -8,8 +8,8 @@ import spamwatch
 from database.arango import ArangoDB
 from utils._config import Config
 from utils.client import KantekClient
-from utils.loghandler import TGChannelLogHandler
 from utils.pluginmgr import PluginManager
+from utils.loghandler import TGChannelLogHandler
 
 logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
 telethon_logger = logzero.setup_logger('telethon', level=logging.INFO)
@@ -33,15 +33,19 @@ def main() -> None:
         config.api_id,
         config.api_hash)
     client.start(config.phone)
+
     client.config = config
     client.kantek_version = __version__
+
     client.plugin_mgr = PluginManager(client)
+    client.plugin_mgr.register_all()
+
     logger.info('Connecting to Database')
     client.db = ArangoDB(config.db_host,
                          config.db_username,
                          config.db_password,
                          config.db_name)
-    client.plugin_mgr.register_all()
+
     tlog.info('Started kantek v%s', __version__)
     logger.info('Started kantek v%s', __version__)
 

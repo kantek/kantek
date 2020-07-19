@@ -2,22 +2,23 @@
 import logging
 
 from spamwatch.types import Permission
-from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 
-from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
 
 __version__ = '0.1.0'
 
+from utils.pluginmgr import k
+
 tlog = logging.getLogger('kantek-channel-log')
+
 
 # TODO: Make this nice, this is just a skeleton so I have an easy way of creating tokens,
 #  preferably clean this up at some point
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}s(pam)?w(atch)?'))
+@k.command('s(pam)?w(atch)?')
 async def sw(event: NewMessage.Event) -> None:
     """Command to create SpamWatch Tokens"""
     client: KantekClient = event.client
@@ -47,7 +48,7 @@ async def _token(event, client, args, keyword_args):
             userid = reply_message.from_id
         else:
             return MDTeXDocument(Section(Bold('Missing Argument'),
-                                     'A User ID is required.'))
+                                         'A User ID is required.'))
     else:
         userid = userid[0]
     if command == 'create':

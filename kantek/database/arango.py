@@ -9,8 +9,6 @@ from pyArango.query import AQLQuery
 from pyArango.theExceptions import CreationError, DocumentNotFoundError
 from pyArango.validation import Int, NotNull
 
-import config
-
 
 class Chats(Collection):
     """A Collection containing Telegram Chats"""

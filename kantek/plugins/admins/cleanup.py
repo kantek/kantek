@@ -4,25 +4,25 @@ import logging
 from typing import Optional
 
 import logzero
-from telethon import events
 from telethon.errors import FloodWaitError, UserAdminInvalidError, MessageIdInvalidError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import (Channel, User, ChannelParticipantAdmin)
 
-from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, KeyValueItem, MDTeXDocument, Section
 
 __version__ = '0.3.0'
 
+from utils.pluginmgr import k
+
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}cleanup'))
+@k.command('cleanup')
 async def cleanup(event: NewMessage.Event) -> None:
     """Command to remove Deleted Accounts from a group or network."""
     chat: Channel = await event.get_chat()
@@ -44,7 +44,7 @@ async def cleanup(event: NewMessage.Event) -> None:
         await waiting_message.delete()
 
 
-@events.register(events.NewMessage(incoming=True, pattern=f'{cmd_prefix}cleanup'))
+@k.command('cleanup', private=False)
 async def cleanup_group_admins(event: NewMessage.Event) -> None:
     """Check if the issuer of the command is group admin. Then execute the cleanup command."""
     if event.is_channel:

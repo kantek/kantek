@@ -2,7 +2,6 @@
 import asyncio
 import itertools
 import logging
-from typing import Dict
 
 import logzero
 from PIL import UnidentifiedImageError
@@ -24,14 +23,16 @@ from utils.helpers import hash_photo
 
 __version__ = '0.4.1'
 
+from utils.pluginmgr import k
+
 from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
 
-@events.register(events.MessageEdited(outgoing=False))
-@events.register(events.NewMessage(outgoing=False))
+@k.event(events.MessageEdited(outgoing=False))
+@k.event(events.NewMessage(outgoing=False))
 async def polizei(event: NewMessage.Event) -> None:
     """Plugin to automatically ban users for certain messages."""
     client: KantekClient = event.client
@@ -50,7 +51,7 @@ async def polizei(event: NewMessage.Event) -> None:
             await _banuser(event, chat, uid, bancmd, ban_type, ban_reason)
 
 
-@events.register(events.chataction.ChatAction())
+@k.event(events.chataction.ChatAction())
 async def join_polizei(event: ChatAction.Event) -> None:
     """Plugin to ban users with blacklisted strings in their bio."""
     client: KantekClient = event.client

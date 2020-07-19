@@ -4,19 +4,16 @@ import logging
 from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
-from telethon.tl.types import Channel
-
-from config import cmd_prefix
-from utils.client import KantekClient
 
 __version__ = '0.1.0'
 
 from utils.constants import SCHEDULE_DELETION_COMMAND
+from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=SCHEDULE_DELETION_COMMAND))
+@k.event(events.NewMessage(outgoing=True, pattern=SCHEDULE_DELETION_COMMAND))
 async def delete(event: NewMessage.Event) -> None:
     """Delete the replied to message
 

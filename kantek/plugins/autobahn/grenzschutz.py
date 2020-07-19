@@ -15,14 +15,16 @@ from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Mention, Sectio
 
 __version__ = '0.1.1'
 
+from utils.pluginmgr import k
+
 from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
 
-@events.register(events.chataction.ChatAction())
-@events.register(events.NewMessage())
+@k.event(events.chataction.ChatAction())
+@k.event(events.NewMessage())
 async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     """Plugin to ban blacklisted users."""
     if event.is_private:

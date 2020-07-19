@@ -4,7 +4,6 @@ import datetime
 import logging
 from typing import Dict, Optional, List
 
-from telethon import events
 from telethon.errors import UserNotParticipantError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
@@ -12,12 +11,13 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.types import Channel, InputReportReasonSpam
 
-from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument, Section, KeyValueItem, Bold, Code
 
 __version__ = '0.4.0'
+
+from utils.pluginmgr import k
 
 from utils.tagmgr import TagManager
 
@@ -27,7 +27,7 @@ DEFAULT_REASON = 'spam[gban]'
 CHUNK_SIZE = 10
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}gban'))
+@k.command('gban')
 async def gban(event: NewMessage.Event) -> None:
     """Command to globally ban a user."""
 
@@ -147,7 +147,7 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str]) -> List[K
     return sections
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}ungban'))
+@k.command('ungban')
 async def ungban(event: NewMessage.Event) -> None:
     """Command to globally unban a user."""
     msg: Message = event.message

@@ -7,18 +7,18 @@ from collections import Counter
 
 import logzero
 from pyArango.document import Document
-from telethon import events
 from telethon.errors import MessageIdInvalidError
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
 
-from config import cmd_prefix
 from database.arango import ArangoDB
 from utils import helpers, parsers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
 
 __version__ = '0.2.1'
+
+from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -38,7 +38,7 @@ AUTOBAHN_TYPES = {
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}a(uto)?b(ahn)?'))
+@k.command('a(uto)?b(ahn)?')
 async def autobahn(event: NewMessage.Event) -> None:
     """Command to manage autobahn blacklists"""
     client: KantekClient = event.client
@@ -143,8 +143,9 @@ async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
             if reply_msg.file:
                 await msg.edit('Downloading file, this may take a while.')
 
-                dl_filename = await reply_msg.download_media('tmp/blacklisted_file',
-                                                             progress_callback=lambda r, t: _sync_file_callback(r, t, msg))
+                dl_filename = await reply_msg.download_media(
+                    'tmp/blacklisted_file',
+                    progress_callback=lambda r, t: _sync_file_callback(r, t, msg))
                 file_hash = await helpers.hash_file(dl_filename)
                 os.remove(dl_filename)
                 await msg.delete()
@@ -183,8 +184,6 @@ async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                 return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
         else:
             return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
-
-
 
     return MDTeXDocument(Section(Bold('Added Items:'),
                                  SubSection(Bold(item_type),

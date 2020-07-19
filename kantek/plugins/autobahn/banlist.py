@@ -1,5 +1,4 @@
 """Plugin to manage the banlist of the bot."""
-import asyncio
 import csv
 import logging
 import os
@@ -7,11 +6,9 @@ import time
 from typing import List
 
 from spamwatch.types import Ban, Permission
-from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
 
-from config import cmd_prefix
 from database.arango import ArangoDB
 from utils import helpers, parsers
 from utils.client import KantekClient
@@ -19,11 +16,14 @@ from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Section
 
 __version__ = '0.2.0'
 
+from utils.pluginmgr import k
+
 tlog = logging.getLogger('kantek-channel-log')
 
 SWAPI_SLICE_LENGTH = 50
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}b(an)?l(ist)?'))
+
+@k.command('b(an)?l(ist)?')
 async def banlist(event: NewMessage.Event) -> None:
     """Command to query and manage the banlist."""
     client: KantekClient = event.client

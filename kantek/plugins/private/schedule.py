@@ -2,24 +2,23 @@
 import logging
 from datetime import datetime, timedelta
 
-from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.functions.messages import GetScheduledHistoryRequest, DeleteScheduledMessagesRequest
 from telethon.tl.patched import Message
 from telethon.tl.types import Channel, MessageMediaDocument
 
-from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
 
 __version__ = '0.1.0'
 
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
+from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}schedule'))
+@k.command('schedule')
 async def schedule(event: NewMessage.Event) -> None:
     """Schedule gbans from a file
 

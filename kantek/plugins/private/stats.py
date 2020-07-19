@@ -2,22 +2,22 @@
 import logging
 import time
 
-from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Dialog
 from telethon.tl.types import Channel, Chat, User
 
-from config import cmd_prefix
 from utils import helpers
 from utils.client import KantekClient
 from utils.mdtex import Bold, Italic, KeyValueItem, MDTeXDocument, Section, SubSection
 
 __version__ = '0.1.1'
 
+from utils.pluginmgr import k
+
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}stats'))
+@k.command('stats')
 async def stats(event: NewMessage.Event) -> None:  # pylint: disable = R0912, R0914, R0915
     """Command to get stats about the account"""
     client: KantekClient = event.client

@@ -2,20 +2,19 @@
 import logging
 from pprint import pformat
 
-from telethon import events
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
 
-from config import cmd_prefix
 from utils import parsers
 from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section, SubSection, Pre
+from utils.pluginmgr import k
 
 __version__ = '0.1.0'
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@events.register(events.NewMessage(outgoing=True, pattern=f'{cmd_prefix}arg'))
+@k.command('arg')
 async def show_args(event: NewMessage.Event) -> None:
     """Show the raw output of the argument parser
 

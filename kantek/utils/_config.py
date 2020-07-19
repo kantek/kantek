@@ -24,6 +24,8 @@ class Config:
     spamwatch_host: str = 'https://api.spamwat.ch'
     spamwatch_token: str = None
 
+    plugin_path: Path
+
     def __init__(self):
         try:
             import config
@@ -31,9 +33,9 @@ class Config:
         except ImportError:
             legacy_config = None
 
-        bot_dir = Path(__file__).parent
+        bot_dir = Path(__file__).parent.parent
         sessions_dir = bot_dir / 'sessions'
-
+        self.plugin_path = bot_dir / 'plugins'
         repo_dir = bot_dir.parent
         new_config = repo_dir / 'config.json'
 
