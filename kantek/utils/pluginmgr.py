@@ -68,8 +68,11 @@ class PluginManager:
     def register_all(self):
         """Add all commands and events to the client"""
         for p in self.commands:
-            event = events.NewMessage(outgoing=False if p.admins else p.private,
-                                      pattern=f'{self.config.cmd_prefix}{p.command}')
+            pattern = f'{self.config.cmd_prefix}{p.command}'
+            if p.admins:
+                event = events.NewMessage(pattern=pattern)
+            else:
+                event = events.NewMessage(outgoing=p.private, pattern=pattern)
             self.client.add_event_handler(p.callback, event)
 
         for e in self.events:
@@ -87,8 +90,9 @@ class PluginManager:
         client = event.client
         if admins and event.is_channel:
             uid = event.message.from_id
+            own_id = (await client.get_me()).id
             result = await client(GetParticipantRequest(event.chat_id, uid))
-            if not isinstance(result.participant, ChannelParticipantAdmin):
+            if not isinstance(result.participant, ChannelParticipantAdmin) and uid != own_id:
                 return
 
         callback_args = {}
