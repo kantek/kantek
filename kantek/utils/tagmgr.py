@@ -1,5 +1,6 @@
 from typing import Optional, Union
 
+from pyArango.theExceptions import DocumentNotFoundError
 from telethon.events import NewMessage
 
 TagValue = Union[bool, str, int]
@@ -12,9 +13,16 @@ class TagManager:
     def __init__(self, event: NewMessage.Event):
         db = event.client.db
         collection = db.groups
-        self._document = collection[event.chat_id]
-        self.named_tags = self._document['named_tags'].getStore()
-        self.tags = self._document['tags']
+        try:
+            self._document = collection[event.chat_id]
+            self.named_tags = self._document['named_tags'].getStore()
+            self.tags = self._document['tags']
+            self.read_only = False
+        except DocumentNotFoundError:
+            self._document = None
+            self.named_tags = {}
+            self.tags = {}
+            self.read_only = True
 
     def get(self, tag_name: TagName, default: TagValue = None) -> Optional[TagValue]:
         """Get a Tags Value
@@ -45,12 +53,13 @@ class TagManager:
         Returns: None
 
         """
-        if value is None:
-            if tag_name not in self.tags:
-                self.tags.append(tag_name)
-        elif value is not None:
-            self.named_tags[tag_name] = value
-        self._save()
+        if not self.read_only:
+            if value is None:
+                if tag_name not in self.tags:
+                    self.tags.append(tag_name)
+            elif value is not None:
+                self.named_tags[tag_name] = value
+            self._save()
 
     def __setitem__(self, key: TagName, value: TagValue) -> None:
         self.set(key, value)
@@ -70,11 +79,12 @@ class TagManager:
         Returns: None
 
         """
-        if tag_name in self.tags:
-            del self.tags[self.tags.index(tag_name)]
-        elif tag_name in self.named_tags:
-            del self.named_tags[tag_name]
-        self._save()
+        if not self.read_only:
+            if tag_name in self.tags:
+                del self.tags[self.tags.index(tag_name)]
+            elif tag_name in self.named_tags:
+                del self.named_tags[tag_name]
+            self._save()
 
     def __delitem__(self, key: TagName) -> None:
         self.remove(key)
