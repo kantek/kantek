@@ -1,6 +1,12 @@
 import json
+import logging
 from pathlib import Path
 from typing import Dict
+
+import logzero
+
+logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
+tlog = logging.getLogger('kantek-channel-log')
 
 
 class Config:  # pylint: disable = R0902
@@ -31,6 +37,7 @@ class Config:  # pylint: disable = R0902
         try:
             import config  # pylint: disable = C0415
             legacy_config = config
+            logger.warning("Using the old config.py is deprecated. Please use the new config.json instead.")
         except ImportError:
             legacy_config = None
 
