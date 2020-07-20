@@ -112,13 +112,30 @@ async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocumen
 async def _export_banlist(event: NewMessage.Event, db: ArangoDB) -> None:
     client: KantekClient = event.client
     chat = await event.get_chat()
+    msg: Message = event.message
+    kwargs, args = await helpers.get_args(event)
+
+    start_time = time.time()
+    with_diff = kwargs.get('diff', False)
+
+    if with_diff and msg.is_reply:  # pylint: disable = R1702
+        reply_msg: Message = await msg.get_reply_message()
+        _, ext = os.path.splitext(reply_msg.document.attributes[0].file_name)
+        if ext == '.csv':
+            data = await reply_msg.download_media(bytes)
+            _banlist = await helpers.rose_csv_to_dict(data)
+            _banlist = [u['id'] for u in _banlist]
+    else:
+        _banlist = None
+
     users = db.query('For doc in BanList '
                      'RETURN doc')
-    start_time = time.time()
     export = BytesIO()
     wrapper_file = codecs.getwriter('utf-8')(export)
     cwriter = csv.writer(wrapper_file, lineterminator='\n')
     for user in users:
+        if with_diff and user['id'] in _banlist:
+            continue
         cwriter.writerow([user['id'], user['reason']])
     stop_time = time.time() - start_time
     await client.send_file(chat, export.getvalue(),
