@@ -37,7 +37,8 @@ async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Di
         else:
             commands = reply_msg.text.split('\n')
         current = datetime.now()
-        next_time = datetime(current.year, current.month, current.day, current.hour + 1, 0, 0)
+        next_time = datetime(current.year, current.month, current.day, current.hour, 0, 0)
+        next_time += timedelta(hours=1)
         from_time = next_time
         for cmd in commands:
             if cmd:
