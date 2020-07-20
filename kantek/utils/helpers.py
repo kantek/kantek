@@ -5,7 +5,7 @@ import hashlib
 import logging
 import re
 import urllib
-from io import BytesIO
+from io import BytesIO, StringIO
 from typing import Dict, List, Tuple
 
 import logzero
@@ -50,7 +50,7 @@ async def get_args(event: NewMessage.Event) -> Tuple[Dict[str, str], List[str]]:
     return parsers.parse_arguments(' '.join(_args))
 
 
-async def rose_csv_to_dict(filename: str) -> List[Dict[str, str]]:
+async def rose_csv_to_dict(data: bytes) -> List[Dict[str, str]]:
     """Convert a fedban list from Rose to a json that can be imported into ArangoDB
 
     Args:
@@ -60,14 +60,14 @@ async def rose_csv_to_dict(filename: str) -> List[Dict[str, str]]:
 
     """
     bans = []
-    with open(filename, encoding='utf-8', newline='') as f:  #
-        csv_file = csv.reader(f, delimiter=',')
-        # skip the header
-        next(csv_file, None)
-        for line in csv_file:
-            _id = line[0]
-            reason = line[-1]
-            bans.append({'_key': _id, 'id': _id, 'reason': reason})
+    f = StringIO(data.decode())
+    csv_file = csv.reader(f, delimiter=',')
+    # skip the header
+    next(csv_file, None)
+    for line in csv_file:
+        _id = line[0]
+        reason = line[-1]
+        bans.append({'_key': _id, 'id': _id, 'reason': reason})
     return bans
 
 

@@ -1,13 +1,16 @@
 """Plugin to manage the banlist of the bot."""
+import codecs
 import csv
 import logging
 import os
 import time
+from io import BytesIO
 from typing import List
 
 from spamwatch.types import Ban, Permission
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
+from telethon.tl.types import DocumentAttributeFilename
 
 from database.arango import ArangoDB
 from utils import helpers, parsers
@@ -73,14 +76,13 @@ async def _query_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument
 async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
     msg: Message = event.message
     client: KantekClient = event.client
-    filename = 'tmp/banlist_import.csv'
     if msg.is_reply:  # pylint: disable = R1702
         reply_msg: Message = await msg.get_reply_message()
         _, ext = os.path.splitext(reply_msg.document.attributes[0].file_name)
         if ext == '.csv':
-            await reply_msg.download_media('tmp/banlist_import.csv')
+            data = await reply_msg.download_media(bytes)
             start_time = time.time()
-            _banlist = await helpers.rose_csv_to_dict(filename)
+            _banlist = await helpers.rose_csv_to_dict(data)
             if _banlist:
                 db.query('FOR ban in @banlist '
                          'UPSERT {"_key": ban.id} '
@@ -112,13 +114,13 @@ async def _export_banlist(event: NewMessage.Event, db: ArangoDB) -> None:
     chat = await event.get_chat()
     users = db.query('For doc in BanList '
                      'RETURN doc')
-    os.makedirs('tmp/', exist_ok=True)
     start_time = time.time()
-    with open('tmp/banlist_export.csv', 'w') as f:
-        f.write('id,reason\n')
-        cwriter = csv.writer(f)
-        for user in users:
-            cwriter.writerow([user['id'], user['reason']])
+    export = BytesIO()
+    wrapper_file = codecs.getwriter('utf-8')(export)
+    cwriter = csv.writer(wrapper_file, lineterminator='\n')
+    for user in users:
+        cwriter.writerow([user['id'], user['reason']])
     stop_time = time.time() - start_time
-    await client.send_file(chat, 'tmp/banlist_export.csv',
+    await client.send_file(chat, export.getvalue(),
+                           attributes=[DocumentAttributeFilename('banlist_export.csv')],
                            caption=str(Italic(f'Took {stop_time:.02f}s')))
