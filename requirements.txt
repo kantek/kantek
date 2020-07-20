@@ -1,9 +1,9 @@
 logzero~=1.5.0
-telethon~=1.11.0
-beautifulsoup4~=4.7.1
+telethon~=1.15.0
+beautifulsoup4~=4.9.1
 aiohttp~=3.6.2
-pyArango~=1.3.2
-faker~=1.0.7
-cryptg~=0.2.post0
+pyArango~=1.3.4
+faker~=4.1.1
+cryptg~=0.2.post1
 spamwatch~=0.3.0
 git+git://github.com/mojurasu/photohash@ff4d85ad0117f5368d4d5c4ed1111570aae3096f
