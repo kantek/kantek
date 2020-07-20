@@ -1,4 +1,5 @@
 """Plugin to schedule gbans from a file."""
+import asyncio
 import logging
 from datetime import datetime, timedelta
 from typing import Dict
@@ -44,6 +45,7 @@ async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Di
             if cmd:
                 await client.send_message(chat, cmd, schedule=next_time)
                 next_time += timedelta(hours=offset)
+                await asyncio.sleep(0.5)
         await client.respond(event,
                              MDTeXDocument(
                                  Section(Bold('Scheduled Messages'),
