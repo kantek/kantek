@@ -128,14 +128,17 @@ async def _export_banlist(event: NewMessage.Event, db: ArangoDB) -> None:
     else:
         _banlist = None
 
-    users = db.query('For doc in BanList '
-                     'RETURN doc')
+    if with_diff:
+        users = db.query('For doc in BanList '
+                         'FILTER doc._key not in @ids '
+                         'RETURN doc', bind_vars={'ids': _banlist})
+    else:
+        users = db.query('For doc in BanList '
+                         'RETURN doc')
     export = BytesIO()
     wrapper_file = codecs.getwriter('utf-8')(export)
     cwriter = csv.writer(wrapper_file, lineterminator='\n')
     for user in users:
-        if with_diff and user['id'] in _banlist:
-            continue
         cwriter.writerow([user['id'], user['reason']])
     stop_time = time.time() - start_time
     await client.send_file(chat, export.getvalue(),
