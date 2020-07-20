@@ -28,7 +28,6 @@ AUTOBAHN_TYPES = {
     'file': '0x5',
     'mhash': '0x6',
     'tld': '0x7',
-    'preemptive': '0x9'
 }
 
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')

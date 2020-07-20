@@ -123,7 +123,7 @@ async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyV
         if client.sw and client.sw.permission.value <= Permission.User.value:
             sw_ban = client.sw.get_ban(int(user.id))
             ban_message = sw_ban.message
-            if not full_ban_msg:
+            if ban_message and not full_ban_msg:
                 ban_message = f'{ban_message[:128]}{"[...]" if len(ban_message) > 128 else ""}'
 
     if id_only:
