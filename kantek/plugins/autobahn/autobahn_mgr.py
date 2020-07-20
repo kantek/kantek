@@ -1,7 +1,6 @@
 """Plugin to manage the autobahn"""
 import asyncio
 import logging
-import os
 import re
 from collections import Counter
 
@@ -139,11 +138,10 @@ async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:  # 
             if reply_msg.file:
                 await msg.edit('Downloading file, this may take a while.')
 
-                dl_filename = await reply_msg.download_media(
-                    'tmp/blacklisted_file',
+                file = await reply_msg.download_media(
+                    bytes,
                     progress_callback=lambda r, t: _sync_file_callback(r, t, msg))
-                file_hash = await helpers.hash_file(dl_filename)
-                os.remove(dl_filename)
+                file_hash = await helpers.hash_file(file)
                 await msg.delete()
                 existing_one = collection.fetchByExample({'string': file_hash}, batchSize=1)
 
