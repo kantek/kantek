@@ -132,7 +132,7 @@ async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyV
         return str(user.id)
     else:
         general = SubSection(
-            Bold('general'),
+            Bold('General'),
             KeyValueItem('id', Code(user.id)),
             KeyValueItem('first_name', Code(user.first_name)))
         if user.last_name is not None or show_all:
@@ -160,7 +160,7 @@ async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyV
             spamwatch.append(KeyValueItem('banned', Code('False')))
 
         bot = SubSection(
-            Bold('bot'),
+            Bold('Bot'),
             KeyValueItem('bot', Code(user.bot)),
             KeyValueItem('bot_chat_history', Code(user.bot_chat_history)),
             KeyValueItem('bot_info_version', Code(user.bot_info_version)),
@@ -169,7 +169,7 @@ async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyV
                          Code(user.bot_inline_placeholder)),
             KeyValueItem('bot_nochats', Code(user.bot_nochats)))
         misc = SubSection(
-            Bold('misc'),
+            Bold('Misc'),
             KeyValueItem('mutual_contact', Code(user.mutual_contact)),
             KeyValueItem('restricted', Code(user.restricted)),
             KeyValueItem('restriction_reason', Code(user.restriction_reason)),
