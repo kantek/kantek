@@ -1,7 +1,8 @@
 from typing import Optional, Union
 
-from pyArango.theExceptions import DocumentNotFoundError
 from telethon.events import NewMessage
+
+from database.arango import ArangoDB
 
 TagValue = Union[bool, str, int]
 TagName = Union[int, str]
@@ -11,10 +12,11 @@ class TagManager:
     """Class to manage the tags of a chat"""
 
     def __init__(self, event: NewMessage.Event):
-        db = event.client.db
+        db: ArangoDB = event.client.db
         collection = db.groups
+
         if not event.is_private:
-            self._document = collection[event.chat_id]
+            self._document = collection.get_chat(event.chat_id)
             self.named_tags = self._document['named_tags'].getStore()
             self.tags = self._document['tags']
             self.read_only = False
