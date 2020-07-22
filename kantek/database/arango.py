@@ -1,4 +1,6 @@
 """Module containing all operations related to ArangoDB"""
+import secrets
+import time
 from typing import Dict, Optional, Any
 
 from pyArango.collection import Collection, Field
@@ -198,6 +200,39 @@ class BanList(Collection):
             return None
 
 
+class Strafanzeigen(Collection):
+    """A Collection containing Telegram Chats"""
+    _fields = {
+        'creation_date': Field([NotNull()]),
+        'data': Field([NotNull()]),
+        'key': Field([NotNull()])
+    }
+
+    _validation = {
+        'on_save': True,
+    }
+
+    def add(self, content):
+        key = secrets.token_urlsafe(10)
+        data = {
+            'creation_date': time.time(),
+            'data': content,
+            'key': key
+        }
+
+        try:
+            doc = self.createDocument(data)
+            doc.save()
+            return key
+        except CreationError:
+            return None
+
+    def get(self, key):
+        try:
+            return self.fetchByExample({'key': key}, 1)[0]
+        except IndexError:
+            return None
+
 class ArangoDB:  # pylint: disable = R0902
     """Handle creation of all required Documents."""
 
@@ -206,7 +241,7 @@ class ArangoDB:  # pylint: disable = R0902
                                username=username,
                                password=password)
         self.db = self._get_db(name)
-        self.groups: Chats = self._get_collection('Chats')
+        self.groups: Strafanzeigen = self._get_collection('Chats')
         self.ab_bio_blacklist: AutobahnBioBlacklist = self._get_collection('AutobahnBioBlacklist')
         self.ab_string_blacklist: AutobahnStringBlacklist = self._get_collection(
             'AutobahnStringBlacklist')
@@ -233,6 +268,8 @@ class ArangoDB:  # pylint: disable = R0902
             '0x7': self.ab_tld_blacklist
         }
         self.banlist: BanList = self._get_collection('BanList')
+        self.strafanzeigen: Strafanzeigen = self._get_collection('Strafanzeigen')
+        self.strafanzeigen.ensureTTLIndex(['creation_date'], 30*60)
 
     def query(self, query: str, batch_size: int = 100, raw_results: bool = False,
               bind_vars: Dict = None, options: Dict = None,

@@ -149,3 +149,12 @@ async def textify_message(msg: Message):
         message.append('')
     message.append(msg.text if msg.text else '[no text/caption]')
     return '\n'.join(message)
+
+
+async def create_strafanzeige(msg: Message):
+    uid = msg.from_id
+    chat_id = (msg.chat_id*-1)-int(1e12)
+    msg_id = msg.id
+    msg_link = f't.me/c/{chat_id}/{msg_id}'
+    data = f'{uid} link:{msg_link}'
+    return data

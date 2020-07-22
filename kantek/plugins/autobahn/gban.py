@@ -10,7 +10,8 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.types import Channel, InputReportReasonSpam, InputPeerChannel
 
-from utils import helpers
+from database.arango import ArangoDB
+from utils import helpers, parsers
 from utils.client import KantekClient
 from utils.mdtex import MDTeXDocument, Section, KeyValueItem, Bold, Code
 from utils.pluginmgr import k, Command
@@ -23,12 +24,22 @@ CHUNK_SIZE = 10
 
 
 @k.command('gban')
-async def gban(client: KantekClient, tags: TagManager, chat: Channel, msg: Message,
+async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Channel, msg: Message,
                args: List, kwargs: Dict, event: Command) -> None:
     """Command to globally ban a user."""
     _gban = tags.get('gban')
 
     only_joinspam = kwargs.get('only_joinspam', False) or kwargs.get('oj', False)
+    sa_key = kwargs.get('sa')
+    anzeige = None
+    if sa_key:
+        doc = db.strafanzeigen.get(sa_key)
+        if doc:
+            anzeige = doc['data']
+    if anzeige:
+        _kw, _args = parsers.parse_arguments(anzeige)
+        kwargs.update(_kw)
+        args.extend(_args)
 
     verbose = False
     if _gban == 'verbose' or event.is_private:

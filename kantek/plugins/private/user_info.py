@@ -6,16 +6,18 @@ from spamwatch.types import Permission
 from telethon.tl.custom import Forward, Message
 from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, User
 
+from database.arango import ArangoDB
 from utils import helpers, constants
 from utils.client import KantekClient
 from utils.mdtex import Bold, Code, KeyValueItem, Link, MDTeXDocument, Section, SubSection
 from utils.pluginmgr import k, Command
+from utils.tagmgr import TagManager
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('u(ser)?')
-async def user_info(client: KantekClient, msg: Message,
+async def user_info(client: KantekClient, msg: Message, tags: TagManager,
                     args: List, kwargs: Dict, event: Command) -> None:
     """Show information about a user.
 
@@ -33,7 +35,7 @@ async def user_info(client: KantekClient, msg: Message,
         return
     response = ''
     if not args and msg.is_reply:
-        response = await _info_from_reply(event, **kwargs)
+        response = await _info_from_reply(event, tags, **kwargs)
     elif args or 'search' in kwargs:
         response = await _info_from_arguments(event)
     if response:
@@ -75,10 +77,13 @@ async def _info_from_arguments(event) -> MDTeXDocument:
         return MDTeXDocument(*users, (Section(Bold('Errors for'), Code(', '.join(errors)))) if errors else '')
 
 
-async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
+async def _info_from_reply(event, tags, **kwargs) -> MDTeXDocument:
     msg: Message = event.message
     client: KantekClient = event.client
+    db: ArangoDB = client.db
     get_forward = kwargs.get('forward', True)
+    anzeige = tags.get('strafanzeige', False)
+
     reply_msg: Message = await msg.get_reply_message()
 
     if get_forward and reply_msg.forward is not None:
@@ -88,8 +93,12 @@ async def _info_from_reply(event, **kwargs) -> MDTeXDocument:
         user: User = await client.get_entity(forward.sender_id)
     else:
         user: User = await client.get_entity(reply_msg.sender_id)
-
-    return MDTeXDocument(await _collect_user_info(client, user, **kwargs))
+    user_section = await _collect_user_info(client, user, **kwargs)
+    if anzeige:
+        data = await helpers.create_strafanzeige(reply_msg)
+        key = db.strafanzeigen.add(data)
+        user_section.append(SubSection(Bold('Strafanzeige'), KeyValueItem('code', Code(f'sa: {key}'))))
+    return MDTeXDocument(user_section)
 
 
 async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyValueItem]:
