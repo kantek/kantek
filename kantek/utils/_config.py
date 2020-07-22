@@ -31,6 +31,8 @@ class Config:  # pylint: disable = R0902
     spamwatch_host: str = 'https://api.spamwat.ch'
     spamwatch_token: str = None
 
+    debug_mode: bool = False
+
     plugin_path: Path
 
     def __init__(self):
@@ -91,6 +93,7 @@ class Config:  # pylint: disable = R0902
         self.cmd_prefix = config.get('cmd_prefix', self.cmd_prefix)
         self.spamwatch_host = config.get('spamwatch_host', self.spamwatch_host)
         self.spamwatch_token = config.get('spamwatch_token', self.spamwatch_token)
+        self.debug_mode = config.get('debug_mode', self.debug_mode)
 
     def from_legacy_module(self, module):
         """Fetch config options from the legacy config.py"""

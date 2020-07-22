@@ -170,15 +170,16 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
     async def ban(self, chat, uid):
         """Bans a user from a chat."""
-        try:
-            await self(EditBannedRequest(
-                chat, uid, ChatBannedRights(
-                    until_date=datetime.datetime(2038, 1, 1),
-                    view_messages=True
-                )
-            ))
-        except UserAdminInvalidError as err:
-            logger.error(err)
+        if not self.config.debug_mode:
+            try:
+                await self(EditBannedRequest(
+                    chat, uid, ChatBannedRights(
+                        until_date=datetime.datetime(2038, 1, 1),
+                        view_messages=True
+                    )
+                ))
+            except UserAdminInvalidError as err:
+                logger.error(err)
 
     async def get_cached_entity(self, entity: hints.EntitiesLike):
         """Get the cached version of a entity"""
