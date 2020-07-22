@@ -58,7 +58,8 @@ async def gban(client: KantekClient, tags: TagManager, chat: Channel, msg: Messa
         message = await helpers.textify_message(reply_msg)
         await client.gban(uid, ban_reason, message)
         peer_channel: InputPeerChannel = await event.get_input_chat()
-        await client(ReportRequest(peer_channel, [reply_msg.id], InputReportReasonSpam()))
+        if not client.config.debug_mode:
+            await client(ReportRequest(peer_channel, [reply_msg.id], InputReportReasonSpam()))
         if chat.creator or chat.admin_rights:
             if bancmd == 'manual' or bancmd is None:
                 await client.ban(chat, uid)
