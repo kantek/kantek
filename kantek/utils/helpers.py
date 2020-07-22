@@ -151,8 +151,7 @@ async def textify_message(msg: Message):
     return '\n'.join(message)
 
 
-async def create_strafanzeige(msg: Message):
-    uid = msg.from_id
+async def create_strafanzeige(uid, msg: Message):
     chat_id = (msg.chat_id*-1)-int(1e12)
     msg_id = msg.id
     msg_link = f't.me/c/{chat_id}/{msg_id}'
