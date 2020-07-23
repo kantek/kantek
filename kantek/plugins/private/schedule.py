@@ -1,7 +1,7 @@
 """Plugin to schedule gbans from a file."""
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict
 
 from telethon.tl.functions.messages import GetScheduledHistoryRequest, DeleteScheduledMessagesRequest
@@ -25,7 +25,8 @@ async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Di
     Returns: None
 
     """
-    offset = kwargs.get('offset', 1)
+    offset = kwargs.get('offset', 60)
+    dynamic = kwargs.get('dynamic', False)
     if kwargs.get('overwrite'):
         scheduled = await client(GetScheduledHistoryRequest(chat, 0))
         scheduled_ids = [smsg.id for smsg in scheduled.messages]
@@ -38,20 +39,26 @@ async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Di
         else:
             commands = reply_msg.text.split('\n')
         current = datetime.now()
-        next_time = datetime(current.year, current.month, current.day, current.hour, 0, 0)
+        next_time = datetime(current.year, current.month,
+                             current.day, current.hour, 0, 0).astimezone(timezone.utc)
         next_time += timedelta(hours=1)
         from_time = next_time
         for cmd in commands:
             if cmd:
+                if dynamic:
+                    offset = len(cmd.split()) ** 0.7
                 await client.send_message(chat, cmd, schedule=next_time)
-                next_time += timedelta(hours=offset)
+                next_time += timedelta(minutes=offset)
                 await asyncio.sleep(0.5)
-        await client.respond(event,
-                             MDTeXDocument(
-                                 Section(Bold('Scheduled Messages'),
-                                         KeyValueItem(Bold('From'), from_time),
-                                         KeyValueItem(Bold('To'), next_time),
-                                         KeyValueItem(Bold('Count'), Code(len(commands)))
-                                         ))
-                             )
+        await client.respond(
+            event,
+            MDTeXDocument(
+                Section(Bold('Scheduled Messages'),
+                        KeyValueItem(Bold('From'),
+                                     from_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
+                        KeyValueItem(Bold('To'),
+                                     next_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
+                        KeyValueItem(Bold('Count'), Code(len(commands)))
+                        ))
+        )
     await event.delete()
