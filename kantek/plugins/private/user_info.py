@@ -4,7 +4,7 @@ from typing import Union, Dict, List
 
 from spamwatch.types import Permission
 from telethon.tl.custom import Forward, Message
-from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, User
+from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, User, Channel
 
 from database.arango import ArangoDB
 from utils import helpers, constants
@@ -64,6 +64,9 @@ async def _info_from_arguments(event) -> MDTeXDocument:
     for entity in entities:
         try:
             user: User = await client.get_entity(entity)
+            if isinstance(user, Channel):
+                errors.append(str(entity))
+                continue
             users.append(str(await _collect_user_info(client, user, **keyword_args)))
         except constants.GET_ENTITY_ERRORS:
             errors.append(str(entity))
