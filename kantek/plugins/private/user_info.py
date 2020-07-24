@@ -36,7 +36,7 @@ async def user_info(client: KantekClient, msg: Message, tags: TagManager,
     response = ''
     if not args and msg.is_reply:
         response = await _info_from_reply(event, tags, **kwargs)
-    elif args or 'search' in kwargs:
+    elif args:
         response = await _info_from_arguments(event)
     if response:
         await client.respond(event, response)
@@ -46,18 +46,14 @@ async def _info_from_arguments(event) -> MDTeXDocument:
     msg: Message = event.message
     client: KantekClient = event.client
     keyword_args, args = await helpers.get_args(event)
-    search_name = keyword_args.get('search', False)
     gban_format = keyword_args.get('gban', False)
-    if search_name:
-        entities = [search_name]
-    else:
-        entities = []
-        for entity in msg.get_entities_text():
-            obj, text = entity
-            if isinstance(obj, MessageEntityMentionName):
-                entities.append(obj.user_id)
-            elif isinstance(obj, MessageEntityMention):
-                entities.append(text)
+    entities = []
+    for entity in msg.get_entities_text():
+        obj, text = entity
+        if isinstance(obj, MessageEntityMentionName):
+            entities.append(obj.user_id)
+        elif isinstance(obj, MessageEntityMention):
+            entities.append(text)
     # append any user ids to the list
     for uid in args:
         if isinstance(uid, int):
