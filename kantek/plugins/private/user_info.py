@@ -94,7 +94,7 @@ async def _info_from_reply(event, tags, **kwargs) -> MDTeXDocument:
     else:
         user: User = await client.get_entity(reply_msg.sender_id)
     user_section = await _collect_user_info(client, user, **kwargs)
-    if anzeige:
+    if anzeige and isinstance(user_section, Section):
         data = await helpers.create_strafanzeige(user.id, reply_msg)
         key = db.strafanzeigen.add(data)
         user_section.append(SubSection(Bold('Strafanzeige'), KeyValueItem('code', Code(f'sa: {key}'))))
