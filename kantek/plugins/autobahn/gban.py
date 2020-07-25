@@ -150,7 +150,7 @@ async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Chann
             sections = []
             if banned_uids:
                 bans = _build_message(banned_uids, message)
-                sections.append(Section(f'GBanned User{"s" if len(banned_uids) > 1 else ""}'), *bans)
+                sections.append(Section(f'GBanned User{"s" if len(banned_uids) > 1 else ""}', *bans))
             if skipped_uids:
                 bans = _build_message(skipped_uids)
                 sections.append(Section('Skipped GBan', *bans))
