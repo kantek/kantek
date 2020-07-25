@@ -43,6 +43,12 @@ async def help_(client: KantekClient, args, kwargs) -> MDTeXDocument:
             description = get_description(cmd.callback, help_cmd)
             help_msg = MDTeXDocument(Section(f'Help for {help_cmd}'), description)
 
+            if cmd.admins:
+                help_msg.append(Italic('This command can be used by group admins.'))
+
+            if not cmd.private:
+                help_msg.append(Italic('This command is public.'))
+
             if cmd.subcommands:
                 subcommands = Section('Subcommands')
                 for name, sc in cmd.subcommands.items():
