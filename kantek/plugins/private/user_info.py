@@ -21,6 +21,11 @@ async def user_info(msg: Message, tags: TagManager,
                     args: List, kwargs: Dict, event: Command) -> Optional[MDTeXDocument]:
     """Show information about a user.
 
+
+    Tags:
+        strafanzeige:
+            True: Append a short value to autofill user id and message link for {prefix}gban
+
     Examples:
         {cmd} 777000
         {cmd} 777000 -mention

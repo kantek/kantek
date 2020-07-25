@@ -31,11 +31,18 @@ async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Chann
     This will not actively ban them from any chats except the one command was issued in as reply. GBanned users will be automatically banned on join or when writing a message by the Grenzschutz module.
     When banning by reply the message content will be automatically sent to the SpamWatch API if enabled.
 
+    Tags:
+        gban:
+            verbose: Send a message when a user was banned by id
+        gbancmd:
+            *: Send `{bancmd} {ban_reason}` in reply to the message
+
     Examples:
         {cmd} 777000
         {cmd} 777000 "some reason here"
         {cmd} 777000 msg: "the message for the api"
         {cmd} 777000 link: https://t.me/c/1129887931/26708
+        {cmd} sa: xcQq9aMm77U2aA
         {cmd}
     """
     _gban = tags.get('gban')
