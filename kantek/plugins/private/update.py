@@ -29,6 +29,6 @@ async def update(client: KantekClient, event: Command) -> None:
         event,
         MDTeXDocument(
             Section('Updated kantek',
-                    KeyValueItem('New commit', Link(new_commit, f'{config.source_url}/commmits/{new_commit}')),
+                    KeyValueItem('New commit', Link(new_commit, f'{config.source_url}/commit/{new_commit}')),
                     Italic('Restarting bot'))))
     await client.disconnect()
