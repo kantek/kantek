@@ -28,7 +28,7 @@ logger: logging.Logger = logzero.logger
 
 
 @k.event(events.MessageEdited(outgoing=False))
-@k.event(events.NewMessage(outgoing=False))
+@k.event(events.NewMessage(outgoing=False), name='polizei')
 async def polizei(event: NewMessage.Event) -> None:
     """Plugin to automatically ban users for certain messages."""
     if event.is_private:

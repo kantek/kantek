@@ -18,7 +18,7 @@ tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
 
 
-@k.event(events.chataction.ChatAction())
+@k.event(events.chataction.ChatAction(), name='kriminalamt')
 async def kriminalamt(event: ChatAction.Event) -> None:
     """Ban a user when he joins and leaves in the configured interval"""
     client: KantekClient = event.client

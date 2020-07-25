@@ -72,6 +72,7 @@ class _Command:
 class _Event:
     callback: Callable
     event: EventBuilder
+    name: Optional[str]
 
 
 class PluginManager:
@@ -195,11 +196,11 @@ class PluginManager:
         return decorator
 
     @classmethod
-    def event(cls, event):
+    def event(cls, event, name: str = None):
         """Add a Event to the client"""
 
         def decorator(callback):
-            cls.events.append(_Event(callback, event))
+            cls.events.append(_Event(callback, event, name))
             return callback
 
         return decorator

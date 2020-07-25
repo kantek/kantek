@@ -20,7 +20,7 @@ logger: logging.Logger = logzero.logger
 
 
 @k.event(events.chataction.ChatAction())
-@k.event(events.NewMessage())
+@k.event(events.NewMessage(), name='grenzschutz')
 async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:  # pylint: disable = R0911
     """Plugin to ban blacklisted users."""
     if event.is_private:

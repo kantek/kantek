@@ -35,6 +35,7 @@ INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 @k.command('autobahn', 'ab')
 async def autobahn() -> None:
     """Manage Autobahn blacklists.
+
     Each message will be checked for blacklisted items and if a match is found the user is automatically gbanned.
     """
     pass
