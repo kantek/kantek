@@ -7,13 +7,12 @@ from collections import Counter
 import logzero
 from pyArango.document import Document
 from telethon.errors import MessageIdInvalidError
-from telethon.events import NewMessage
 from telethon.tl.custom import Message
 
 from database.arango import ArangoDB
-from utils import helpers, parsers, constants
+from utils import helpers, constants
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Pre, Section, SubSection
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -34,48 +33,15 @@ INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
 @k.command('a(uto)?b(ahn)?')
-async def autobahn(client: KantekClient, msg: Message, event: Command) -> None:
+async def autobahn() -> None:
     """Command to manage autobahn blacklists"""
-    db = client.db
-    args = msg.raw_text.split()[1:]
-    response = ''
-    if not args:
-        pass
-    # TODO Needs to be replaced by a proper subcommand implementation
-    elif args[0] == 'add' and len(args) > 1:
-        response = await _add_item(event, db)
-    elif args[0] == 'del' and len(args) > 1:
-        response = await _del_item(event, db)
-    elif args[0] == 'query' and len(args) > 1:
-        response = await _query_item(event, db)
-    if response:
-        await client.respond(event, response)
+    pass
 
 
-def _sync_file_callback(received: int, total: int, msg: Message) -> None:
-    loop = asyncio.get_event_loop()
-    loop.create_task(_file_callback(received, total, msg))
-    # msg.edit(args)
-
-
-async def _file_callback(received: int, total: int, msg: Message) -> None:
-    text = MDTeXDocument(
-        Section(Bold('Downloading File'),
-                KeyValueItem('Progress',
-                             f'{received / 1024 ** 2:.2f}/{total / 1024 ** 2:.2f}MB'
-                             f' ({(received / total) * 100:.0f}%)')))
-    try:
-        await msg.edit(str(text))
-    except MessageIdInvalidError as err:
-        logger.error(err)
-
-
-async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:  # pylint: disable = R1702
+@autobahn.subcommand('add')
+async def _add_item(client: KantekClient, db: ArangoDB, msg: Message, args,
+                    event) -> MDTeXDocument:  # pylint: disable = R1702
     """Add a item to the Collection of its type"""
-    client: KantekClient = event.client
-    msg: Message = event.message
-    args = msg.raw_text.split()[2:]
-    _, args = parsers.parse_arguments(' '.join(args))
     item_type = args[0]
     items = args[1:]
     added_items = []
@@ -193,11 +159,9 @@ async def _add_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:  # 
                          )
 
 
-async def _del_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+@autobahn.subcommand('del')
+async def _del_item(db: ArangoDB, args) -> MDTeXDocument:
     """Add a item to the Collection of its type"""
-    msg: Message = event.message
-    args = msg.raw_text.split()[2:]
-    _, args = parsers.parse_arguments(' '.join(args))
     item_type = args[0]
     items = args[1:]
     removed_items = []
@@ -221,17 +185,15 @@ async def _del_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                                             *removed_items)))
 
 
-async def _query_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
+@autobahn.subcommand('query')
+async def _query_item(args, kwargs, db: ArangoDB) -> MDTeXDocument:
     """Add a string to the Collection of its type"""
-    msg: Message = event.message
-    args = msg.raw_text.split()[2:]
-    keyword_args, args = parsers.parse_arguments(' '.join(args))
     if 'types' in args:
-        return MDTeXDocument(Section(
-            Bold('Types'),
-            *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
-    item_type = keyword_args.get('type')
-    code = keyword_args.get('code')
+        return MDTeXDocument(
+            Section(Bold('Types'),
+                    *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
+    item_type = kwargs.get('type')
+    code = kwargs.get('code')
 
     hex_type = None
     collection = None
@@ -262,3 +224,21 @@ async def _query_item(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
                                   Code(doc['string'])) for doc in documents]
             return MDTeXDocument(
                 Section(Bold(f'Items for for type: {item_type}[{hex_type}]'), *items))
+
+
+def _sync_file_callback(received: int, total: int, msg: Message) -> None:
+    loop = asyncio.get_event_loop()
+    loop.create_task(_file_callback(received, total, msg))
+    # msg.edit(args)
+
+
+async def _file_callback(received: int, total: int, msg: Message) -> None:
+    text = MDTeXDocument(
+        Section(Bold('Downloading File'),
+                KeyValueItem('Progress',
+                             f'{received / 1024 ** 2:.2f}/{total / 1024 ** 2:.2f}MB'
+                             f' ({(received / total) * 100:.0f}%)')))
+    try:
+        await msg.edit(str(text))
+    except MessageIdInvalidError as err:
+        logger.error(err)
