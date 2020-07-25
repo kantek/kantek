@@ -163,7 +163,7 @@ class PluginManager:
             callback_args['tags'] = TagManager(event)
 
         result = await callback(**callback_args)
-        if cmd.auto_respond:
+        if result and cmd.auto_respond:
             await client.respond(event, str(result))
 
     @classmethod
