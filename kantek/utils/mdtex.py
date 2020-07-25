@@ -84,7 +84,7 @@ class Section:
     """A section header"""
 
     def __init__(self, *args: Union[V, 'SubSection'], indent: int = 4) -> None:
-        self.header = args[0]
+        self.header = Bold(args[0])
         self.items = [i for i in args[1:] if i]
         self.indent = indent
 

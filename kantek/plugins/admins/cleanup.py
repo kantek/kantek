@@ -50,7 +50,7 @@ async def _cleanup_chat(event, count: bool = False,
     modulus = (participant_count // 25) or 1
     async for user in client.iter_participants(chat):
         if progress_message is not None and user_counter % modulus == 0:
-            progress = Section(Bold('Cleanup'),
+            progress = Section('Cleanup',
                                KeyValueItem(Bold('Progress'),
                                             f'{user_counter}/{participant_count}'),
                                KeyValueItem(deleted_accounts_label, deleted_users))
@@ -68,7 +68,7 @@ async def _cleanup_chat(event, count: bool = False,
                     deleted_admins += 1
                 except FloodWaitError as error:
                     if progress_message is not None:
-                        progress = Section(Bold('Cleanup | FloodWait'),
+                        progress = Section('Cleanup | FloodWait',
                                            Bold(f'Got FloodWait for {error.seconds}s. Sleeping.'),
                                            KeyValueItem(Bold('Progress'),
                                                         f'{user_counter}/{participant_count}'),
@@ -81,6 +81,6 @@ async def _cleanup_chat(event, count: bool = False,
                     await client.ban(chat, user)
 
     return MDTeXDocument(
-        Section(Bold('Cleanup'),
+        Section('Cleanup',
                 KeyValueItem(deleted_accounts_label, deleted_users),
                 KeyValueItem(Bold('Deleted Admins'), deleted_admins) if deleted_admins else None))

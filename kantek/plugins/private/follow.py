@@ -14,6 +14,6 @@ async def follow(client: KantekClient, args: List) -> MDTeXDocument:
     """Command to follow where a URL redirects to."""
     link = args[0]
     return MDTeXDocument(
-        Section(Bold('Follow'),
+        Section('Follow',
                 KeyValueItem(Bold('Original URL'), Code(link)),
                 KeyValueItem(Bold('Followed URL'), Code(await client.resolve_url(link, base_domain=False)))))

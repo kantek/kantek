@@ -24,7 +24,7 @@ async def sw(client: KantekClient, args: List, kwargs: Dict, event: Command) -> 
     result = ''
 
     if client.sw.permission != Permission.Root:
-        await client.respond(event, MDTeXDocument(Section(Bold('Insufficient Permission'),
+        await client.respond(event, MDTeXDocument(Section('Insufficient Permission',
                                                           'Root Permission required.')))
     if subcommand == 'token':
         result = await _token(event, client, args, kwargs)
@@ -41,7 +41,7 @@ async def _token(event, client, args, keyword_args):
             reply_message: Message = await msg.get_reply_message()
             userid = reply_message.from_id
         else:
-            return MDTeXDocument(Section(Bold('Missing Argument'),
+            return MDTeXDocument(Section('Missing Argument',
                                          'A User ID is required.'))
     else:
         userid = userid[0]
@@ -50,11 +50,11 @@ async def _token(event, client, args, keyword_args):
         permission = keyword_args.get('permission', 'User')
         permission = _permission_map.get(permission)
         token = client.sw.create_token(userid, permission)
-        return MDTeXDocument(Section(Bold('SpamWatch Token'),
+        return MDTeXDocument(Section('SpamWatch Token',
                                      KeyValueItem('ID', Code(token.id)),
                                      KeyValueItem('User', Code(token.userid)),
                                      KeyValueItem('Permission', token.permission.name),
                                      KeyValueItem('Token', Code(token.token))),
-                             Section(Bold('Links'),
+                             Section('Links',
                                      KeyValueItem('Endpoint', client.sw_url.split('://')[-1]),
                                      KeyValueItem('Documentation', 'docs.spamwat.ch')))

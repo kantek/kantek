@@ -52,7 +52,7 @@ async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Di
                 await asyncio.sleep(0.5)
         await event.delete()
         return MDTeXDocument(
-            Section(Bold('Scheduled Messages'),
+            Section('Scheduled Messages',
                     KeyValueItem(Bold('From'),
                                  from_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
                     KeyValueItem(Bold('To'),

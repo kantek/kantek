@@ -70,7 +70,7 @@ async def _info_from_arguments(event) -> MDTeXDocument:
     if users and gban_format:
         users = [Code(' '.join(users))]
     if users or errors:
-        return MDTeXDocument(*users, (Section(Bold('Errors for'), Code(', '.join(errors)))) if errors else '')
+        return MDTeXDocument(*users, (Section('Errors for', Code(', '.join(errors)))) if errors else '')
 
 
 async def _info_from_reply(event, tags, **kwargs) -> MDTeXDocument:
@@ -85,7 +85,7 @@ async def _info_from_reply(event, tags, **kwargs) -> MDTeXDocument:
     if get_forward and reply_msg.forward is not None:
         forward: Forward = reply_msg.forward
         if forward.sender_id is None:
-            return MDTeXDocument(Section(Bold('Error'), 'User has forward privacy enabled'))
+            return MDTeXDocument(Section('Error', 'User has forward privacy enabled'))
         user: User = await client.get_entity(forward.sender_id)
     else:
         user: User = await client.get_entity(reply_msg.sender_id)
@@ -93,7 +93,7 @@ async def _info_from_reply(event, tags, **kwargs) -> MDTeXDocument:
     if anzeige and isinstance(user_section, Section):
         data = await helpers.create_strafanzeige(user.id, reply_msg)
         key = db.strafanzeigen.add(data)
-        user_section.append(SubSection(Bold('Strafanzeige'), KeyValueItem('code', Code(f'sa: {key}'))))
+        user_section.append(SubSection('Strafanzeige', KeyValueItem('code', Code(f'sa: {key}'))))
     return MDTeXDocument(user_section)
 
 
@@ -152,7 +152,7 @@ async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyV
         if sw_ban and not show_spamwatch:
             general.append(KeyValueItem('ban_msg', Code(ban_message)))
 
-        spamwatch = SubSection(Bold('SpamWatch'))
+        spamwatch = SubSection('SpamWatch')
         if sw_ban:
             spamwatch.extend([
                 KeyValueItem('reason', Code(sw_ban.reason)),

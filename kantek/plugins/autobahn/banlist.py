@@ -50,7 +50,7 @@ async def query(db: ArangoDB, args, kwargs) -> MDTeXDocument:
                                      'RETURN length').result
 
         query_results = [KeyValueItem(Bold('Total Count'), Code(result[0]))]
-    return MDTeXDocument(Section(Bold('Query Results'), *query_results))
+    return MDTeXDocument(Section('Query Results', *query_results))
 
 
 @banlist.subcommand()
@@ -81,11 +81,11 @@ async def import_(client: KantekClient, db: ArangoDB, msg: Message) -> MDTeXDocu
                             uids_copy = uids_copy[SWAPI_SLICE_LENGTH:]
 
             stop_time = time.time() - start_time
-            return MDTeXDocument(Section(Bold('Import Result'),
+            return MDTeXDocument(Section('Import Result',
                                          f'Added {len(_banlist)} entries.'),
                                  Italic(f'Took {stop_time:.02f}s'))
         else:
-            return MDTeXDocument(Section(Bold('Error'),
+            return MDTeXDocument(Section('Error',
                                          'File is not a CSV'))
 
 

@@ -28,9 +28,9 @@ async def show_args(msg: Message, args: List, kwargs: Dict) -> MDTeXDocument:
                                        KeyValueItem('value', Code(value)),
                                        KeyValueItem('type', Code(type(value).__name__))))
     return MDTeXDocument(
-        Section(Bold('Args'), *_args),
-        Section(Bold('Keyword Args'), *keyword_args),
-        Section(Bold('Raw'),
+        Section('Args', *_args),
+        Section('Keyword Args', *keyword_args),
+        Section('Raw',
                 KeyValueItem('args', Pre(pformat(args, width=30))),
                 KeyValueItem('keyword_args', Pre(pformat(kwargs, width=30))))
     )

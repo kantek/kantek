@@ -117,9 +117,9 @@ async def add(client: KantekClient, db: ArangoDB, msg: Message, args,
                 else:
                     existing_items.append(Code(short_hash))
             else:
-                return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a file'))
+                return MDTeXDocument(Section('Error', 'Need to reply to a file'))
         else:
-            return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a file'))
+            return MDTeXDocument(Section('Error', 'Need to reply to a file'))
     if not items and hex_type == '0x6':
         if msg.is_reply:
             reply_msg: Message = await msg.get_reply_message()
@@ -141,20 +141,20 @@ async def add(client: KantekClient, db: ArangoDB, msg: Message, args,
                 else:
                     existing_items.append(Code(photo_hash))
             else:
-                return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
+                return MDTeXDocument(Section('Error', 'Need to reply to a photo'))
         else:
-            return MDTeXDocument(Section(Bold('Error'), 'Need to reply to a photo'))
+            return MDTeXDocument(Section('Error', 'Need to reply to a photo'))
 
-    return MDTeXDocument(Section(Bold('Added Items:'),
-                                 SubSection(Bold(item_type),
+    return MDTeXDocument(Section('Added Items:',
+                                 SubSection(item_type,
                                             *added_items)) if added_items else '',
-                         Section(Bold('Existing Items:'),
-                                 SubSection(Bold(item_type),
+                         Section('Existing Items:',
+                                 SubSection(item_type,
                                             *existing_items)) if existing_items else '',
-                         Section(Bold('Skipped Items:'),
-                                 SubSection(Bold(item_type),
+                         Section('Skipped Items:',
+                                 SubSection(item_type,
                                             *skipped_items)) if skipped_items else '',
-                         Section(Bold('Warning:'),
+                         Section('Warning:',
                                  warn_message) if warn_message else ''
                          )
 
@@ -180,8 +180,8 @@ async def del_(db: ArangoDB, args) -> MDTeXDocument:
             existing_one[0].delete()
             removed_items.append(item)
 
-    return MDTeXDocument(Section(Bold('Deleted Items:'),
-                                 SubSection(Bold(item_type),
+    return MDTeXDocument(Section('Deleted Items:',
+                                 SubSection(item_type,
                                             *removed_items)))
 
 
@@ -190,7 +190,7 @@ async def query(args, kwargs, db: ArangoDB) -> MDTeXDocument:
     """Add a string to the Collection of its type"""
     if 'types' in args:
         return MDTeXDocument(
-            Section(Bold('Types'),
+            Section('Types',
                     *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
     item_type = kwargs.get('type')
     code = kwargs.get('code')
@@ -207,12 +207,12 @@ async def query(args, kwargs, db: ArangoDB) -> MDTeXDocument:
                                   Code(doc['string'])) for doc in all_strings]
         else:
             items = [Pre(', '.join([doc['string'] for doc in all_strings]))]
-        return MDTeXDocument(Section(Bold(f'Items for type: {item_type}[{hex_type}]'), *items))
+        return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}]'), *items)
 
     elif hex_type is not None and code is not None:
         if isinstance(code, int):
             string = collection.fetchDocument(code).getStore()['string']
-            return MDTeXDocument(Section(Bold(f'Items for type: {item_type}[{hex_type}] code: {code}'), Code(string)))
+            return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}] code: {code}'), Code(string))
         elif isinstance(code, (range, list)):
             keys = [str(i) for i in code]
             documents = db.query('FOR doc IN @@collection '
@@ -223,7 +223,7 @@ async def query(args, kwargs, db: ArangoDB) -> MDTeXDocument:
             items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
                                   Code(doc['string'])) for doc in documents]
             return MDTeXDocument(
-                Section(Bold(f'Items for for type: {item_type}[{hex_type}]'), *items))
+                Section(f'Items for for type: {item_type}[{hex_type}]'), *items)
 
 
 def _sync_file_callback(received: int, total: int, msg: Message) -> None:
@@ -234,7 +234,7 @@ def _sync_file_callback(received: int, total: int, msg: Message) -> None:
 
 async def _file_callback(received: int, total: int, msg: Message) -> None:
     text = MDTeXDocument(
-        Section(Bold('Downloading File'),
+        Section('Downloading File',
                 KeyValueItem('Progress',
                              f'{received / 1024 ** 2:.2f}/{total / 1024 ** 2:.2f}MB'
                              f' ({(received / total) * 100:.0f}%)')))

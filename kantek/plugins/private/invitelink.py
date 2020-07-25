@@ -15,7 +15,7 @@ async def invitelink(args: List) -> MDTeXDocument:
     link = args[0]
     link_creator, chatid, random_part = await helpers.resolve_invite_link(link)
     return MDTeXDocument(
-        Section(Bold('Invite Link'),
+        Section('Invite Link',
                 KeyValueItem('Link Creator',
                              f'[{link_creator}](tg://user?id={link_creator})'),
                 KeyValueItem('Chat ID', Code(chatid)),

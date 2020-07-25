@@ -132,10 +132,10 @@ async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Chann
             sections = []
             if banned_uids:
                 bans = _build_message(banned_uids, message)
-                sections.append(Section(Bold(f'GBanned User{"s" if len(banned_uids) > 1 else ""}'), *bans))
+                sections.append(Section(f'GBanned User{"s" if len(banned_uids) > 1 else ""}'), *bans)
             if skipped_uids:
                 bans = _build_message(skipped_uids)
-                sections.append(Section(Bold('Skipped GBan'), *bans))
+                sections.append(Section('Skipped GBan', *bans))
 
             await client.respond(event, MDTeXDocument(*sections))
 
@@ -169,5 +169,5 @@ async def ungban(client: KantekClient, msg: Message,
             unbanned_users.append(str(uid))
     if unbanned_users:
         return MDTeXDocument(
-            Section(Bold('Un-GBanned Users'),
+            Section('Un-GBanned Users',
                     KeyValueItem(Bold('IDs'), Code(', '.join(unbanned_users)))))
