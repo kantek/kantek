@@ -30,7 +30,7 @@ async def tag(chat: Channel, tags: TagManager) -> MDTeXDocument:
     if not data:
         data.append(Code('None'))
     return MDTeXDocument(
-        Section(Item(f'Tags for {Bold(chat.title)}[{Code(chat.id)}]:'),
+        Section(Item(f'Tags for {chat.title}[{Code(chat.id)}]:'),
                 *data)
     )
 
