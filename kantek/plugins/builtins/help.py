@@ -15,17 +15,22 @@ async def help_(client: KantekClient, args, kwargs) -> MDTeXDocument:
     cmds = client.plugin_mgr.commands
     if not args:
         _cmds = []
-        for cmd in cmds.keys():
+        for cmd in cmds.values():
             # Replace potential regex characters, commands should probably just
             # be plaint  text and aliases should be handled by the plugin manager though
-            _cmds.append(cmd.replace('(', '').replace(')', '').replace('?', ''))
+            _cmds.append(', '.join(cmd.commands))
         return MDTeXDocument(Section('Command List', *sorted(_cmds)),
                              Italic('Provide a command name as argument to get help for it.'))
     if args:
-        cmd = cmds.get(args[0])
+        command, *subcommands = args
+        cmd = cmds.get(command)
         if cmd is None:
-            return MDTeXDocument(Section('Error', f'Unknown command `{args[0]}`'))
+            for _cmd in cmds.values():
+                if command in _cmd.commands:
+                    cmd = _cmd
+                    break
+            if cmd is None:
+                return MDTeXDocument(Section('Error', f'Unknown command `{command}`'))
 
-        else:
-            cmd_name = cmd.command.replace('(', '').replace(')', '').replace('?', '')
-            return MDTeXDocument(Section(f'Help for {cmd_name}'), inspect.getdoc(cmd.callback))
+        cmd_name = cmd.commands[0]
+        return MDTeXDocument(Section(f'Help for {cmd_name}'), inspect.getdoc(cmd.callback))
