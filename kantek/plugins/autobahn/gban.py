@@ -46,7 +46,7 @@ async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Chann
         {cmd}
     """
     _gban = tags.get('gban')
-
+    admin = bool(chat.creator or chat.admin_rights)
     only_joinspam = kwargs.get('only_joinspam', False) or kwargs.get('oj', False)
     sa_key = kwargs.get('sa')
     anzeige = None
@@ -64,7 +64,6 @@ async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Chann
         verbose = True
     await msg.delete()
     if msg.is_reply:
-
         bancmd = tags.get('gbancmd')
         reply_msg: Message = await msg.get_reply_message()
         uid = reply_msg.from_id
@@ -88,14 +87,17 @@ async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Chann
         peer_channel: InputPeerChannel = await event.get_input_chat()
         if not client.config.debug_mode:
             await client(ReportRequest(peer_channel, [reply_msg.id], InputReportReasonSpam()))
-        if chat.creator or chat.admin_rights:
-            if bancmd == 'manual' or bancmd is None:
+        if bancmd == 'manual' or bancmd is None:
+            if admin:
                 await client.ban(chat, uid)
-            elif bancmd is not None:
-                await reply_msg.reply(f'{bancmd} {ban_reason}')
-                await asyncio.sleep(0.5)
-            if not client.config.debug_mode:
-                await reply_msg.delete()
+
+        elif bancmd is not None:
+            await reply_msg.reply(f'{bancmd} {ban_reason}')
+            await asyncio.sleep(0.5)
+
+        if not client.config.debug_mode and admin:
+            await reply_msg.delete()
+
     else:
         uids = []
         ban_reason = []
