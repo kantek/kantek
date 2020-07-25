@@ -50,16 +50,19 @@ class _Command:
 
     subcommands: Optional[Dict[str, _SubCommand]] = None
 
-    def subcommand(self, command: str):
+    def subcommand(self, command: Optional[str] = None):
         if self.subcommands is None:
             self.subcommands = {}
 
         def decorator(callback):
+            _command: Optional[str] = command
+            if _command is None:
+                _command = callback.__name__.rstrip('_')
             signature = inspect.signature(callback)
             auto_respond = signature.return_annotation is MDTeXDocument
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            cmd = _SubCommand(callback, command, args, auto_respond)
-            self.subcommands[command] = cmd
+            cmd = _SubCommand(callback, _command, args, auto_respond)
+            self.subcommands[_command] = cmd
             return cmd
 
         return decorator

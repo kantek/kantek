@@ -13,7 +13,7 @@ from database.arango import ArangoDB
 from utils import helpers, constants
 from utils.client import KantekClient
 from utils.mdtex import *
-from utils.pluginmgr import k, Command
+from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -38,9 +38,9 @@ async def autobahn() -> None:
     pass
 
 
-@autobahn.subcommand('add')
-async def _add_item(client: KantekClient, db: ArangoDB, msg: Message, args,
-                    event) -> MDTeXDocument:  # pylint: disable = R1702
+@autobahn.subcommand()
+async def add(client: KantekClient, db: ArangoDB, msg: Message, args,
+              event) -> MDTeXDocument:  # pylint: disable = R1702
     """Add a item to the Collection of its type"""
     item_type = args[0]
     items = args[1:]
@@ -159,8 +159,8 @@ async def _add_item(client: KantekClient, db: ArangoDB, msg: Message, args,
                          )
 
 
-@autobahn.subcommand('del')
-async def _del_item(db: ArangoDB, args) -> MDTeXDocument:
+@autobahn.subcommand()
+async def del_(db: ArangoDB, args) -> MDTeXDocument:
     """Add a item to the Collection of its type"""
     item_type = args[0]
     items = args[1:]
@@ -185,8 +185,8 @@ async def _del_item(db: ArangoDB, args) -> MDTeXDocument:
                                             *removed_items)))
 
 
-@autobahn.subcommand('query')
-async def _query_item(args, kwargs, db: ArangoDB) -> MDTeXDocument:
+@autobahn.subcommand()
+async def query(args, kwargs, db: ArangoDB) -> MDTeXDocument:
     """Add a string to the Collection of its type"""
     if 'types' in args:
         return MDTeXDocument(

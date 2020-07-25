@@ -28,8 +28,8 @@ async def banlist() -> None:
     pass
 
 
-@banlist.subcommand('query')
-async def _query_banlist(db: ArangoDB, args, kwargs) -> MDTeXDocument:
+@banlist.subcommand()
+async def query(db: ArangoDB, args, kwargs) -> MDTeXDocument:
     reason = kwargs.get('reason')
     if args:
         uids = [str(uid) for uid in args]
@@ -53,8 +53,8 @@ async def _query_banlist(db: ArangoDB, args, kwargs) -> MDTeXDocument:
     return MDTeXDocument(Section(Bold('Query Results'), *query_results))
 
 
-@banlist.subcommand('import')
-async def _import_banlist(client: KantekClient, db: ArangoDB, msg: Message) -> MDTeXDocument:
+@banlist.subcommand()
+async def import_(client: KantekClient, db: ArangoDB, msg: Message) -> MDTeXDocument:
     if msg.is_reply:  # pylint: disable = R1702
         reply_msg: Message = await msg.get_reply_message()
         _, ext = os.path.splitext(reply_msg.document.attributes[0].file_name)
@@ -89,8 +89,8 @@ async def _import_banlist(client: KantekClient, db: ArangoDB, msg: Message) -> M
                                          'File is not a CSV'))
 
 
-@banlist.subcommand('export')
-async def _export_banlist(client: KantekClient, db: ArangoDB, chat, msg, kwargs) -> None:
+@banlist.subcommand()
+async def export(client: KantekClient, db: ArangoDB, chat, msg, kwargs) -> None:
     start_time = time.time()
     with_diff = kwargs.get('diff', False)
 

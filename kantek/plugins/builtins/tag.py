@@ -34,7 +34,7 @@ async def tag(chat: Channel, tags: TagManager) -> MDTeXDocument:
     )
 
 
-@tag.subcommand('add')
+@tag.subcommand()
 async def add(args, kwargs, tags, event) -> None:
     """Add tags to chat.
 
@@ -50,8 +50,8 @@ async def add(args, kwargs, tags, event) -> None:
     await event.delete()
 
 
-@tag.subcommand('del')
-async def delete(args, tags, event) -> None:
+@tag.subcommand()
+async def del_(args, tags, event) -> None:
     """Delete the specified tags from a chat.
 
     Args:
@@ -64,7 +64,7 @@ async def delete(args, tags, event) -> None:
     await event.delete()
 
 
-@tag.subcommand('clear')
+@tag.subcommand()
 async def clear(tags: TagManager, event) -> None:
     tags.clear()
     await event.delete()
