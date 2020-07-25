@@ -95,7 +95,8 @@ async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Chann
             elif bancmd is not None:
                 await reply_msg.reply(f'{bancmd} {ban_reason}')
                 await asyncio.sleep(0.5)
-            await reply_msg.delete()
+            if not client.config.debug_mode:
+                await reply_msg.delete()
     else:
         uids = []
         ban_reason = []
