@@ -181,7 +181,7 @@ class PluginManager:
 
         def decorator(callback):
             signature = inspect.signature(callback)
-            auto_respond = signature.return_annotation is MDTeXDocument
+            auto_respond = signature.return_annotation is MDTeXDocument or signature.return_annotation is Optional[MDTeXDocument]
             args = _Signature(**{n: True for n in signature.parameters.keys()})
             cmd = _Command(callback, private, admins, command, args, auto_respond)
             cls.commands[command] = cmd

@@ -1,6 +1,6 @@
 """Plugin to get information about a user."""
 import logging
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Optional
 
 from spamwatch.types import Permission
 from telethon.tl.custom import Forward, Message
@@ -18,7 +18,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('u(ser)?')
 async def user_info(client: KantekClient, msg: Message, tags: TagManager,
-                    args: List, kwargs: Dict, event: Command) -> MDTeXDocument:
+                    args: List, kwargs: Dict, event: Command) -> Optional[MDTeXDocument]:
     """Show information about a user.
 
     Args:

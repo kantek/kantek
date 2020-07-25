@@ -152,7 +152,7 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) ->
 
 @k.command('ungban')
 async def ungban(client: KantekClient, msg: Message,
-                 args: List, event: Command) -> MDTeXDocument:
+                 args: List, event: Command) -> Optional[MDTeXDocument]:
     """Command to globally unban a user."""
     await msg.delete()
 
