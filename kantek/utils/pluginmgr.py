@@ -15,6 +15,7 @@ from telethon.tl.types import ChannelParticipantAdmin
 
 from utils import helpers
 from utils._config import Config
+from utils.mdtex import MDTeXDocument
 from utils.tagmgr import TagManager
 
 
@@ -35,6 +36,7 @@ class _SubCommand:
     callback: Callable
     command: str
     args: _Signature
+    auto_respond: bool
 
 
 @dataclass
@@ -44,6 +46,8 @@ class _Command:
     admins: bool
     command: str
     args: _Signature
+    auto_respond: bool
+
     subcommands: Optional[Dict[str, _SubCommand]] = None
 
     def subcommand(self, command: str):
@@ -52,8 +56,9 @@ class _Command:
 
         def decorator(callback):
             signature = inspect.signature(callback)
+            auto_respond = isinstance(signature.return_annotation, MDTeXDocument)
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            cmd = _SubCommand(callback, command, args)
+            cmd = _SubCommand(callback, command, args, auto_respond)
             self.subcommands[command] = cmd
             return cmd
 
@@ -156,7 +161,9 @@ class PluginManager:
         if args.tags:
             callback_args['tags'] = TagManager(event)
 
-        await callback(**callback_args)
+        result = await callback(**callback_args)
+        if cmd.auto_respond:
+            await client.respond(event, str(result))
 
     @classmethod
     def command(cls, command: str, private: bool = True, admins: bool = False):
@@ -173,8 +180,9 @@ class PluginManager:
 
         def decorator(callback):
             signature = inspect.signature(callback)
+            auto_respond = signature.return_annotation is MDTeXDocument
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            cmd = _Command(callback, private, admins, command, args)
+            cmd = _Command(callback, private, admins, command, args, auto_respond)
             cls.commands[command] = cmd
             return cmd
 
