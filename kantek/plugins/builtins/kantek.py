@@ -7,6 +7,7 @@ from telethon.errors import ChatSendStickersForbiddenError
 from telethon.tl.functions.messages import GetStickerSetRequest
 from telethon.tl.types import InputStickerSetShortName, StickerSet, Channel
 
+from utils._config import Config
 from utils.client import KantekClient
 from utils.mdtex import *
 from utils.pluginmgr import k
@@ -21,6 +22,7 @@ async def kantek(client: KantekClient, chat: Channel) -> MDTeXDocument:
     Examples:
         {cmd}
     """
+    config = Config()
     stickerset: StickerSet = await client(GetStickerSetRequest(InputStickerSetShortName("kantek")))
     try:
         await client.send_file(chat, stickerset.documents[0])
@@ -28,7 +30,7 @@ async def kantek(client: KantekClient, chat: Channel) -> MDTeXDocument:
         pass
     return MDTeXDocument(
         Section(f"{Bold('kantek')} userbot",
-                KeyValueItem(Bold('source'), 'src.kv2.dev'),
+                KeyValueItem(Bold('source'), config.source_url),
                 KeyValueItem(Bold('version'), client.kantek_version),
                 KeyValueItem(Bold('telethon version'), telethon.__version__),
                 KeyValueItem(Bold('python version'), platform.python_version()),

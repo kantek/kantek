@@ -34,6 +34,8 @@ class Config:  # pylint: disable = R0902
 
     debug_mode: bool = False
 
+    source_url: str = 'src.kv2.dev'
+
     plugin_path: Path
 
     def __init__(self):

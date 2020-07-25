@@ -117,3 +117,10 @@ Useful for local development. Disabled actually banning a user in groups and rep
 | Required | Type  | Default |
 | -------- | ----- | ------- |
 | No       | bool  | `False` |
+
+### source_url
+Used in .kantek and .update
+
+| Required | Type | Default       |
+| -------- | ---- | ------------- |
+| No       | str  | `src.kv2.dev` |
