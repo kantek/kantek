@@ -76,8 +76,7 @@ async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Chann
                 participant = await client(GetParticipantRequest(event.chat_id, reply_msg.from_id))
                 join_date = participant.participant.date
 
-                now = datetime.datetime.now(tz=join_date.tzinfo)
-                if (now - datetime.timedelta(hours=1)) < join_date:
+                if (reply_msg.date - datetime.timedelta(hours=1)) < join_date:
                     ban_reason = 'joinspam'
                 elif only_joinspam:
                     return
