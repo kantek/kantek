@@ -233,6 +233,7 @@ class Strafanzeigen(Collection):
         except IndexError:
             return None
 
+
 class ArangoDB:  # pylint: disable = R0902
     """Handle creation of all required Documents."""
 
@@ -269,7 +270,7 @@ class ArangoDB:  # pylint: disable = R0902
         }
         self.banlist: BanList = self._get_collection('BanList')
         self.strafanzeigen: Strafanzeigen = self._get_collection('Strafanzeigen')
-        self.strafanzeigen.ensureTTLIndex(['creation_date'], 30*60)
+        self.strafanzeigen.ensureTTLIndex(['creation_date'], 30 * 60)
 
     def query(self, query: str, batch_size: int = 100, raw_results: bool = False,
               bind_vars: Dict = None, options: Dict = None,
@@ -309,4 +310,4 @@ class ArangoDB:  # pylint: disable = R0902
         if self.db.hasCollection(collection):
             return self.db[collection]
         else:
-            return self.db.createCollection(collection)
+            return self.db.createCollection(collection, replication_factor=1)
