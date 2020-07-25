@@ -13,14 +13,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.event(events.NewMessage(outgoing=True, pattern=SCHEDULE_DELETION_COMMAND))
 async def delete(event: NewMessage.Event) -> None:
-    """Delete the replied to message
-
-    Args:
-        event: The event of the command
-
-    Returns: None
-
-    """
+    """Delete the message that was replied to"""
     msg: Message = event.message
     await msg.delete()
     if msg.is_reply:

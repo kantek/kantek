@@ -26,7 +26,18 @@ CHUNK_SIZE = 10
 @k.command('gban')
 async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Channel, msg: Message,
                args: List, kwargs: Dict, event: Command) -> None:
-    """Command to globally ban a user."""
+    """Globally ban a user.
+
+    This will not actively ban them from any chats except the one command was issued in as reply. GBanned users will be automatically banned on join or when writing a message by the Grenzschutz module.
+    When banning by reply the message content will be automatically sent to the SpamWatch API if enabled.
+
+    Examples:
+        {cmd} 777000
+        {cmd} 777000 "some reason here"
+        {cmd} 777000 msg: "the message for the api"
+        {cmd} 777000 link: https://t.me/c/1129887931/26708
+        {cmd}
+    """
     _gban = tags.get('gban')
 
     only_joinspam = kwargs.get('only_joinspam', False) or kwargs.get('oj', False)
@@ -153,7 +164,13 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) ->
 @k.command('ungban')
 async def ungban(client: KantekClient, msg: Message,
                  args: List, event: Command) -> Optional[MDTeXDocument]:
-    """Command to globally unban a user."""
+    """Globally unban a User
+
+    This does not unban them from any groups. It simply removes their ban from the database, api and any bots in the gban group.
+
+    Examples:
+        {cmd} 777000
+    """
     await msg.delete()
 
     users_to_unban = [*args]

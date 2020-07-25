@@ -24,12 +24,24 @@ SWAPI_SLICE_LENGTH = 50
 
 @k.command('banlist', 'bl')
 async def banlist() -> None:
-    """Command to query and manage the banlist."""
+    """Query, Import or Export the banlist."""
     pass
 
 
 @banlist.subcommand()
 async def query(db: ArangoDB, args, kwargs) -> MDTeXDocument:
+    """Query the banlist for the total ban count, a specific user or a ban reason.
+
+    If no arguments are provided the total count will be returned.
+    If a list of User IDs is provided their ban reasons will be listed next to their ID.
+    If a reason is provided the total amount of banned users for that ban reason will be returned.
+
+    Examples:
+        {cmd} 777000 172811422
+        {cmd} reason: "spam[gban]"
+        {cmd} reason: "Kriminalamt %"
+        {cmd}
+    """
     reason = kwargs.get('reason')
     if args:
         uids = [str(uid) for uid in args]
@@ -55,6 +67,13 @@ async def query(db: ArangoDB, args, kwargs) -> MDTeXDocument:
 
 @banlist.subcommand()
 async def import_(client: KantekClient, db: ArangoDB, msg: Message) -> MDTeXDocument:
+    """Import a CSV to the banlist.
+
+    The CSV file should end in .csv and have a `id` and `reason` column
+
+    Examples:
+        {cmd}
+    """
     if msg.is_reply:  # pylint: disable = R1702
         reply_msg: Message = await msg.get_reply_message()
         _, ext = os.path.splitext(reply_msg.document.attributes[0].file_name)
@@ -91,6 +110,13 @@ async def import_(client: KantekClient, db: ArangoDB, msg: Message) -> MDTeXDocu
 
 @banlist.subcommand()
 async def export(client: KantekClient, db: ArangoDB, chat, msg, kwargs) -> None:
+    """Export the banlist as CSV.
+
+    The format is `id,reason` and can be imported into most bots.
+
+    Examples:
+        {cmd}
+    """
     start_time = time.time()
     with_diff = kwargs.get('diff', False)
 

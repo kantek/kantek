@@ -16,11 +16,8 @@ tlog = logging.getLogger('kantek-channel-log')
 async def info(client: KantekClient, tags: TagManager, chat: Channel, event: Command) -> Optional[MDTeXDocument]:
     """Show information about a group or channel.
 
-    Args:
-        event: The event of the command
-
-    Returns: None
-
+    Examples:
+        {cmd}
     """
     if event.is_private:
         await event.delete()

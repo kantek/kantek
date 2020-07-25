@@ -34,14 +34,24 @@ INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 @k.command('autobahn', 'ab')
 async def autobahn() -> None:
-    """Command to manage autobahn blacklists"""
+    """Manage Autobahn blacklists.
+    Each message will be checked for blacklisted items and if a match is found the user is automatically gbanned.
+    """
     pass
 
 
 @autobahn.subcommand()
 async def add(client: KantekClient, db: ArangoDB, msg: Message, args,
               event) -> MDTeXDocument:  # pylint: disable = R1702
-    """Add a item to the Collection of its type"""
+    """Add a item to its blacklist.
+
+    Blacklist names are _not_ the hexadecimal short hands
+
+    Examples:
+        {cmd} domain example.com
+        {cmd} string "invest with bitcoin"
+        {cmd} channel @durov
+    """
     item_type = args[0]
     items = args[1:]
     added_items = []
@@ -161,7 +171,15 @@ async def add(client: KantekClient, db: ArangoDB, msg: Message, args,
 
 @autobahn.subcommand()
 async def del_(db: ArangoDB, args) -> MDTeXDocument:
-    """Add a item to the Collection of its type"""
+    """Remove a item from its blacklist.
+
+    Blacklist names are _not_ the hexadecimal short hands
+
+    Examples:
+        {cmd} domain example.com
+        {cmd} string "invest with bitcoin"
+        {cmd} channel @durov
+    """
     item_type = args[0]
     items = args[1:]
     removed_items = []
@@ -187,7 +205,15 @@ async def del_(db: ArangoDB, args) -> MDTeXDocument:
 
 @autobahn.subcommand()
 async def query(args, kwargs, db: ArangoDB) -> MDTeXDocument:
-    """Add a string to the Collection of its type"""
+    """Query a blacklist for a specific code.
+
+    Blacklist names are _not_ the hexadecimal short hands
+
+    Examples:
+        {cmd} type: domain code: 3
+        {cmd} type: channel code: 4..20
+        {cmd} types
+    """
     if 'types' in args:
         return MDTeXDocument(
             Section('Types',

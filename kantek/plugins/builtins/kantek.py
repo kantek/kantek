@@ -18,11 +18,8 @@ tlog = logging.getLogger('kantek-channel-log')
 async def kantek(client: KantekClient, chat: Channel) -> MDTeXDocument:
     """Show information about kantek.
 
-    Args:
-        event: The event of the command
-
-    Returns: None
-
+    Examples:
+        {cmd}
     """
     stickerset: StickerSet = await client(GetStickerSetRequest(InputStickerSetShortName("kantek")))
     try:

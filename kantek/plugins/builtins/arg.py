@@ -15,7 +15,16 @@ tlog = logging.getLogger('kantek-channel-log')
 async def show_args(msg: Message, args: List, kwargs: Dict) -> MDTeXDocument:
     """Show the raw output of the argument parser
 
-    Returns: None
+    Examples:
+        {cmd} arg1 arg2 arg3
+        {cmd} arg1: val1 arg2: "val2.1 val2.2"
+        {cmd} arg: [123, 456] arg2: ["abc", "de f", "xyz"]
+        {cmd} arg: 1..10 arg2: -5..5 arg2: -10..0
+        {cmd} 1e4 2.5e4 125e-5
+        {cmd} 3+3j 4+2i
+        {cmd} keyword: 1 keyword2: 5
+        {cmd} posarg -flag
+        {cmd} posarg -flag 125e-5
 
     """
     _args = []

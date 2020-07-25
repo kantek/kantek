@@ -14,7 +14,11 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('lock', admins=True)
 async def lock(client: KantekClient, event: Command) -> MDTeXDocument:
-    """Command to quickly lock a chat to readonly for normal users."""
+    """Set a chat to read only.
+
+    Examples:
+        {cmd}
+    """
     chat: InputPeerChannel = await event.get_input_chat()
     try:
         await client(EditChatDefaultBannedRightsRequest(

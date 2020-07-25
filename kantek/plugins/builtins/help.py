@@ -14,8 +14,10 @@ SECTION_PATTERN = re.compile(r'^(?P<name>[\w ]+:)$', re.MULTILINE)
 async def help_(client: KantekClient, args, kwargs) -> MDTeXDocument:
     """Get help for kantek commands.
 
-    This currently just outputs the commands docstring.
-    It will get more features once the PluginManager gets some upgrades
+    Examples:
+        {cmd} help
+        {cmd} autobahn
+        {cmd}
     """
     cmds = client.plugin_mgr.commands
     config = Config()
@@ -52,7 +54,11 @@ async def help_(client: KantekClient, args, kwargs) -> MDTeXDocument:
             if cmd.subcommands:
                 subcommands = Section('Subcommands')
                 for name, sc in cmd.subcommands.items():
-                    sc_description = inspect.getdoc(sc.callback).split('\n')[0]
+                    sc_description = inspect.getdoc(sc.callback)
+                    if sc_description:
+                        sc_description = sc_description.split('\n')[0]
+                    else:
+                        sc_description = Italic('No description provided.')
                     subcommands.append(KeyValueItem(Italic(Bold(name)), sc_description,
                                                     colon_styles=(Bold, Italic)))
                 help_msg.append(subcommands)

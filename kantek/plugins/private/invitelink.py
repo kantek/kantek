@@ -11,7 +11,13 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('invitelink', 'il')
 async def invitelink(args: List) -> MDTeXDocument:
-    """Command to get link creator, chatid and the random part of an invite link."""
+    """Decode a invite link and output the Links creator, the chat id and the random part.
+
+    Note: For channels the Link Creator is always 0
+
+    Examples:
+        {cmd} https://t.me/joinchat/CkzknkNYuLsKbTc91GfhGw
+    """
     link = args[0]
     link_creator, chatid, random_part = await helpers.resolve_invite_link(link)
     return MDTeXDocument(

@@ -9,6 +9,10 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('kill')
 async def kill(client: KantekClient) -> None:
-    """Plugin to kill the userbot incase something bad happens."""
+    """Plugin to kill the userbot incase something bad happens.
+
+    Examples:
+        {cmd}
+    """
     tlog.info('.kill executed. Disconnecting.')
     await client.disconnect()

@@ -13,13 +13,14 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('tag')
 async def tag(chat: Channel, tags: TagManager) -> MDTeXDocument:
-    """Add or remove tags from groups and channels.
+    """Add, query or remove tags from groups and channels.
 
-    Args:
-        event: The event of the command
+    Tags are used by various plugins to alter their functionality in the specific chats.
+    Check each plugins help to see which tags are accepted.
+    To list the tags of the current chat simply specify no subcommands
 
-    Returns: None
-
+    Examples:
+        {cmd}
     """
     named_tags: Dict = tags.named_tags
     tags: List = tags.tags
@@ -36,12 +37,12 @@ async def tag(chat: Channel, tags: TagManager) -> MDTeXDocument:
 
 @tag.subcommand()
 async def add(args, kwargs, tags, event) -> None:
-    """Add tags to chat.
+    """Add tags to the chat.
+    Both positional and keyword argument are supported
 
-    Args:
-        event: The event of the command
-
-    Returns: A string with the action taken.
+    **Examples:**
+        {cmd} -strafanzeige polizei: exclude
+        {cmd} gban: verbose
     """
     for name, value in kwargs.items():
         tags[name] = value
@@ -52,12 +53,11 @@ async def add(args, kwargs, tags, event) -> None:
 
 @tag.subcommand()
 async def del_(args, tags, event) -> None:
-    """Delete the specified tags from a chat.
+    """Delete the specified tags from the chat.
 
-    Args:
-        event: The event of the command
-
-    Returns: A string with the action taken.
+    **Examples:**
+        {cmd} gban polizei
+        {cmd} network
     """
     for arg in args:
         del tags[arg]
@@ -66,5 +66,10 @@ async def del_(args, tags, event) -> None:
 
 @tag.subcommand()
 async def clear(tags: TagManager, event) -> None:
+    """Clear all tags from the chat.
+
+    **Examples:**
+        {cmd}
+    """
     tags.clear()
     await event.delete()

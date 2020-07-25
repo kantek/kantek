@@ -17,13 +17,15 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('schedule')
 async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> MDTeXDocument:
-    """Schedule gbans from a file
+    """Schedule commands from a file or a message
 
-    Args:
-        event: The event of the command
+    One command per line. Must be in reply to either a message or a file.
+    When used with -overwrite and not in reply to a message all scheduled messages will be cleared.
 
-    Returns: None
-
+    Examples:
+        {cmd} -overwrite
+        {cmd} -overwrite -dynamic
+        {cmd} -overwrite offset: 30
     """
     offset = kwargs.get('offset', 60)
     dynamic = kwargs.get('dynamic', False)

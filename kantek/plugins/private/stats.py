@@ -15,7 +15,11 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('stats')
 async def stats(client: KantekClient, event: Command) -> MDTeXDocument:  # pylint: disable = R0912, R0914, R0915
-    """Command to get stats about the account"""
+    """Collect stats about the users accounts
+
+    Examples:
+        {cmd}
+    """
     waiting_message = await client.respond(event, 'Collecting stats. This might take a while.')
     start_time = time.time()
     private_chats = 0

@@ -26,6 +26,7 @@ class Config:  # pylint: disable = R0902
     gban_group: int
 
     cmd_prefix: str = r'\.'
+    help_prefix: str = '.'
     session_name: str = 'kantek-session'
 
     spamwatch_host: str = 'https://api.spamwat.ch'

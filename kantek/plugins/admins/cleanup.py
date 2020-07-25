@@ -19,7 +19,13 @@ logger: logging.Logger = logzero.logger
 @k.command('cleanup', admins=True)
 async def cleanup(client: KantekClient, chat: Channel, msg: Message,
                   kwargs: Dict, event: Command) -> None:
-    """Command to remove Deleted Accounts from a group or network."""
+    """Remove or count all "Deleted Accounts" in a group.
+
+    Examples:
+        {cmd}
+        {cmd} -count
+        {cmd} -silent
+    """
     count_only = kwargs.get('count', False)
     silent = kwargs.get('silent', False)
     if not chat.creator and not chat.admin_rights:

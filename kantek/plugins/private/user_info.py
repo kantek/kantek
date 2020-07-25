@@ -21,12 +21,13 @@ async def user_info(msg: Message, tags: TagManager,
                     args: List, kwargs: Dict, event: Command) -> Optional[MDTeXDocument]:
     """Show information about a user.
 
-    Args:
-        msg:
-        args:
-        kwargs:
-        event:
-
+    Examples:
+        {cmd} 777000
+        {cmd} 777000 -mention
+        {cmd} 777000 -mention -id
+        {cmd} @username
+        {cmd} 777000 -all
+        {cmd} 777000 -sw
     """
     # crude hack until I have a proper way to have commands with short options
     # without this ungban will always trigger user too

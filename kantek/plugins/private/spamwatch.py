@@ -16,7 +16,7 @@ tlog = logging.getLogger('kantek-channel-log')
 #  preferably clean this up at some point
 @k.command('spamwatch', 'sw')
 async def sw(client: KantekClient, args: List, kwargs: Dict, event: Command) -> None:
-    """Command to create SpamWatch Tokens"""
+    """Create SpamWatch Tokens"""
     if not client.sw:
         return
     subcommand, *args = args
