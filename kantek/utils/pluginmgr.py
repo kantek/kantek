@@ -56,7 +56,7 @@ class _Command:
 
         def decorator(callback):
             signature = inspect.signature(callback)
-            auto_respond = isinstance(signature.return_annotation, MDTeXDocument)
+            auto_respond = signature.return_annotation is MDTeXDocument
             args = _Signature(**{n: True for n in signature.parameters.keys()})
             cmd = _SubCommand(callback, command, args, auto_respond)
             self.subcommands[command] = cmd
@@ -126,6 +126,7 @@ class PluginManager:
                     callback = subcommand.callback
                     skip_args = 2
                     args: _Signature = subcommand.args
+                    cmd: _SubCommand = subcommand
 
         if admins and event.is_channel:
             uid = event.message.from_id
