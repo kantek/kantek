@@ -30,7 +30,16 @@ logger: logging.Logger = logzero.logger
 @k.event(events.MessageEdited(outgoing=False))
 @k.event(events.NewMessage(outgoing=False), name='polizei')
 async def polizei(event: NewMessage.Event) -> None:
-    """Plugin to automatically ban users for certain messages."""
+    """Checks every message against the autobahn blacklists and bans a user if necessary
+
+    If the message comes from an admin or a bot it is ignored.
+
+    The user will be banned with a reason that contains the blacklist and the index of the blacklisted item. The message is automatically submitted to the SpamWatch API if applicable.
+
+    Tags:
+        polizei:
+            exclude: Messages won't be checked
+    """
     if event.is_private:
         return
     client: KantekClient = event.client

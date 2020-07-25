@@ -20,7 +20,15 @@ logger: logging.Logger = logzero.logger
 
 @k.event(events.chataction.ChatAction(), name='kriminalamt')
 async def kriminalamt(event: ChatAction.Event) -> None:
-    """Ban a user when he joins and leaves in the configured interval"""
+    """Ban a user when he joins and leaves in the configured time.
+
+    This plugin was made for a specific kind of bot that joins a chat, checks if the "Add Users" permission is enabled and if it is not it immediately leaves.
+
+    The plugin is disabled by default and must first be enabled by setting the tag in a chat. A time of 1 second is suggested.
+
+    Tags:
+        kriminalamt: The time in seconds
+    """
     client: KantekClient = event.client
     chat: Channel = await event.get_chat()
     user: User = await event.get_user()

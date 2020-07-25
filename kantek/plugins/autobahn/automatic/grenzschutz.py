@@ -22,7 +22,17 @@ logger: logging.Logger = logzero.logger
 @k.event(events.chataction.ChatAction())
 @k.event(events.NewMessage(), name='grenzschutz')
 async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:  # pylint: disable = R0911
-    """Plugin to ban blacklisted users."""
+    """Automatically ban gbanned users.
+
+    This plugin will ban gbanned users upon joining,getting added to the group or when writing a message. A message will be sent to notify Users of the action, this message will be deleted after 5 minutes.
+
+    Tags:
+        polizei:
+            exclude: Don't ban gbanned users
+        grenschutz:
+            silent: Don't send the notification message
+            exclude: Don't ban gbanned users
+    """
     if event.is_private:
         return
 
