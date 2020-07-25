@@ -37,7 +37,7 @@ async def get_full_name(user: User) -> str:
     return str(user.first_name + ' ' + (user.last_name or ''))
 
 
-async def get_args(event: NewMessage.Event) -> Tuple[Dict[str, str], List[str]]:
+async def get_args(event: NewMessage.Event, skip: int = 1) -> Tuple[Dict[str, str], List[str]]:
     """Get arguments from a event
 
     Args:
@@ -46,7 +46,7 @@ async def get_args(event: NewMessage.Event) -> Tuple[Dict[str, str], List[str]]:
     Returns:
         Parsed arguments as returned by parser.parse_arguments()
     """
-    _args = event.message.raw_text.split()[1:]
+    _args = event.message.raw_text.split()[skip:]
     return parsers.parse_arguments(' '.join(_args))
 
 

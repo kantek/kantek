@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
-from typing import Callable, List
+from typing import Callable, List, Dict, Optional
 
 from telethon import events
 from telethon.events import NewMessage
@@ -16,20 +16,6 @@ from telethon.tl.types import ChannelParticipantAdmin
 from utils import helpers
 from utils._config import Config
 from utils.tagmgr import TagManager
-
-
-@dataclass
-class _Command:
-    callback: Callable
-    private: bool
-    admins: bool
-    command: str
-
-
-@dataclass
-class _Event:
-    callback: Callable
-    event: EventBuilder
 
 
 @dataclass
@@ -44,9 +30,45 @@ class _Signature:  # pylint: disable = R0902
     tags: bool = False
 
 
+@dataclass
+class _SubCommand:
+    callback: Callable
+    command: str
+    args: _Signature
+
+
+@dataclass
+class _Command:
+    callback: Callable
+    private: bool
+    admins: bool
+    command: str
+    args: _Signature
+    subcommands: Optional[Dict[str, _SubCommand]] = None
+
+    def subcommand(self, command: str):
+        if self.subcommands is None:
+            self.subcommands = {}
+
+        def decorator(callback):
+            signature = inspect.signature(callback)
+            args = _Signature(**{n: True for n in signature.parameters.keys()})
+            cmd = _SubCommand(callback, command, args)
+            self.subcommands[command] = cmd
+            return cmd
+
+        return decorator
+
+
+@dataclass
+class _Event:
+    callback: Callable
+    event: EventBuilder
+
+
 class PluginManager:
     """Load plugins add them as event handlers to the client"""
-    commands: List[_Command] = []
+    commands: Dict[str, _Command] = {}
     events: List[_Event] = []
 
     def __init__(self, client):
@@ -67,27 +89,39 @@ class PluginManager:
 
     def register_all(self):
         """Add all commands and events to the client"""
-        for p in self.commands:
+        for p in self.commands.values():
             pattern = f'{self.config.cmd_prefix}{p.command}'
             if p.admins:
                 event = events.NewMessage(pattern=pattern)
             else:
                 event = events.NewMessage(outgoing=p.private, pattern=pattern)
-            self.client.add_event_handler(p.callback, event)
+            new_callback = functools.partial(self._callback, p, p.args, p.admins)
+            self.client.add_event_handler(new_callback, event)
 
         for e in self.events:
             self.client.add_event_handler(e.callback, e.event)
 
     @staticmethod
-    async def _callback(callback, args: _Signature, admins: bool, event) -> None:
+    async def _callback(cmd: _Command, args: _Signature, admins: bool, event) -> None:
         """Wrapper around a plugins callback to dynamically pass requested arguments
 
         Args:
-            callback: The plugins callback
             args: The arguments of the plugin callback
             event: The NewMessage Event
         """
         client = event.client
+        callback = cmd.callback
+        skip_args = 1
+        if cmd.subcommands:
+            msg = event.message
+            raw_args = msg.raw_text.split()[1:]
+            if raw_args:
+                subcommand: Optional[_SubCommand] = cmd.subcommands.get(raw_args[0])
+                if subcommand:
+                    callback = subcommand.callback
+                    skip_args = 2
+                    args: _Signature = subcommand.args
+
         if admins and event.is_channel:
             uid = event.message.from_id
             own_id = (await client.get_me()).id
@@ -110,7 +144,7 @@ class PluginManager:
             callback_args['msg'] = event.message
 
         if args.args or args.kwargs:
-            _kwargs, _args = await helpers.get_args(event)
+            _kwargs, _args = await helpers.get_args(event, skip=skip_args)
             if args.args:
                 callback_args['args'] = _args
             if args.kwargs:
@@ -140,10 +174,9 @@ class PluginManager:
         def decorator(callback):
             signature = inspect.signature(callback)
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            new_callback = functools.partial(cls._callback, callback, args, admins)
-            plugin = _Command(new_callback, private, admins, command)
-            cls.commands.append(plugin)
-            return callback
+            cmd = _Command(callback, private, admins, command, args)
+            cls.commands[command] = cmd
+            return cmd
 
         return decorator
 
