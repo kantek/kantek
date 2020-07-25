@@ -15,7 +15,7 @@ from telethon.tl.types import ChannelParticipantAdmin
 
 from utils import helpers
 from utils._config import Config
-from utils.mdtex import MDTeXDocument
+from utils.mdtex import *
 from utils.tagmgr import TagManager
 
 

@@ -6,7 +6,7 @@ from spamwatch.types import Permission
 from telethon.tl.patched import Message
 
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')

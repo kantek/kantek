@@ -7,14 +7,14 @@ from telethon.tl.types import Channel, Chat, User
 
 from utils import helpers
 from utils.client import KantekClient
-from utils.mdtex import Bold, Italic, KeyValueItem, MDTeXDocument, Section, SubSection
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('stats')
-async def stats(client: KantekClient, event: Command) -> None:  # pylint: disable = R0912, R0914, R0915
+async def stats(client: KantekClient, event: Command) -> MDTeXDocument:  # pylint: disable = R0912, R0914, R0915
     """Command to get stats about the account"""
     waiting_message = await client.respond(event, 'Collecting stats. This might take a while.')
     start_time = time.time()
@@ -84,5 +84,5 @@ async def stats(client: KantekClient, event: Command) -> None:  # pylint: disabl
         KeyValueItem(Bold('Unread Mentions'), unread_mentions)),
         Italic(f'Took {stop_time:.02f}s'))
 
-    await client.respond(event, response, reply=False)
     await waiting_message.delete()
+    return response

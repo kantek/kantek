@@ -2,20 +2,18 @@
 import logging
 
 from telethon.errors import ChatNotModifiedError
-from telethon.tl.custom import Message
-from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
-from telethon.tl.types import ChatBannedRights, InputPeerChannel, ChannelParticipantAdmin
+from telethon.tl.types import ChatBannedRights, InputPeerChannel
 
 from utils.client import KantekClient
-from utils.mdtex import MDTeXDocument
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('lock', admins=True)
-async def lock(client: KantekClient, event: Command) -> None:
+async def lock(client: KantekClient, event: Command) -> MDTeXDocument:
     """Command to quickly lock a chat to readonly for normal users."""
     chat: InputPeerChannel = await event.get_input_chat()
     try:
@@ -35,6 +33,6 @@ async def lock(client: KantekClient, event: Command) -> None:
                 invite_users=True,
                 pin_messages=True
             )))
-        await client.respond(event, MDTeXDocument('Chat locked.'))
+        return MDTeXDocument('Chat locked.')
     except ChatNotModifiedError:
-        await client.respond(event, MDTeXDocument('Chat already locked.'))
+        return MDTeXDocument('Chat already locked.')

@@ -3,21 +3,20 @@ import logging
 from typing import List
 
 from utils import helpers
-from utils.client import KantekClient
-from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
-from utils.pluginmgr import k, Command
+from utils.mdtex import *
+from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('i(nvite)?l(ink)?')
-async def invitelink(client: KantekClient, args: List, event: Command) -> None:
+async def invitelink(args: List) -> MDTeXDocument:
     """Command to get link creator, chatid and the random part of an invite link."""
     link = args[0]
     link_creator, chatid, random_part = await helpers.resolve_invite_link(link)
-    await client.respond(event, MDTeXDocument(
+    return MDTeXDocument(
         Section(Bold('Invite Link'),
                 KeyValueItem('Link Creator',
                              f'[{link_creator}](tg://user?id={link_creator})'),
                 KeyValueItem('Chat ID', Code(chatid)),
-                KeyValueItem('Random Part', Code(random_part)))))
+                KeyValueItem('Random Part', Code(random_part))))

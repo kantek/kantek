@@ -9,7 +9,7 @@ from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, Us
 from database.arango import ArangoDB
 from utils import helpers, constants
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, KeyValueItem, Link, MDTeXDocument, Section, SubSection
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 from utils.tagmgr import TagManager
 
@@ -18,7 +18,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('u(ser)?')
 async def user_info(client: KantekClient, msg: Message, tags: TagManager,
-                    args: List, kwargs: Dict, event: Command) -> None:
+                    args: List, kwargs: Dict, event: Command) -> MDTeXDocument:
     """Show information about a user.
 
     Args:
@@ -33,13 +33,10 @@ async def user_info(client: KantekClient, msg: Message, tags: TagManager,
     # without this ungban will always trigger user too
     if 'ungban' in msg.text:
         return
-    response = ''
     if not args and msg.is_reply:
-        response = await _info_from_reply(event, tags, **kwargs)
+        return await _info_from_reply(event, tags, **kwargs)
     elif args:
-        response = await _info_from_arguments(event)
-    if response:
-        await client.respond(event, response)
+        return await _info_from_arguments(event)
 
 
 async def _info_from_arguments(event) -> MDTeXDocument:

@@ -11,7 +11,7 @@ from telethon.tl.types import (Channel, ChannelParticipantsAdmins, MessageAction
 
 from database.arango import ArangoDB
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Mention, Section
+from utils.mdtex import *
 from utils.pluginmgr import k
 from utils.tagmgr import TagManager
 

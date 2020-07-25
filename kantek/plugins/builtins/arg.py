@@ -5,20 +5,19 @@ from typing import Dict, List
 
 from telethon.tl.custom import Message
 
-from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section, SubSection, Pre
+from utils.mdtex import *
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('arg')
-async def show_args(msg: Message, args: List, kwargs: Dict) -> None:
+async def show_args(msg: Message, args: List, kwargs: Dict) -> MDTeXDocument:
     """Show the raw output of the argument parser
 
     Returns: None
 
     """
-    _args = msg.raw_text.split()[1:]
     _args = []
     for arg in args:
         _args.append(SubSection(Code(arg),
@@ -28,11 +27,10 @@ async def show_args(msg: Message, args: List, kwargs: Dict) -> None:
         keyword_args.append(SubSection(Code(key),
                                        KeyValueItem('value', Code(value)),
                                        KeyValueItem('type', Code(type(value).__name__))))
-    doc = MDTeXDocument(
+    return MDTeXDocument(
         Section(Bold('Args'), *_args),
         Section(Bold('Keyword Args'), *keyword_args),
         Section(Bold('Raw'),
                 KeyValueItem('args', Pre(pformat(args, width=30))),
                 KeyValueItem('keyword_args', Pre(pformat(kwargs, width=30))))
     )
-    await msg.reply(str(doc))

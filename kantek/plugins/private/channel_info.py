@@ -4,7 +4,7 @@ import logging
 from telethon.tl.types import Channel, User
 
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, Item, KeyValueItem, MDTeXDocument, Section
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 from utils.tagmgr import TagManager
 
@@ -12,7 +12,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('info')
-async def info(client: KantekClient, tags: TagManager, chat: Channel, event: Command) -> None:
+async def info(client: KantekClient, tags: TagManager, chat: Channel, event: Command) -> MDTeXDocument:
     """Show information about a group or channel.
 
     Args:
@@ -22,6 +22,7 @@ async def info(client: KantekClient, tags: TagManager, chat: Channel, event: Com
 
     """
     if event.is_private:
+        await event.delete()
         return
     chat_info = Section(f'info for {chat.title}:',
                         KeyValueItem(Bold('title'), Code(chat.title)),
@@ -55,6 +56,5 @@ async def info(client: KantekClient, tags: TagManager, chat: Channel, event: Com
     data = []
     data += [KeyValueItem(Bold(key), value) for key, value in tags.named_tags.items()]
     data += [Item(_tag) for _tag in tags.tags]
-    tags = Section('tags:', *data)
-    info_msg = MDTeXDocument(chat_info, user_stats, tags)
-    await client.respond(event, info_msg)
+    tags = Section('tags:', *data or [Italic('None')])
+    return MDTeXDocument(chat_info, user_stats, tags)

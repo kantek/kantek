@@ -6,11 +6,10 @@ from typing import Optional, Dict
 import logzero
 from telethon.errors import FloodWaitError, UserAdminInvalidError, MessageIdInvalidError
 from telethon.tl.custom import Message
-from telethon.tl.functions.channels import GetParticipantRequest
-from telethon.tl.types import (Channel, User, ChannelParticipantAdmin)
+from telethon.tl.types import (Channel, User)
 
 from utils.client import KantekClient
-from utils.mdtex import Bold, KeyValueItem, MDTeXDocument, Section
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -35,6 +34,7 @@ async def cleanup(client: KantekClient, chat: Channel, msg: Message,
         await client.respond(event, response, reply=False)
     if waiting_message:
         await waiting_message.delete()
+
 
 async def _cleanup_chat(event, count: bool = False,
                         progress_message: Optional[Message] = None) -> MDTeXDocument:

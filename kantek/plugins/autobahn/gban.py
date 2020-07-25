@@ -13,7 +13,7 @@ from telethon.tl.types import Channel, InputReportReasonSpam, InputPeerChannel
 from database.arango import ArangoDB
 from utils import helpers, parsers
 from utils.client import KantekClient
-from utils.mdtex import MDTeXDocument, Section, KeyValueItem, Bold, Code
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 from utils.tagmgr import TagManager
 
@@ -152,7 +152,7 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) ->
 
 @k.command('ungban')
 async def ungban(client: KantekClient, msg: Message,
-                 args: List, event: Command) -> None:
+                 args: List, event: Command) -> MDTeXDocument:
     """Command to globally unban a user."""
     await msg.delete()
 
@@ -168,6 +168,6 @@ async def ungban(client: KantekClient, msg: Message,
             await client.ungban(uid)
             unbanned_users.append(str(uid))
     if unbanned_users:
-        await client.respond(event, MDTeXDocument(
+        return MDTeXDocument(
             Section(Bold('Un-GBanned Users'),
-                    KeyValueItem(Bold('IDs'), Code(', '.join(unbanned_users))))))
+                    KeyValueItem(Bold('IDs'), Code(', '.join(unbanned_users)))))

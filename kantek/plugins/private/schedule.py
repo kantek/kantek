@@ -9,14 +9,14 @@ from telethon.tl.patched import Message
 from telethon.tl.types import Channel, MessageMediaDocument
 
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, KeyValueItem, MDTeXDocument, Section
+from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('schedule')
-async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> None:
+async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> MDTeXDocument:
     """Schedule gbans from a file
 
     Args:
@@ -50,15 +50,13 @@ async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Di
                 await client.send_message(chat, cmd, schedule=next_time)
                 next_time += timedelta(minutes=offset)
                 await asyncio.sleep(0.5)
-        await client.respond(
-            event,
-            MDTeXDocument(
-                Section(Bold('Scheduled Messages'),
-                        KeyValueItem(Bold('From'),
-                                     from_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
-                        KeyValueItem(Bold('To'),
-                                     next_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
-                        KeyValueItem(Bold('Count'), Code(len(commands)))
-                        ))
-        )
-    await event.delete()
+        await event.delete()
+        return MDTeXDocument(
+            Section(Bold('Scheduled Messages'),
+                    KeyValueItem(Bold('From'),
+                                 from_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
+                    KeyValueItem(Bold('To'),
+                                 next_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
+                    KeyValueItem(Bold('Count'), Code(len(commands)))
+                    ))
+

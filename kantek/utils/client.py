@@ -22,7 +22,7 @@ from yarl import URL
 from database.arango import ArangoDB
 from utils._config import Config
 from utils.constants import SCHEDULE_DELETION_COMMAND
-from utils.mdtex import FormattedBase, MDTeXDocument, Section
+from utils.mdtex import *
 from utils.pluginmgr import PluginManager
 
 logger: logging.Logger = logzero.logger
