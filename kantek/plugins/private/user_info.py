@@ -35,10 +35,6 @@ async def user_info(msg: Message, tags: TagManager, client: KantekClient, db: Ar
         {cmd} 777000 -sw
         {cmd} -sa
     """
-    # crude hack until I have a proper way to have commands with short options
-    # without this ungban will always trigger user too
-    if 'ungban' in msg.text:
-        return
     if not args and msg.is_reply:
         return await _info_from_reply(client, msg, db, kwargs, tags)
     elif args:

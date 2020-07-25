@@ -2,6 +2,7 @@ import functools
 import importlib
 import inspect
 import os
+import re
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
@@ -99,7 +100,7 @@ class PluginManager:
     def register_all(self):
         """Add all commands and events to the client"""
         for p in self.commands.values():
-            pattern = f'{self.config.cmd_prefix}({"|".join(p.commands)})'
+            pattern = re.compile(fr'{self.config.cmd_prefix}({"|".join(p.commands)})(\s|$)')
             if p.admins:
                 event = events.NewMessage(pattern=pattern)
             else:
