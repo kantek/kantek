@@ -2,7 +2,7 @@
 I called it MDTeX because I'm uncreative and the idea of SubSection and SubSubSection
  was taken from LaTeX
 """
-from typing import Union, Iterable, TypeVar
+from typing import Union, Iterable, TypeVar, Tuple, Type
 
 K = TypeVar('K')
 V = TypeVar('V')
@@ -67,10 +67,16 @@ class Mention(Link):
 class KeyValueItem(FormattedBase):
     """A item that has a key and a value divided by a colon."""
 
-    def __init__(self, key: Union[K, FormattedBase], value: Union[V, FormattedBase]) -> None:
+    def __init__(self, key: Union[K, FormattedBase], value: Union[V, FormattedBase],
+                 colon_styles: Tuple[Type[FormattedBase]] = None) -> None:
         self.key = key
         self.value = value
-        self.text = f'{key}: {value}'
+        colon = ':'
+        if colon_styles is not None:
+            for style in colon_styles:
+                colon = style(colon)
+
+        self.text = f'{key}{colon} {value}'
 
 
 class Item(FormattedBase):
