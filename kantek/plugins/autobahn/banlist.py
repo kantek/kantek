@@ -8,15 +8,14 @@ from io import BytesIO
 from typing import List
 
 from spamwatch.types import Ban, Permission
-from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.types import DocumentAttributeFilename
 
 from database.arango import ArangoDB
-from utils import helpers, parsers
+from utils import helpers
 from utils.client import KantekClient
-from utils.mdtex import Bold, Code, Italic, KeyValueItem, MDTeXDocument, Section
-from utils.pluginmgr import k, Command
+from utils.mdtex import *
+from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -24,33 +23,14 @@ SWAPI_SLICE_LENGTH = 50
 
 
 @k.command('b(an)?l(ist)?')
-async def banlist(client: KantekClient, db: ArangoDB, msg: Message, event: Command) -> None:
+async def banlist() -> None:
     """Command to query and manage the banlist."""
-    # TODO Replaced with subcomamnd implementation
-    args = msg.raw_text.split()[1:]
-    response = ''
-    if not args:
-        pass
-    elif args[0] == 'query':
-        response = await _query_banlist(event, db)
-    elif args[0] == 'import':
-        waiting_message = await client.respond(event, 'Importing bans. This might take a while.')
-        response = await _import_banlist(event, db)
-        await waiting_message.delete()
-    elif args[0] == 'export':
-        waiting_message = await client.respond(event, 'Exporting bans. This might take a while.')
-        response = await _export_banlist(event, db)
-        await waiting_message.delete()
-    if response:
-        await client.respond(event, response)
+    pass
 
 
-async def _query_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
-    msg: Message = event.message
-    args = msg.raw_text.split()[2:]
-    keyword_args, args = parsers.parse_arguments(' '.join(args))
-    reason = keyword_args.get('reason')
-    users = []
+@banlist.subcommand('query')
+async def _query_banlist(db: ArangoDB, args, kwargs) -> MDTeXDocument:
+    reason = kwargs.get('reason')
     if args:
         uids = [str(uid) for uid in args]
         users = db.query('For doc in BanList '
@@ -73,9 +53,8 @@ async def _query_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument
     return MDTeXDocument(Section(Bold('Query Results'), *query_results))
 
 
-async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocument:
-    msg: Message = event.message
-    client: KantekClient = event.client
+@banlist.subcommand('import')
+async def _import_banlist(client: KantekClient, db: ArangoDB, msg: Message) -> MDTeXDocument:
     if msg.is_reply:  # pylint: disable = R1702
         reply_msg: Message = await msg.get_reply_message()
         _, ext = os.path.splitext(reply_msg.document.attributes[0].file_name)
@@ -106,15 +85,12 @@ async def _import_banlist(event: NewMessage.Event, db: ArangoDB) -> MDTeXDocumen
                                          f'Added {len(_banlist)} entries.'),
                                  Italic(f'Took {stop_time:.02f}s'))
         else:
-            return MDTeXDocument(Section(Bold('Error'), 'File is not a CSV'))
+            return MDTeXDocument(Section(Bold('Error'),
+                                         'File is not a CSV'))
 
 
-async def _export_banlist(event: NewMessage.Event, db: ArangoDB) -> None:
-    client: KantekClient = event.client
-    chat = await event.get_chat()
-    msg: Message = event.message
-    kwargs, args = await helpers.get_args(event)
-
+@banlist.subcommand('export')
+async def _export_banlist(client: KantekClient, db: ArangoDB, chat, msg, kwargs) -> None:
     start_time = time.time()
     with_diff = kwargs.get('diff', False)
 
