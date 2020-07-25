@@ -44,7 +44,7 @@ async def help_(client: KantekClient, args, kwargs) -> MDTeXDocument:
                     cmd = _cmd
                     break
             for _event in events:
-                if _event.name:
+                if _event.name == topic:
                     cmd = _event
                     break
             if cmd is None:
@@ -55,8 +55,10 @@ async def help_(client: KantekClient, args, kwargs) -> MDTeXDocument:
             return get_event_info(cmd, subtopic, config)
 
 
-def get_event_info(cmd, subcommands, config) -> MDTeXDocument:
-    pass
+def get_event_info(event, subcommands, config) -> MDTeXDocument:
+    description = get_description(event.callback, '')
+    help_msg = MDTeXDocument(Section(f'Help for {event.name}'), description)
+    return help_msg
 
 
 def get_command_info(cmd, subcommands, config) -> MDTeXDocument:
