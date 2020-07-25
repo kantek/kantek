@@ -128,6 +128,14 @@ class MDTeXDocument:
     def __str__(self) -> str:
         return '\n\n'.join([str(section) for section in self.sections])
 
+    def append(self, item: Union[V, FormattedBase, 'Section']) -> None:
+        """Append an item to the document"""
+        self.sections.append(item)
+
+    def extend(self, items: Iterable) -> None:
+        """Extend the document with a list of items"""
+        self.sections.extend(items)
+
 
 __all__ = ['Bold', 'Italic', 'Code', 'Pre', 'Link', 'Mention', 'KeyValueItem', 'Item',
            'Section', 'SubSection', 'SubSubSection',
