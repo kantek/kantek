@@ -17,8 +17,8 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('user', 'u')
-async def user_info(msg: Message, tags: TagManager,
-                    args: List, kwargs: Dict, event: Command) -> Optional[MDTeXDocument]:
+async def user_info(msg: Message, tags: TagManager, client: KantekClient, db: ArangoDB,
+                    args: List, kwargs: Dict) -> Optional[MDTeXDocument]:
     """Show information about a user.
 
 
@@ -33,22 +33,20 @@ async def user_info(msg: Message, tags: TagManager,
         {cmd} @username
         {cmd} 777000 -all
         {cmd} 777000 -sw
+        {cmd} -sa
     """
     # crude hack until I have a proper way to have commands with short options
     # without this ungban will always trigger user too
     if 'ungban' in msg.text:
         return
     if not args and msg.is_reply:
-        return await _info_from_reply(event, tags, **kwargs)
+        return await _info_from_reply(client, msg, db, kwargs, tags)
     elif args:
-        return await _info_from_arguments(event)
+        return await _info_from_arguments(client, msg, args, kwargs)
 
 
-async def _info_from_arguments(event) -> MDTeXDocument:
-    msg: Message = event.message
-    client: KantekClient = event.client
-    keyword_args, args = await helpers.get_args(event)
-    gban_format = keyword_args.get('gban', False)
+async def _info_from_arguments(client, msg, args, kwargs) -> MDTeXDocument:
+    gban_format = kwargs.get('gban', False)
     entities = []
     for entity in msg.get_entities_text():
         obj, text = entity
@@ -69,7 +67,7 @@ async def _info_from_arguments(event) -> MDTeXDocument:
             if isinstance(user, Channel):
                 errors.append(str(entity))
                 continue
-            users.append(str(await _collect_user_info(client, user, **keyword_args)))
+            users.append(str(await _collect_user_info(client, user, **kwargs)))
         except constants.GET_ENTITY_ERRORS:
             errors.append(str(entity))
     if users and gban_format:
@@ -78,12 +76,9 @@ async def _info_from_arguments(event) -> MDTeXDocument:
         return MDTeXDocument(*users, (Section('Errors for', Code(', '.join(errors)))) if errors else '')
 
 
-async def _info_from_reply(event, tags, **kwargs) -> MDTeXDocument:
-    msg: Message = event.message
-    client: KantekClient = event.client
-    db: ArangoDB = client.db
+async def _info_from_reply(client, msg, db, kwargs, tags) -> MDTeXDocument:
     get_forward = kwargs.get('forward', True)
-    anzeige = tags.get('strafanzeige', False)
+    anzeige = tags.get('strafanzeige', False) or kwargs.get('sa', False)
 
     reply_msg: Message = await msg.get_reply_message()
 
