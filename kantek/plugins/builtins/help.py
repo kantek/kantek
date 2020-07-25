@@ -101,9 +101,10 @@ def get_command_info(cmd, subcommands, config) -> MDTeXDocument:
 
 
 def get_description(callback: Callable, help_cmd: str) -> str:
+    config = Config()
     description = inspect.getdoc(callback)
     if description is None:
         return 'No description'
-    description = description.format(cmd=help_cmd)
+    description = description.format(cmd=help_cmd, prefix=config.help_prefix)
     description = SECTION_PATTERN.sub(str(Bold(r'\g<name>')), description)
     return description
