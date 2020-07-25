@@ -121,6 +121,7 @@ class PluginManager:
         client = event.client
         callback = cmd.callback
         skip_args = 1
+        help_topic = [cmd.commands[0]]
         if cmd.subcommands:
             msg = event.message
             raw_args = msg.raw_text.split()[1:]
@@ -131,6 +132,7 @@ class PluginManager:
                     skip_args = 2
                     args: _Signature = subcommand.args
                     cmd: _SubCommand = subcommand
+                    help_topic.append(cmd.command)
 
         if admins and event.is_channel:
             uid = event.message.from_id
@@ -138,6 +140,16 @@ class PluginManager:
             result = await client(GetParticipantRequest(event.chat_id, uid))
             if not isinstance(result.participant, ChannelParticipantAdmin) and uid != own_id:
                 return
+
+        _kwargs, _args = await helpers.get_args(event, skip=skip_args)
+        if _kwargs.get('help', False):
+            _cmd: Optional[_Command] = PluginManager.commands.get('help')
+            if _cmd:
+                cmd = _cmd
+                args: _Signature = cmd.args
+                callback = cmd.callback
+                _args = help_topic
+                _kwargs = {}
 
         callback_args = {}
 
@@ -154,7 +166,6 @@ class PluginManager:
             callback_args['msg'] = event.message
 
         if args.args or args.kwargs:
-            _kwargs, _args = await helpers.get_args(event, skip=skip_args)
             if args.args:
                 callback_args['args'] = _args
             if args.kwargs:
