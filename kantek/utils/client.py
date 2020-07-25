@@ -46,7 +46,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
         self.aioclient = ClientSession(timeout=ClientTimeout(total=2))
 
     async def respond(self, event: NewMessage.Event,
-                      msg: Union[str, FormattedBase, Section, MDTeXDocument],
+                      msg: Union[str, MDTeXDocument],
                       reply: bool = True, delete: Optional[int] = None) -> Message:
         """Respond to the message an event caused or to the message that was replied to
 
