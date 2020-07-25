@@ -14,7 +14,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 # TODO: Make this nice, this is just a skeleton so I have an easy way of creating tokens,
 #  preferably clean this up at some point
-@k.command('s(pam)?w(atch)?')
+@k.command('spamwatch', 'sw')
 async def sw(client: KantekClient, args: List, kwargs: Dict, event: Command) -> None:
     """Command to create SpamWatch Tokens"""
     if not client.sw:

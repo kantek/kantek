@@ -9,7 +9,7 @@ from utils.pluginmgr import k
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@k.command('f(ollow)?')
+@k.command('follow', 'f')
 async def follow(client: KantekClient, args: List) -> MDTeXDocument:
     """Command to follow where a URL redirects to."""
     link = args[0]

@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
-from typing import Callable, List, Dict, Optional
+from typing import Callable, List, Dict, Optional, Tuple
 
 from telethon import events
 from telethon.events import NewMessage
@@ -44,7 +44,7 @@ class _Command:
     callback: Callable
     private: bool
     admins: bool
-    command: str
+    commands: Tuple[str]
     args: _Signature
     auto_respond: bool
 
@@ -54,7 +54,7 @@ class _Command:
         if self.subcommands is None:
             self.subcommands = {}
 
-        def decorator(callback):
+        def decorator(callback: Callable):
             _command: Optional[str] = command
             if _command is None:
                 _command = callback.__name__.rstrip('_')
@@ -98,7 +98,7 @@ class PluginManager:
     def register_all(self):
         """Add all commands and events to the client"""
         for p in self.commands.values():
-            pattern = f'{self.config.cmd_prefix}{p.command}'
+            pattern = f'{self.config.cmd_prefix}({"|".join(p.commands)})'
             if p.admins:
                 event = events.NewMessage(pattern=pattern)
             else:
@@ -170,24 +170,26 @@ class PluginManager:
             await client.respond(event, str(result))
 
     @classmethod
-    def command(cls, command: str, private: bool = True, admins: bool = False):
+    def command(cls, *commands: str, private: bool = True, admins: bool = False):
         """Add a command to the client
 
         Args:
-            command: Regex pattern without command prefix
+            commands: Command names to be used, will be concated using regex
             private: True if the command should only be run when sent from the user
             admins: Set to True if chat admins should be allowed to use the command too
 
         Returns:
 
         """
+        if not commands:
+            raise SyntaxError('Command must have at least one command name')
 
         def decorator(callback):
             signature = inspect.signature(callback)
             auto_respond = signature.return_annotation is MDTeXDocument or signature.return_annotation is Optional[MDTeXDocument]
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            cmd = _Command(callback, private, admins, command, args, auto_respond)
-            cls.commands[command] = cmd
+            cmd = _Command(callback, private, admins, commands, args, auto_respond)
+            cls.commands[commands[0]] = cmd
             return cmd
 
         return decorator

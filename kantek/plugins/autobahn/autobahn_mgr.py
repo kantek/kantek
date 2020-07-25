@@ -32,7 +32,7 @@ AUTOBAHN_TYPES = {
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
-@k.command('a(uto)?b(ahn)?')
+@k.command('autobahn', 'ab')
 async def autobahn() -> None:
     """Command to manage autobahn blacklists"""
     pass

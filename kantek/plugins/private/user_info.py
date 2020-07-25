@@ -16,13 +16,12 @@ from utils.tagmgr import TagManager
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@k.command('u(ser)?')
-async def user_info(client: KantekClient, msg: Message, tags: TagManager,
+@k.command('user', 'u')
+async def user_info(msg: Message, tags: TagManager,
                     args: List, kwargs: Dict, event: Command) -> Optional[MDTeXDocument]:
     """Show information about a user.
 
     Args:
-        client:
         msg:
         args:
         kwargs:

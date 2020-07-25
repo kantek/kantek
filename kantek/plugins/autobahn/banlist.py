@@ -22,7 +22,7 @@ tlog = logging.getLogger('kantek-channel-log')
 SWAPI_SLICE_LENGTH = 50
 
 
-@k.command('b(an)?l(ist)?')
+@k.command('banlist', 'bl')
 async def banlist() -> None:
     """Command to query and manage the banlist."""
     pass

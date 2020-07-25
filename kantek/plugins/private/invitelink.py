@@ -9,7 +9,7 @@ from utils.pluginmgr import k
 tlog = logging.getLogger('kantek-channel-log')
 
 
-@k.command('i(nvite)?l(ink)?')
+@k.command('invitelink', 'il')
 async def invitelink(args: List) -> MDTeXDocument:
     """Command to get link creator, chatid and the random part of an invite link."""
     link = args[0]
