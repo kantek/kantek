@@ -47,7 +47,7 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
 
     async def respond(self, event: NewMessage.Event,
                       msg: Union[str, MDTeXDocument],
-                      reply: bool = True, delete: Optional[int] = None) -> Message:
+                      reply: bool = True, delete: Optional[int] = None, link_preview: bool = False) -> Message:
         """Respond to the message an event caused or to the message that was replied to
 
         Args:
@@ -65,13 +65,14 @@ class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
                 reply_to = event.action_message.id
             else:
                 reply_to = (event.reply_to_msg_id or event.message.id)
-            sent_msg: Message = await event.respond(msg, reply_to=reply_to)
+            sent_msg: Message = await event.respond(msg, reply_to=reply_to, link_preview=link_preview)
         else:
-            sent_msg: Message = await event.respond(msg)
+            sent_msg: Message = await event.respond(msg, link_preview=link_preview)
         if delete is not None:
             # While asyncio.sleep would work it would stop the function from returning which is annoying
             await self.send_message(sent_msg.chat, f'{SCHEDULE_DELETION_COMMAND} [Scheduled deletion]',
-                                    schedule=datetime.timedelta(seconds=delete), reply_to=sent_msg.id)
+                                    schedule=datetime.timedelta(seconds=delete), reply_to=sent_msg.id,
+                                    link_preview=link_preview)
         return sent_msg
 
     async def gban(self, uid: Union[int, str], reason: str, message: Optional[str] = None) -> Tuple[bool, str]:
