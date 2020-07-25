@@ -129,6 +129,6 @@ class MDTeXDocument:
         return '\n\n'.join([str(section) for section in self.sections])
 
 
-__all__ = [Bold, Italic, Code, Pre, Link, Mention, KeyValueItem, Item,
-           Section, SubSection, SubSubSection,
-           MDTeXDocument]
+__all__ = ['Bold', 'Italic', 'Code', 'Pre', 'Link', 'Mention', 'KeyValueItem', 'Item',
+           'Section', 'SubSection', 'SubSubSection',
+           'MDTeXDocument']
