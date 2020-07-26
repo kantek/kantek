@@ -46,7 +46,7 @@ class _Command:
     private: bool
     admins: bool
     commands: Tuple[str]
-    args: _Signature
+    signature: _Signature
     auto_respond: bool
 
     subcommands: Optional[Dict[str, _SubCommand]] = None
@@ -105,7 +105,7 @@ class PluginManager:
                 event = events.NewMessage(pattern=pattern)
             else:
                 event = events.NewMessage(outgoing=p.private, pattern=pattern)
-            new_callback = functools.partial(self._callback, p, p.args, p.admins)
+            new_callback = functools.partial(self._callback, p, p.signature, p.admins)
             self.client.add_event_handler(new_callback, event)
 
         for e in self.events:
