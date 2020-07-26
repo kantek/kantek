@@ -142,3 +142,29 @@ def get_misc_topics(topic, subtopics) -> MDTeXDocument:
                         KeyValueItem(Code('1w2d'), '1 week and 2 days (9 days)'),
                         KeyValueItem(Code('20m30s'), '20 minutes and 30 seconds'))
             )
+        elif subtopic == 'args':
+            return MDTeXDocument(
+                Section('Time'),
+                'Parse arguments into positional and keyword arguments. '
+                'Convert values into their respective types',
+
+                Section('Examples:',
+                        SubSection('Positonal Arguments',
+                                   Code('1 2 3'),
+                                   Code('arg1 arg2 arg3')),
+                        SubSection('Keyword Arguments',
+                                   Code('kw: 1'),
+                                   Code('keywordarg: True')),
+                        SubSection('Flags',
+                                   Code('-flag1 -flag2')),
+                        SubSection('Quoted Strings',
+                                   Code('kw: "string with spaces'),
+                                   Code('"positional argument with spaces"')),
+                        SubSection('Ranges',
+                                   Code('range: 1..10'),
+                                   Code('ids: -10..20')),
+                        SubSection('Lists',
+                                   Code('vals: ["val1", "val2"]'),
+                                   Code('vals: [1, 2, 3]')),
+                        ),
+            )
