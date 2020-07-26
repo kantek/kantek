@@ -1,6 +1,6 @@
 """Plugin to handle tagging of chats and channels."""
 import logging
-from typing import Dict, List
+from typing import Dict
 
 from telethon.tl.types import Channel
 
@@ -23,10 +23,8 @@ async def tag(chat: Channel, tags: Tags) -> MDTeXDocument:
         {cmd}
     """
     named_tags: Dict = tags.named_tags
-    tags: List = tags.tags
     data = []
     data += [KeyValueItem(Bold(key), value) for key, value in named_tags.items()]
-    data += [Item(_tag) for _tag in tags]
     if not data:
         data.append(Code('None'))
     return MDTeXDocument(
@@ -46,8 +44,6 @@ async def add(args, kwargs, tags, event) -> None:
     """
     for name, value in kwargs.items():
         tags[name] = value
-    for _tag in args:
-        tags.set(_tag)
     await event.delete()
 
 

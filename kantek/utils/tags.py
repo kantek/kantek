@@ -18,10 +18,7 @@ class Tags:
         if not event.is_private:
             self._document = collection.get_chat(event.chat_id)
             self.named_tags = self._document['named_tags'].getStore()
-            self.tags = self._document['tags']
-            self.read_only = False
         else:
-            self.tags = {}
             self.named_tags = {
                 "polizei": "exclude"
             }
@@ -39,12 +36,12 @@ class Tags:
             None if the tag doesn't exist
 
         """
-        return self.named_tags.get(tag_name, tag_name in self.tags or default)
+        return self.named_tags.get(tag_name, default)
 
     def __getitem__(self, item: TagName) -> TagValue:
         return self.get(item)
 
-    def set(self, tag_name: TagName, value: Optional[TagValue] = None) -> None:
+    def set(self, tag_name: TagName, value: Optional[TagValue]) -> None:
         """Set a tags value or create it.
         If value is None a normal tag will be created. If the value is not None a named tag with
          that value will be created
@@ -55,11 +52,7 @@ class Tags:
         Returns: None
 
         """
-        if value is None:
-            if tag_name not in self.tags:
-                self.tags.append(tag_name)
-        elif value is not None:
-            self.named_tags[tag_name] = value
+        self.named_tags[tag_name] = value
         self._save()
 
     def __setitem__(self, key: TagName, value: TagValue) -> None:
@@ -68,7 +61,6 @@ class Tags:
     def clear(self) -> None:
         """Clears all tags that a Chat has."""
         self._document['named_tags'] = {}
-        self._document['tags'] = []
         self._document.save()
 
     def remove(self, tag_name: TagName) -> None:
@@ -80,9 +72,7 @@ class Tags:
         Returns: None
 
         """
-        if tag_name in self.tags:
-            del self.tags[self.tags.index(tag_name)]
-        elif tag_name in self.named_tags:
+        if tag_name in self.named_tags:
             del self.named_tags[tag_name]
         self._save()
 
@@ -90,6 +80,5 @@ class Tags:
         self.remove(key)
 
     def _save(self):
-        self._document['tags'] = self.tags
         self._document['named_tags'] = self.named_tags
         self._document.save()
