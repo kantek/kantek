@@ -7,13 +7,13 @@ from telethon.tl.types import Channel, User
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
-from utils.tagmgr import TagManager
+from utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('info')
-async def info(client: Client, tags: TagManager, chat: Channel, event: Command) -> Optional[MDTeXDocument]:
+async def info(client: Client, tags: Tags, chat: Channel, event: Command) -> Optional[MDTeXDocument]:
     """Show information about a group or channel.
 
     Examples:

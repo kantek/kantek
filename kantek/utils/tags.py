@@ -8,7 +8,7 @@ TagValue = Union[bool, str, int]
 TagName = Union[int, str]
 
 
-class TagManager:
+class Tags:
     """Class to manage the tags of a chat"""
 
     def __init__(self, event: NewMessage.Event):

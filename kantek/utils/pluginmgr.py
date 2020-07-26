@@ -17,7 +17,7 @@ from telethon.tl.types import ChannelParticipantAdmin
 from utils import helpers
 from utils._config import Config
 from utils.mdtex import *
-from utils.tagmgr import TagManager
+from utils.tags import Tags
 
 
 @dataclass
@@ -176,7 +176,7 @@ class PluginManager:
             callback_args['event'] = event
 
         if args.tags:
-            callback_args['tags'] = TagManager(event)
+            callback_args['tags'] = Tags(event)
 
         result = await callback(**callback_args)
         if result and cmd.auto_respond:

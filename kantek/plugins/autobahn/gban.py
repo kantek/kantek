@@ -15,7 +15,7 @@ from utils import helpers, parsers
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
-from utils.tagmgr import TagManager
+from utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 
@@ -24,7 +24,7 @@ CHUNK_SIZE = 10
 
 
 @k.command('gban')
-async def gban(client: Client, db: ArangoDB, tags: TagManager, chat: Channel, msg: Message,
+async def gban(client: Client, db: ArangoDB, tags: Tags, chat: Channel, msg: Message,
                args: List, kwargs: Dict, event: Command) -> None:
     """Globally ban a user.
 

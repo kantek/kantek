@@ -13,7 +13,7 @@ from database.arango import ArangoDB
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k
-from utils.tagmgr import TagManager
+from utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -50,7 +50,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         if not chat.admin_rights.ban_users:
             return
     db: ArangoDB = client.db
-    tags = TagManager(event)
+    tags = Tags(event)
     polizei_tag = tags.get('polizei')
     grenzschutz_tag = tags.get('grenzschutz')
     silent = grenzschutz_tag == 'silent'

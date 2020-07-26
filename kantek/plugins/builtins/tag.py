@@ -6,13 +6,13 @@ from telethon.tl.types import Channel
 
 from utils.mdtex import *
 from utils.pluginmgr import k
-from utils.tagmgr import TagManager
+from utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('tag')
-async def tag(chat: Channel, tags: TagManager) -> MDTeXDocument:
+async def tag(chat: Channel, tags: Tags) -> MDTeXDocument:
     """Add, query or remove tags from groups and channels.
 
     Tags are used by various plugins to alter their functionality in the specific chats.
@@ -65,7 +65,7 @@ async def del_(args, tags, event) -> None:
 
 
 @tag.subcommand()
-async def clear(tags: TagManager, event) -> None:
+async def clear(tags: Tags, event) -> None:
     """Clear all tags from the chat.
 
     **Examples:**
