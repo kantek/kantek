@@ -181,14 +181,17 @@ class PluginManager:
                     cmd: _SubCommand = subcommand
                     help_topic.append(cmd.command)
 
+        _kwargs, _args = await helpers.get_args(event, skip=skip_args)
+
         if admins and event.is_channel:
+            if _kwargs.get('self', False):
+                return
             uid = event.message.from_id
             own_id = (await client.get_me()).id
             result = await client(GetParticipantRequest(event.chat_id, uid))
             if not isinstance(result.participant, ChannelParticipantAdmin) and uid != own_id:
                 return
 
-        _kwargs, _args = await helpers.get_args(event, skip=skip_args)
         if _kwargs.get('help', False):
             _cmd: Optional[_Command] = PluginManager.commands.get('help')
             if _cmd:

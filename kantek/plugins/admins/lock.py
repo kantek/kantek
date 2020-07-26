@@ -16,6 +16,9 @@ tlog = logging.getLogger('kantek-channel-log')
 async def lock(client: Client, event: Command) -> MDTeXDocument:
     """Set a chat to read only.
 
+    Arguments:
+        `-self`: Use to make other kantek instances ignore your command
+
     Examples:
         {cmd}
     """
