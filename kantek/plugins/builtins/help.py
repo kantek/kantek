@@ -9,6 +9,8 @@ from utils.pluginmgr import k, _Command, _Event
 
 SECTION_PATTERN = re.compile(r'^(?P<name>[\w ]+:)$', re.MULTILINE)
 
+MISC_TOPICS = ['parsers']
+
 
 @k.command('help')
 async def help_(client: Client, args, kwargs) -> MDTeXDocument:
@@ -41,6 +43,8 @@ async def help_(client: Client, args, kwargs) -> MDTeXDocument:
         return toc
     if args:
         topic, *subtopic = args
+        if topic in MISC_TOPICS:
+            return get_misc_topics(topic, subtopic)
         cmd = cmds.get(topic)
         if cmd is None:
             for _cmd in cmds.values():
@@ -112,3 +116,29 @@ def get_description(callback: Callable, help_cmd: str) -> str:
     description = description.format(cmd=help_cmd, prefix=config.help_prefix)
     description = SECTION_PATTERN.sub(str(Bold(r'\g<name>')), description)
     return description
+
+
+def get_misc_topics(topic, subtopics) -> MDTeXDocument:
+    subtopic = None
+    if subtopics:
+        subtopic = subtopics[0]
+    if topic == 'parsers':
+        if not subtopic:
+            return MDTeXDocument(
+                Section(f'Available Parsers',
+                        KeyValueItem(Italic(Bold('time')),
+                                     'Specify durations with a shorthand',
+                                     colon_styles=(Bold, Italic))))
+        elif subtopic == 'time':
+            return MDTeXDocument(
+                Section('Time'),
+                'Express a duration as a shorthand:\n'
+                'Supports s, m, h, d and w for seconds, minutes, hours, days and weeks respectively.',
+                Section('Examples:',
+                        KeyValueItem(Code('1s'), '1 second'),
+                        KeyValueItem(Code('20m'), '20 minutes'),
+                        KeyValueItem(Code('3h'), '3 hours'),
+                        KeyValueItem(Code('3h1d'), '3 hours and 1 day (27 hours)'),
+                        KeyValueItem(Code('1w2d'), '1 week and 2 days (9 days)'),
+                        KeyValueItem(Code('20m30s'), '20 minutes and 30 seconds'))
+            )
