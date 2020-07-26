@@ -55,7 +55,7 @@ async def gban(client: Client, db: ArangoDB, tags: Tags, chat: Channel, msg: Mes
         if doc:
             anzeige = doc['data']
     if anzeige:
-        _kw, _args = parsers.parse_arguments(anzeige)
+        _kw, _args = parsers.arguments(anzeige)
         kwargs.update(_kw)
         args.extend(_args)
 

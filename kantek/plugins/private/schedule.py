@@ -10,7 +10,7 @@ from telethon.tl.types import Channel, MessageMediaDocument
 
 from utils.client import Client
 from utils.mdtex import *
-from utils.parsers import parse_time
+from utils import parsers
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -29,7 +29,7 @@ async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, ev
         {cmd} -overwrite offset: 30
     """
     offset = kwargs.get('offset', '1h')
-    offset = parse_time(offset)
+    offset = parsers.time(offset)
     dynamic = kwargs.get('dynamic', False)
     if kwargs.get('overwrite'):
         scheduled = await client(GetScheduledHistoryRequest(chat, 0))

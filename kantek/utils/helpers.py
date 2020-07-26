@@ -47,7 +47,7 @@ async def get_args(event: NewMessage.Event, skip: int = 1) -> Tuple[Dict[str, st
         Parsed arguments as returned by parser.parse_arguments()
     """
     _args = event.message.raw_text.split()[skip:]
-    return parsers.parse_arguments(' '.join(_args))
+    return parsers.arguments(' '.join(_args))
 
 
 async def rose_csv_to_dict(data: bytes) -> List[Dict[str, str]]:

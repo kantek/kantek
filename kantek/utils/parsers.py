@@ -42,78 +42,78 @@ def _parse_number(val: str) -> Value:
     return val
 
 
-def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Value]]:
+def arguments(args: str) -> Tuple[Dict[str, KeywordArgument], List[Value]]:
     """Parse arguments provided as string
 
-    >>> parse_arguments('arg1 arg2 arg3')
+    >>> arguments('arg1 arg2 arg3')
     ({}, ['arg1', 'arg2', 'arg3'])
 
-    >>> parse_arguments('arg1: val1 arg2: "val2.1 val2.2"')
+    >>> arguments('arg1: val1 arg2: "val2.1 val2.2"')
     ({'arg1': 'val1', 'arg2': 'val2.1 val2.2'}, [])
 
-    >>> parse_arguments('arg1: val1 arg2 arg3: "val3.1 val3.2" arg3')
+    >>> arguments('arg1: val1 arg2 arg3: "val3.1 val3.2" arg3')
     ({'arg1': 'val1', 'arg3': 'val3.1 val3.2'}, ['arg2', 'arg3'])
 
-    >>> parse_arguments('arg1: "val1.1" val1.2')
+    >>> arguments('arg1: "val1.1" val1.2')
     ({'arg1': 'val1.1'}, ['val1.2'])
 
-    >>> parse_arguments('arg1: "val1.2"')
+    >>> arguments('arg1: "val1.2"')
     ({'arg1': 'val1.2'}, [])
 
-    >>> parse_arguments('"val space"')
+    >>> arguments('"val space"')
     ({}, ['val space'])
 
-    >>> parse_arguments('@username')
+    >>> arguments('@username')
     ({}, ['@username'])
 
-    >>> parse_arguments('arg: True arg2: false')
+    >>> arguments('arg: True arg2: false')
     ({'arg': True, 'arg2': False}, [])
 
-    >>> parse_arguments('arg: 123 456 arg2: True')
+    >>> arguments('arg: 123 456 arg2: True')
     ({'arg': 123, 'arg2': True}, [456])
 
-    >>> parse_arguments('arg: [123, 456] arg2: ["abc", "de f", "xyz"]')
+    >>> arguments('arg: [123, 456] arg2: ["abc", "de f", "xyz"]')
     ({'arg': [123, 456], 'arg2': ['abc', 'de f', 'xyz']}, [])
 
-    >>> parse_arguments('arg: 1..10 arg2: -5..5 arg2: -10..0')
+    >>> arguments('arg: 1..10 arg2: -5..5 arg2: -10..0')
     ({'arg': range(1, 10), 'arg2': range(-10, 0)}, [])
 
-    >>> parse_arguments('1.24124 2151.2352 23626.325')
+    >>> arguments('1.24124 2151.2352 23626.325')
     ({}, [1.24124, 2151.2352, 23626.325])
 
-    >>> parse_arguments('1e4 2.5e4 125e-5')
+    >>> arguments('1e4 2.5e4 125e-5')
     ({}, [10000.0, 25000.0, 0.00125])
 
-    >>> parse_arguments('3+3j 4+2i')
+    >>> arguments('3+3j 4+2i')
     ({}, [(3+3j), (4+2j)])
 
-    >>> parse_arguments('https://example.com')
+    >>> arguments('https://example.com')
     ({}, ['https://example.com'])
 
-    >>> parse_arguments('keyword: "Something[not a list]"')
+    >>> arguments('keyword: "Something[not a list]"')
     ({'keyword': 'Something[not a list]'}, [])
 
-    >>> parse_arguments('keyword: 1 keyword2: 5')
+    >>> arguments('keyword: 1 keyword2: 5')
     ({'keyword': 1, 'keyword2': 5}, [])
 
-    >>> parse_arguments('posarg -flag')
+    >>> arguments('posarg -flag')
     ({'flag': True}, ['posarg'])
 
-    >>> parse_arguments('-flag')
+    >>> arguments('-flag')
     ({'flag': True}, [])
 
-    >>> parse_arguments('posarg -flag 125e-5')
+    >>> arguments('posarg -flag 125e-5')
     ({'flag': True}, ['posarg', 0.00125])
 
     Args:
-        arguments: The string with the arguments that should be parsed
+        args: The string with the arguments that should be parsed
 
     Returns:
         A Tuple with keyword and positional arguments
 
     """
 
-    _named_attrs = re.findall(KEYWORD_ARGUMENT, arguments)
+    _named_attrs = re.findall(KEYWORD_ARGUMENT, args)
     keyword_args: Dict[str, KeywordArgument] = {}
     for name, value in _named_attrs:
         if value.startswith('"') and value.endswith('"'):
@@ -133,44 +133,44 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
                 val = BOOL_MAP.get(val.lower(), val)
         keyword_args.update({name: val})
 
-    arguments = re.sub(KEYWORD_ARGUMENT, '', arguments)
+    args = re.sub(KEYWORD_ARGUMENT, '', args)
 
-    flag_args = re.findall(FLAG_ARGUMENT, arguments)
+    flag_args = re.findall(FLAG_ARGUMENT, args)
     for flag in flag_args:
         keyword_args[flag.strip()[1:]] = True
-    arguments = re.sub(FLAG_ARGUMENT, '', arguments)
+    args = re.sub(FLAG_ARGUMENT, '', args)
 
-    quoted_args = re.findall(QUOTED_ARGUMENT, arguments)
-    arguments = re.sub(QUOTED_ARGUMENT, '', arguments)
+    quoted_args = re.findall(QUOTED_ARGUMENT, args)
+    args = re.sub(QUOTED_ARGUMENT, '', args)
     # convert any numbers to int
-    args = [_parse_number(val) for val in arguments.split()]
+    args = [_parse_number(val) for val in args.split()]
     return keyword_args, args + quoted_args
 
 
-def parse_time(expr) -> int:
+def time(expr) -> int:
     """Parse a abbreviated time expression into seconds
 
     Supports s, m, h, d and w for seconds, minutes, hours, days and weeks respectively.
 
-    >>> parse_time('1s')
+    >>> time('1s')
     1
 
-    >>> parse_time('1m')
+    >>> time('1m')
     60
 
-    >>> parse_time('1h')
+    >>> time('1h')
     3600
 
-    >>> parse_time('1d')
+    >>> time('1d')
     86400
 
-    >>> parse_time('1w')
+    >>> time('1w')
     604800
 
-    >>> parse_time('1s2m')
+    >>> time('1s2m')
     121
 
-    >>> parse_time('3h1d')
+    >>> time('3h1d')
     97200
 
     Args:
