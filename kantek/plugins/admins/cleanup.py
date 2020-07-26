@@ -8,7 +8,7 @@ from telethon.errors import FloodWaitError, UserAdminInvalidError, MessageIdInva
 from telethon.tl.custom import Message
 from telethon.tl.types import (Channel, User)
 
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
@@ -17,7 +17,7 @@ logger: logging.Logger = logzero.logger
 
 
 @k.command('cleanup', admins=True)
-async def cleanup(client: KantekClient, chat: Channel, msg: Message,
+async def cleanup(client: Client, chat: Channel, msg: Message,
                   kwargs: Dict, event: Command) -> None:
     """Remove or count all "Deleted Accounts" in a group.
 
@@ -45,7 +45,7 @@ async def cleanup(client: KantekClient, chat: Channel, msg: Message,
 async def _cleanup_chat(event, count: bool = False,
                         progress_message: Optional[Message] = None) -> MDTeXDocument:
     chat: Channel = await event.get_chat()
-    client: KantekClient = event.client
+    client: Client = event.client
     user: User
     deleted_users = 0
     deleted_admins = 0

@@ -6,7 +6,7 @@ from telethon.tl.custom import Dialog
 from telethon.tl.types import Channel, Chat, User
 
 from utils import helpers
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
@@ -14,7 +14,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('stats')
-async def stats(client: KantekClient, event: Command) -> MDTeXDocument:  # pylint: disable = R0912, R0914, R0915
+async def stats(client: Client, event: Command) -> MDTeXDocument:  # pylint: disable = R0912, R0914, R0915
     """Collect stats about the users accounts
 
     Examples:

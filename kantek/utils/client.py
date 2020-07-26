@@ -31,7 +31,7 @@ AUTOMATED_BAN_REASONS = ['spambot', 'vollzugsanstalt', 'kriminalamt']
 SPAMADD_PATTERN = re.compile(r"spam adding (?P<count>\d+)\+ members")
 
 
-class KantekClient(TelegramClient):  # pylint: disable = R0901, W0223
+class Client(TelegramClient):  # pylint: disable = R0901, W0223
     """Custom telethon client that has the plugin manager as attribute."""
     plugin_mgr: Optional[PluginManager] = None
     db: Optional[ArangoDB] = None

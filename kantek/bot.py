@@ -7,7 +7,7 @@ import spamwatch
 
 from database.arango import ArangoDB
 from utils._config import Config
-from utils.client import KantekClient
+from utils.client import Client
 from utils.loghandler import TGChannelLogHandler
 from utils.pluginmgr import PluginManager
 
@@ -28,7 +28,7 @@ def main() -> None:
                                   config.log_channel_id)
     tlog.addHandler(handler)
 
-    client = KantekClient(
+    client = Client(
         os.path.abspath(config.session_name),
         config.api_id,
         config.api_hash)

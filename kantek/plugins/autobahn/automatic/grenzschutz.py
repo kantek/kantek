@@ -10,7 +10,7 @@ from telethon.tl.types import (Channel, ChannelParticipantsAdmins, MessageAction
                                MessageActionChatAddUser)
 
 from database.arango import ArangoDB
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k
 from utils.tagmgr import TagManager
@@ -42,7 +42,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         elif not isinstance(event.action_message.action,
                             (MessageActionChatJoinedByLink, MessageActionChatAddUser)):
             return
-    client: KantekClient = event.client
+    client: Client = event.client
     chat: Channel = await event.get_chat()
     if not chat.creator and not chat.admin_rights:
         return

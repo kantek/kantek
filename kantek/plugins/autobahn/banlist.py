@@ -13,7 +13,7 @@ from telethon.tl.types import DocumentAttributeFilename
 
 from database.arango import ArangoDB
 from utils import helpers
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k
 
@@ -66,7 +66,7 @@ async def query(db: ArangoDB, args, kwargs) -> MDTeXDocument:
 
 
 @banlist.subcommand()
-async def import_(client: KantekClient, db: ArangoDB, msg: Message) -> MDTeXDocument:
+async def import_(client: Client, db: ArangoDB, msg: Message) -> MDTeXDocument:
     """Import a CSV to the banlist.
 
     The CSV file should end in .csv and have a `id` and `reason` column
@@ -109,7 +109,7 @@ async def import_(client: KantekClient, db: ArangoDB, msg: Message) -> MDTeXDocu
 
 
 @banlist.subcommand()
-async def export(client: KantekClient, db: ArangoDB, chat, msg, kwargs) -> None:
+async def export(client: Client, db: ArangoDB, chat, msg, kwargs) -> None:
     """Export the banlist as CSV.
 
     The format is `id,reason` and can be imported into most bots.

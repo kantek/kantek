@@ -1,13 +1,13 @@
 from asyncio import subprocess
 
 from utils._config import Config
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
 
 @k.command('update')
-async def update(client: KantekClient, event: Command) -> None:
+async def update(client: Client, event: Command) -> None:
     """Run git pull and exit.
 
     This command assumes the bot is running under a process manager that automatically restarts it.

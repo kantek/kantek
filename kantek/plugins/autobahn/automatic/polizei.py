@@ -18,7 +18,7 @@ from telethon.tl.types import (Channel, MessageEntityTextUrl, UserFull, MessageE
 
 from database.arango import ArangoDB
 from utils import helpers, constants
-from utils.client import KantekClient
+from utils.client import Client
 from utils.helpers import hash_photo
 from utils.pluginmgr import k
 from utils.tagmgr import TagManager
@@ -42,7 +42,7 @@ async def polizei(event: NewMessage.Event) -> None:
     """
     if event.is_private:
         return
-    client: KantekClient = event.client
+    client: Client = event.client
     chat: Channel = await event.get_chat()
     tags = TagManager(event)
     bancmd = tags.get('gbancmd', 'manual')
@@ -60,7 +60,7 @@ async def polizei(event: NewMessage.Event) -> None:
 @k.event(events.chataction.ChatAction())
 async def join_polizei(event: ChatAction.Event) -> None:
     """Plugin to ban users with blacklisted strings in their bio."""
-    client: KantekClient = event.client
+    client: Client = event.client
     chat: Channel = await event.get_chat()
     db: ArangoDB = client.db
     tags = TagManager(event)
@@ -96,7 +96,7 @@ async def join_polizei(event: ChatAction.Event) -> None:
 
 async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     formatted_reason = f'Spambot[kv2 {ban_type} 0x{ban_reason.rjust(4, "0")}]'
-    client: KantekClient = event.client
+    client: Client = event.client
     db: ArangoDB = client.db
     chat: Channel = await event.get_chat()
     await event.delete()
@@ -121,7 +121,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
 
 
 async def _check_message(event):  # pylint: disable = R0911
-    client: KantekClient = event.client
+    client: Client = event.client
     msg: Message = event.message
     user_id = msg.from_id
     if user_id is None:

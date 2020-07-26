@@ -8,7 +8,7 @@ from telethon.tl.functions.messages import GetStickerSetRequest
 from telethon.tl.types import InputStickerSetShortName, StickerSet, Channel
 
 from utils._config import Config
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k
 
@@ -16,7 +16,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('kantek')
-async def kantek(client: KantekClient, chat: Channel) -> MDTeXDocument:
+async def kantek(client: Client, chat: Channel) -> MDTeXDocument:
     """Show information about kantek.
 
     Examples:

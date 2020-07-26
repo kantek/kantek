@@ -3,7 +3,7 @@ import re
 from typing import Callable
 
 from utils._config import Config
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, _Command, _Event
 
@@ -11,7 +11,7 @@ SECTION_PATTERN = re.compile(r'^(?P<name>[\w ]+:)$', re.MULTILINE)
 
 
 @k.command('help')
-async def help_(client: KantekClient, args, kwargs) -> MDTeXDocument:
+async def help_(client: Client, args, kwargs) -> MDTeXDocument:
     """Get help for kantek commands.
 
     Examples:

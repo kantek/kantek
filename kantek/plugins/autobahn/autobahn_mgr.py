@@ -11,7 +11,7 @@ from telethon.tl.custom import Message
 
 from database.arango import ArangoDB
 from utils import helpers, constants
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k
 
@@ -42,7 +42,7 @@ async def autobahn() -> None:
 
 
 @autobahn.subcommand()
-async def add(client: KantekClient, db: ArangoDB, msg: Message, args,
+async def add(client: Client, db: ArangoDB, msg: Message, args,
               event) -> MDTeXDocument:  # pylint: disable = R1702
     """Add a item to its blacklist.
 

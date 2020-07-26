@@ -8,7 +8,7 @@ from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, Us
 
 from database.arango import ArangoDB
 from utils import helpers, constants
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
 from utils.tagmgr import TagManager
@@ -17,7 +17,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('user', 'u')
-async def user_info(msg: Message, tags: TagManager, client: KantekClient, db: ArangoDB,
+async def user_info(msg: Message, tags: TagManager, client: Client, db: ArangoDB,
                     args: List, kwargs: Dict) -> Optional[MDTeXDocument]:
     """Show information about a user.
 

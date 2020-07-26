@@ -12,7 +12,7 @@ from telethon.tl.types import Channel, InputReportReasonSpam, InputPeerChannel
 
 from database.arango import ArangoDB
 from utils import helpers, parsers
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
 from utils.tagmgr import TagManager
@@ -24,7 +24,7 @@ CHUNK_SIZE = 10
 
 
 @k.command('gban')
-async def gban(client: KantekClient, db: ArangoDB, tags: TagManager, chat: Channel, msg: Message,
+async def gban(client: Client, db: ArangoDB, tags: TagManager, chat: Channel, msg: Message,
                args: List, kwargs: Dict, event: Command) -> None:
     """Globally ban a user.
 
@@ -171,7 +171,7 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) ->
 
 
 @k.command('ungban')
-async def ungban(client: KantekClient, msg: Message,
+async def ungban(client: Client, msg: Message,
                  args: List, event: Command) -> Optional[MDTeXDocument]:
     """Globally unban a User
 

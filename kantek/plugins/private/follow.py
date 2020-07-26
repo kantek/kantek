@@ -2,7 +2,7 @@
 import logging
 from typing import List
 
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k
 
@@ -10,7 +10,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('follow', 'f')
-async def follow(client: KantekClient, args: List) -> MDTeXDocument:
+async def follow(client: Client, args: List) -> MDTeXDocument:
     """Follow URL redirects until the end
 
     Examples:

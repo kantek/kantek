@@ -10,7 +10,7 @@ from telethon.tl.functions.channels import (DeleteUserHistoryRequest,
                                             GetParticipantRequest)
 from telethon.tl.types import Channel, User
 
-from utils.client import KantekClient
+from utils.client import Client
 from utils.pluginmgr import k
 from utils.tagmgr import TagManager
 
@@ -29,7 +29,7 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     Tags:
         kriminalamt: The time in seconds
     """
-    client: KantekClient = event.client
+    client: Client = event.client
     chat: Channel = await event.get_chat()
     user: User = await event.get_user()
     tags = TagManager(event)

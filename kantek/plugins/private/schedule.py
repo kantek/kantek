@@ -8,7 +8,7 @@ from telethon.tl.functions.messages import GetScheduledHistoryRequest, DeleteSch
 from telethon.tl.patched import Message
 from telethon.tl.types import Channel, MessageMediaDocument
 
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.parsers import parse_time
 from utils.pluginmgr import k, Command
@@ -17,7 +17,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('schedule')
-async def schedule(client: KantekClient, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> MDTeXDocument:
+async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> MDTeXDocument:
     """Schedule commands from a file or a message
 
     One command per line. Must be in reply to either a message or a file.

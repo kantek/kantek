@@ -5,7 +5,7 @@ from typing import List, Dict
 from spamwatch.types import Permission
 from telethon.tl.patched import Message
 
-from utils.client import KantekClient
+from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
@@ -15,7 +15,7 @@ tlog = logging.getLogger('kantek-channel-log')
 # TODO: Make this nice, this is just a skeleton so I have an easy way of creating tokens,
 #  preferably clean this up at some point
 @k.command('spamwatch', 'sw')
-async def sw(client: KantekClient, args: List, kwargs: Dict, event: Command) -> None:
+async def sw(client: Client, args: List, kwargs: Dict, event: Command) -> None:
     """Create SpamWatch Tokens"""
     if not client.sw:
         return
