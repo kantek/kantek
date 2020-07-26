@@ -63,7 +63,6 @@ async def join_polizei(event: ChatAction.Event) -> None:
     # avoid flood waits from chats mass adding users and don't check users leaving
     if not event.user_joined:
         return
-    print('checking joined user')
     client: Client = event.client
     chat: Channel = await event.get_chat()
     db: ArangoDB = client.db
