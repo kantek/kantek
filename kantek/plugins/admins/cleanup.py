@@ -21,6 +21,10 @@ async def cleanup(client: Client, chat: Channel, msg: Message,
                   kwargs: Dict, event: Command) -> None:
     """Remove or count all "Deleted Accounts" in a group.
 
+    Arguments:
+        `-count`: Only count deleted accounts and don't remove them
+        `-silent`: Don't send a progress message
+
     Examples:
         {cmd}
         {cmd} -count

@@ -36,6 +36,10 @@ async def query(db: ArangoDB, args, kwargs) -> MDTeXDocument:
     If a list of User IDs is provided their ban reasons will be listed next to their ID.
     If a reason is provided the total amount of banned users for that ban reason will be returned.
 
+    Arguments:
+        `ids`: User IDs the banlist should be queried for
+        `reason`: Ban reasons to count
+
     Examples:
         {cmd} 777000 172811422
         {cmd} reason: "spam[gban]"

@@ -55,6 +55,9 @@ async def add(args, kwargs, tags, event) -> None:
 async def del_(args, tags, event) -> None:
     """Delete the specified tags from the chat.
 
+    Arguments:
+        `keys`: Tags to delete
+
     **Examples:**
         {cmd} gban polizei
         {cmd} network

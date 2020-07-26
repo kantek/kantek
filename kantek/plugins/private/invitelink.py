@@ -15,6 +15,9 @@ async def invitelink(args: List) -> MDTeXDocument:
 
     Note: For channels the Link Creator is always 0
 
+    Arguments:
+        `invite_link`: The invite link to decode
+
     Examples:
         {cmd} https://t.me/joinchat/CkzknkNYuLsKbTc91GfhGw
     """

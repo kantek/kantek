@@ -50,6 +50,10 @@ async def add(client: Client, db: ArangoDB, msg: Message, args,
 
     Blacklist names are _not_ the hexadecimal short hands
 
+    Arguments:
+        `type`: One of the possible autobahn types (See {prefix}ab)
+        `item`: The item to be blacklisted. Not required for the file and mhash blacklists.
+
     Examples:
         {cmd} domain example.com
         {cmd} string "invest with bitcoin"
@@ -178,6 +182,10 @@ async def del_(db: ArangoDB, args) -> MDTeXDocument:
 
     Blacklist names are _not_ the hexadecimal short hands
 
+    Arguments:
+        `type`: One of the possible autobahn types (See {prefix}ab)
+        `item`: The item to be blacklisted. Not required for the file and mhash blacklists.
+
     Examples:
         {cmd} domain example.com
         {cmd} string "invest with bitcoin"
@@ -212,10 +220,13 @@ async def query(kwargs, db: ArangoDB) -> MDTeXDocument:
 
     Blacklist names are _not_ the hexadecimal short hands
 
+    Arguments:
+        `type`: One of the possible autobahn types (See {prefix}ab)
+        `code`: The index of the item, can be a range
+
     Examples:
         {cmd} type: domain code: 3
         {cmd} type: channel code: 4..20
-        {cmd} types
     """
     item_type = kwargs.get('type')
     code = kwargs.get('code')

@@ -19,8 +19,19 @@ tlog = logging.getLogger('kantek-channel-log')
 @k.command('user', 'u')
 async def user_info(msg: Message, tags: Tags, client: Client, db: ArangoDB,
                     args: List, kwargs: Dict) -> Optional[MDTeXDocument]:
-    """Show information about a user.
+    """Show information about a user. Can be used in reply to a message.
 
+    Arguments:
+        `ids`: List of User IDs
+        `-mention`: Mention the user
+        `-id`: Output information in a `name: id` format
+        `-full`: Output the full message a user was banned for
+        `-sw`: Output all information from the SpamWatch API
+        `-gban`: Output user ids space seperated for `{prefix}gban`
+        `-all`: Enable all of the flags below
+        `-general`: General info, enabled by default
+        `-bot`: Output bot specific information
+        `-misc`: Output miscellaneous information
 
     Tags:
         strafanzeige:

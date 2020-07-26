@@ -21,12 +21,16 @@ async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, ev
     """Schedule commands from a file or a message
 
     One command per line. Must be in reply to either a message or a file.
-    When used with -overwrite and not in reply to a message all scheduled messages will be cleared.
+
+    Arguments:
+        `-overwrite`: Overwrite all currently scheduled commands
+        `-dynamic`: Determine the offset between messages dynamically depending on the messages word count
+        `offset`: Offset as duration expression, see `{prefix}help parsers time`
 
     Examples:
         {cmd} -overwrite
         {cmd} -overwrite -dynamic
-        {cmd} -overwrite offset: 30
+        {cmd} -overwrite offset: 30m
     """
     offset = kwargs.get('offset', '1h')
     offset = parsers.time(offset)

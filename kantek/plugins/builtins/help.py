@@ -14,6 +14,10 @@ SECTION_PATTERN = re.compile(r'^(?P<name>[\w ]+:)$', re.MULTILINE)
 async def help_(client: Client, args, kwargs) -> MDTeXDocument:
     """Get help for kantek commands.
 
+    Arguments:
+        `topic`: A help topic as listed by {prefix}help
+        `subtopic`: Optional subtopic like subcommands
+
     Examples:
         {cmd} help
         {cmd} autobahn

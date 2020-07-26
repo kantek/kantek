@@ -13,6 +13,9 @@ tlog = logging.getLogger('kantek-channel-log')
 async def follow(client: Client, args: List) -> MDTeXDocument:
     """Follow URL redirects until the end
 
+    Arguments:
+        `url`: The url to follow
+
     Examples:
         {cmd} https://kutt.it/spamwatch
         {cmd} src.kv2.dev

@@ -31,11 +31,18 @@ async def gban(client: Client, db: ArangoDB, tags: Tags, chat: Channel, msg: Mes
     This will not actively ban them from any chats except the one command was issued in as reply. GBanned users will be automatically banned on join or when writing a message by the Grenzschutz module.
     When banning by reply the message content will be automatically sent to the SpamWatch API if enabled.
 
+    Arguments:
+        `ids`: List of user ids to be gbanned
+        `reason`: Ban reason, defaults to `spam[gban]`
+        `msg`: String of the message the user sent. Only useful with the SpamWatch API
+        `link`: Link to the users message. Only useful with the SpamWatch API
+        `sa`: Key for a Strafanzeige entry, simply copy paste this from {prefix}user
+
     Tags:
         gban:
             verbose: Send a message when a user was banned by id
         gbancmd:
-            *: Send `{bancmd} {ban_reason}` in reply to the message
+            *: Send `{{bancmd}} {{ban_reason}}` in reply to the message
 
     Examples:
         {cmd} 777000
@@ -176,6 +183,9 @@ async def ungban(client: Client, msg: Message,
     """Globally unban a User
 
     This does not unban them from any groups. It simply removes their ban from the database, api and any bots in the gban group.
+
+    Arguments:
+        `ids`: User IDs to ungban.
 
     Examples:
         {cmd} 777000
