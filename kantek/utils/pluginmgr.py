@@ -165,6 +165,8 @@ class PluginManager:
             me = await client.get_me()
             if forward.sender_id is None or forward.sender_id != me.id:
                 return
+        if msg.sticker is not None:
+            return
         callback = cmd.callback
         skip_args = 1
         help_topic = [cmd.commands[0]]
