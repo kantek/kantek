@@ -33,8 +33,12 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
             silent: Don't send the notification message
             exclude: Don't ban gbanned users
     """
-    if event.is_private or event.user_left or event.user_kicked:
+    if event.is_private:
         return
+
+    if isinstance(event, ChatAction.Event):
+        if event.user_left or event.user_kicked:
+            return
 
     if isinstance(event, ChatAction.Event):
         if event.action_message is None:
