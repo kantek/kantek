@@ -84,7 +84,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         except UserIdInvalidError as err:
             logger.error("Error occured while banning %s", err)
             return
-
+        await event.delete()
         if not silent:
             message = MDTeXDocument(Section(
                 Bold('SpamWatch Grenzschutz Ban'),
