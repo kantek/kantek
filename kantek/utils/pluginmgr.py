@@ -11,6 +11,7 @@ from typing import Callable, List, Dict, Optional, Tuple
 from telethon import events
 from telethon.events import NewMessage
 from telethon.events.common import EventBuilder
+from telethon.tl.custom import Forward, Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import ChannelParticipantAdmin
 
@@ -148,7 +149,7 @@ class PluginManager:
                     loader.load_module()
 
     @staticmethod
-    async def _callback(cmd: _Command, args: _Signature, admins: bool, event) -> None:
+    async def _callback(cmd: _Command, args: _Signature, admins: bool, event: NewMessage.Event) -> None:
         """Wrapper around a plugins callback to dynamically pass requested arguments
 
         Args:
@@ -156,11 +157,18 @@ class PluginManager:
             event: The NewMessage Event
         """
         client = event.client
+        msg: Message = event.message
+        if msg.via_bot_id is not None:
+            return
+        if msg.forward is not None:
+            forward: Forward = msg.forward
+            me = await client.get_me()
+            if forward.sender_id is None or forward.sender_id != me.id:
+                return
         callback = cmd.callback
         skip_args = 1
         help_topic = [cmd.commands[0]]
         if cmd.subcommands:
-            msg = event.message
             raw_args = msg.raw_text.split()[1:]
             if raw_args:
                 subcommand: Optional[_SubCommand] = cmd.subcommands.get(raw_args[0])

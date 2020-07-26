@@ -16,7 +16,7 @@ from telethon.errors import UserAdminInvalidError
 from telethon.events import NewMessage, ChatAction
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.patched import Message
-from telethon.tl.types import ChatBannedRights
+from telethon.tl.types import ChatBannedRights, User
 from yarl import URL
 
 from database.arango import ArangoDB
@@ -40,6 +40,7 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
     sw_url: str = None
     aioclient: ClientSession = None
     config: Config
+    _me: Optional[User] = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -220,3 +221,9 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
             if _base_domain:
                 url: str = _base_domain
         return str(url)
+
+    async def get_me(self, input_peer: bool = False) -> User:
+        if self._me is None:
+            self._me = await super().get_me()
+        else:
+            return self._me
