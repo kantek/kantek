@@ -3,8 +3,8 @@ import logging
 import os
 
 import logzero
-import spamwatch
 
+from spamwatch.client import Client as SWClient
 from database.arango import ArangoDB
 from utils._config import Config
 from utils.client import Client
@@ -51,7 +51,7 @@ def main() -> None:
     logger.info('Started kantek v%s', __version__)
 
     if config.spamwatch_host and config.spamwatch_token:
-        client.sw = spamwatch.Client(config.spamwatch_token, host=config.spamwatch_host)
+        client.sw = SWClient(config.spamwatch_token, host=config.spamwatch_host)
         client.sw_url = config.spamwatch_host
 
     client.run_until_disconnected()
