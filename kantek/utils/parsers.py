@@ -14,6 +14,16 @@ BOOL_MAP = {
 Value = Union[int, str, float, complex, bool]
 KeywordArgument = Union[Value, range, List[Value]]
 
+EXPR_PATTERN: Pattern = re.compile(r'(?P<duration>\d+)(?P<unit>[smhdw])')
+
+MULTIPLICATION_MAP = {
+    's': 1,
+    'm': 60,
+    'h': 60 * 60,
+    'd': 60 * 60 * 24,
+    'w': 60 * 60 * 24 * 7,
+}
+
 
 def _parse_number(val: str) -> Value:
     if val.isdecimal():
@@ -135,3 +145,40 @@ def parse_arguments(arguments: str) -> Tuple[Dict[str, KeywordArgument], List[Va
     # convert any numbers to int
     args = [_parse_number(val) for val in arguments.split()]
     return keyword_args, args + quoted_args
+
+
+def parse_time(expr) -> int:
+    """Parse a abbreviated time expression into seconds
+
+    Supports s, m, h, d and w for seconds, minutes, hours, days and weeks respectively.
+
+    >>> parse_time('1s')
+    1
+
+    >>> parse_time('1m')
+    60
+
+    >>> parse_time('1h')
+    3600
+
+    >>> parse_time('1d')
+    86400
+
+    >>> parse_time('1w')
+    604800
+
+    >>> parse_time('1s2m')
+    121
+
+    >>> parse_time('3h1d')
+    97200
+
+    Args:
+        expr: The time expression
+
+    Returns: The time in seconds
+    """
+    total_duration = 0
+    for duration, unit in EXPR_PATTERN.findall(expr):
+        total_duration += int(duration) * MULTIPLICATION_MAP[unit]
+    return total_duration
