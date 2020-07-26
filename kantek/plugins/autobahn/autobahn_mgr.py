@@ -33,12 +33,14 @@ INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
 @k.command('autobahn', 'ab')
-async def autobahn() -> None:
+async def autobahn() -> MDTeXDocument:
     """Manage Autobahn blacklists.
 
     Each message will be checked for blacklisted items and if a match is found the user is automatically gbanned.
     """
-    pass
+    return MDTeXDocument(
+        Section('Types',
+                *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
 
 
 @autobahn.subcommand()
@@ -205,7 +207,7 @@ async def del_(db: ArangoDB, args) -> MDTeXDocument:
 
 
 @autobahn.subcommand()
-async def query(args, kwargs, db: ArangoDB) -> MDTeXDocument:
+async def query(kwargs, db: ArangoDB) -> MDTeXDocument:
     """Query a blacklist for a specific code.
 
     Blacklist names are _not_ the hexadecimal short hands
@@ -215,10 +217,6 @@ async def query(args, kwargs, db: ArangoDB) -> MDTeXDocument:
         {cmd} type: channel code: 4..20
         {cmd} types
     """
-    if 'types' in args:
-        return MDTeXDocument(
-            Section('Types',
-                    *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
     item_type = kwargs.get('type')
     code = kwargs.get('code')
 
