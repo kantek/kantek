@@ -32,7 +32,7 @@ async def puge(client: Client, chat: Channel, msg: Message, args, event) -> None
     else:
         reply_msg: Message = await msg.get_reply_message()
         if event.is_private:
-            message_ids = client.get_messages(chat, min_id=reply_msg.id)
+            message_ids = await client.get_messages(chat, min_id=reply_msg.id, max_id=msg.id)
         else:
             message_ids = list(range(reply_msg.id, msg.id))
     await client.delete_messages(chat, message_ids)
