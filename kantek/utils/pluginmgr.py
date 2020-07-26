@@ -86,16 +86,41 @@ class PluginManager:
         self.config = Config()
         self._import_plugins()
 
-    def _import_plugins(self) -> None:
-        """Import all plugins so the decorators are run"""
-        for root, dirs, files in os.walk(str(self.config.plugin_path)):  # pylint: disable = W0612
-            for file in files:
-                path = os.path.join(root, file)
-                name, ext = os.path.splitext(file)
-                if ext == '.py':
-                    _module: ModuleSpec = importlib.util.spec_from_file_location(name, path)
-                    loader: SourceFileLoader = _module.loader
-                    loader.load_module()
+    @classmethod
+    def command(cls, *commands: str, private: bool = True, admins: bool = False):
+        """Add a command to the client
+
+        Args:
+            commands: Command names to be used, will be concated using regex
+            private: True if the command should only be run when sent from the user
+            admins: Set to True if chat admins should be allowed to use the command too
+
+        Returns:
+
+        """
+        if not commands:
+            raise SyntaxError('Command must have at least one command name')
+
+        def decorator(callback):
+            signature = inspect.signature(callback)
+            auto_respond = signature.return_annotation is MDTeXDocument or signature.return_annotation is Optional[
+                MDTeXDocument]
+            args = _Signature(**{n: True for n in signature.parameters.keys()})
+            cmd = _Command(callback, private, admins, commands, args, auto_respond)
+            cls.commands[commands[0]] = cmd
+            return cmd
+
+        return decorator
+
+    @classmethod
+    def event(cls, event, name: str = None):
+        """Add a Event to the client"""
+
+        def decorator(callback):
+            cls.events.append(_Event(callback, event, name))
+            return callback
+
+        return decorator
 
     def register_all(self):
         """Add all commands and events to the client"""
@@ -110,6 +135,17 @@ class PluginManager:
 
         for e in self.events:
             self.client.add_event_handler(e.callback, e.event)
+
+    def _import_plugins(self) -> None:
+        """Import all plugins so the decorators are run"""
+        for root, dirs, files in os.walk(str(self.config.plugin_path)):  # pylint: disable = W0612
+            for file in files:
+                path = os.path.join(root, file)
+                name, ext = os.path.splitext(file)
+                if ext == '.py':
+                    _module: ModuleSpec = importlib.util.spec_from_file_location(name, path)
+                    loader: SourceFileLoader = _module.loader
+                    loader.load_module()
 
     @staticmethod
     async def _callback(cmd: _Command, args: _Signature, admins: bool, event) -> None:
@@ -181,41 +217,6 @@ class PluginManager:
         result = await callback(**callback_args)
         if result and cmd.auto_respond:
             await client.respond(event, str(result))
-
-    @classmethod
-    def command(cls, *commands: str, private: bool = True, admins: bool = False):
-        """Add a command to the client
-
-        Args:
-            commands: Command names to be used, will be concated using regex
-            private: True if the command should only be run when sent from the user
-            admins: Set to True if chat admins should be allowed to use the command too
-
-        Returns:
-
-        """
-        if not commands:
-            raise SyntaxError('Command must have at least one command name')
-
-        def decorator(callback):
-            signature = inspect.signature(callback)
-            auto_respond = signature.return_annotation is MDTeXDocument or signature.return_annotation is Optional[MDTeXDocument]
-            args = _Signature(**{n: True for n in signature.parameters.keys()})
-            cmd = _Command(callback, private, admins, commands, args, auto_respond)
-            cls.commands[commands[0]] = cmd
-            return cmd
-
-        return decorator
-
-    @classmethod
-    def event(cls, event, name: str = None):
-        """Add a Event to the client"""
-
-        def decorator(callback):
-            cls.events.append(_Event(callback, event, name))
-            return callback
-
-        return decorator
 
 
 k = PluginManager
