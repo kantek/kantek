@@ -53,6 +53,5 @@ async def info(client: Client, tags: Tags, chat: Channel, event: Command) -> Opt
 
     data = []
     data += [KeyValueItem(Bold(key), value) for key, value in tags.named_tags.items()]
-    data += [Item(_tag) for _tag in tags.tags]
     tags = Section('tags:', *data or [Italic('None')])
     return MDTeXDocument(chat_info, user_stats, tags)
