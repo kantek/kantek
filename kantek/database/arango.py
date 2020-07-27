@@ -246,8 +246,6 @@ class ArangoDB:  # pylint: disable = R0902
         self.ab_bio_blacklist: AutobahnBioBlacklist = self._get_collection('AutobahnBioBlacklist')
         self.ab_string_blacklist: AutobahnStringBlacklist = self._get_collection(
             'AutobahnStringBlacklist')
-        self.ab_filename_blacklist: AutobahnFilenameBlacklist = self._get_collection(
-            'AutobahnFilenameBlacklist')
         self.ab_channel_blacklist: AutobahnChannelBlacklist = self._get_collection(
             'AutobahnChannelBlacklist')
         self.ab_domain_blacklist: AutobahnDomainBlacklist = self._get_collection(
@@ -261,7 +259,6 @@ class ArangoDB:  # pylint: disable = R0902
         self.ab_collection_map = {
             '0x0': self.ab_bio_blacklist,
             '0x1': self.ab_string_blacklist,
-            '0x2': self.ab_filename_blacklist,
             '0x3': self.ab_channel_blacklist,
             '0x4': self.ab_domain_blacklist,
             '0x5': self.ab_file_blacklist,
