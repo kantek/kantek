@@ -14,7 +14,7 @@ MISC_TOPICS = ['parsers']
 
 @k.command('help')
 async def help_(client: Client, args, kwargs) -> MDTeXDocument:
-    """Get help for kantek commands.
+    """Get help for Kantek commands.
 
     Arguments:
         `topic`: A help topic as listed by {prefix}help

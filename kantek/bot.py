@@ -47,8 +47,8 @@ def main() -> None:
                          config.db_password,
                          config.db_name)
 
-    tlog.info('Started kantek v%s', __version__)
-    logger.info('Started kantek v%s', __version__)
+    tlog.info('Started Kantek v%s', __version__)
+    logger.info('Started Kantek v%s', __version__)
 
     if config.spamwatch_host and config.spamwatch_token:
         client.sw = SWClient(config.spamwatch_token, host=config.spamwatch_host)

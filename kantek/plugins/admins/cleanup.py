@@ -24,7 +24,7 @@ async def cleanup(client: Client, chat: Channel, msg: Message,
     Arguments:
         `-count`: Only count deleted accounts and don't remove them
         `-silent`: Don't send a progress message
-        `-self`: Use to make other kantek instances ignore your command
+        `-self`: Use to make other Kantek instances ignore your command
 
     Examples:
         {cmd}

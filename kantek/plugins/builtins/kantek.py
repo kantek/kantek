@@ -1,4 +1,4 @@
-"""Plugin to get information about kantek."""
+"""Plugin to get information about Kantek."""
 import logging
 import platform
 
@@ -17,7 +17,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 @k.command('kantek')
 async def kantek(client: Client, chat: Channel) -> MDTeXDocument:
-    """Show information about kantek.
+    """Show information about Kantek.
 
     Examples:
         {cmd}
@@ -29,7 +29,7 @@ async def kantek(client: Client, chat: Channel) -> MDTeXDocument:
     except ChatSendStickersForbiddenError:
         pass
     return MDTeXDocument(
-        Section(f"{Bold('kantek')} userbot",
+        Section(f"{Bold('Kantek')} userbot",
                 KeyValueItem(Bold('source'), config.source_url),
                 KeyValueItem(Bold('version'), client.kantek_version),
                 KeyValueItem(Bold('telethon version'), telethon.__version__),

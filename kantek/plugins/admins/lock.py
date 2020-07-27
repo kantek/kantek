@@ -17,7 +17,7 @@ async def lock(client: Client, event: Command) -> MDTeXDocument:
     """Set a chat to read only.
 
     Arguments:
-        `-self`: Use to make other kantek instances ignore your command
+        `-self`: Use to make other Kantek instances ignore your command
 
     Examples:
         {cmd}
