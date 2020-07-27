@@ -49,6 +49,7 @@ class _Command:
     commands: Tuple[str]
     signature: _Signature
     auto_respond: bool
+    document: bool = True
 
     subcommands: Optional[Dict[str, _SubCommand]] = None
 
@@ -88,13 +89,14 @@ class PluginManager:
         self._import_plugins()
 
     @classmethod
-    def command(cls, *commands: str, private: bool = True, admins: bool = False):
+    def command(cls, *commands: str, private: bool = True, admins: bool = False, document: bool = True):
         """Add a command to the client
 
         Args:
             commands: Command names to be used, will be concated using regex
             private: True if the command should only be run when sent from the user
             admins: Set to True if chat admins should be allowed to use the command too
+            document: If the help command should list this command
 
         Returns:
 
@@ -107,7 +109,7 @@ class PluginManager:
             auto_respond = signature.return_annotation is MDTeXDocument or signature.return_annotation is Optional[
                 MDTeXDocument]
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            cmd = _Command(callback, private, admins, commands, args, auto_respond)
+            cmd = _Command(callback, private, admins, commands, args, auto_respond, document)
             cls.commands[commands[0]] = cmd
             return cmd
 

@@ -32,7 +32,8 @@ async def help_(client: Client, args, kwargs) -> MDTeXDocument:
         toc = MDTeXDocument()
         _cmds = []
         for name, cmd in cmds.items():
-            _cmds.append(', '.join(cmd.commands))
+            if cmd.document:
+                _cmds.append(', '.join(cmd.commands))
         _events = []
         toc.append(Section('Command List', *sorted(_cmds)))
         for e in events:
