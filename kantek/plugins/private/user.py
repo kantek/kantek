@@ -49,10 +49,10 @@ async def user_info(msg: Message, tags: Tags, client: Client, db: ArangoDB,
     if not args and msg.is_reply:
         return await _info_from_reply(client, msg, db, kwargs, tags)
     elif args:
-        return await _info_from_arguments(client, msg, args, kwargs)
+        return await _info_from_arguments(client, msg, db, args, kwargs)
 
 
-async def _info_from_arguments(client, msg, args, kwargs) -> MDTeXDocument:
+async def _info_from_arguments(client, msg, db, args, kwargs) -> MDTeXDocument:
     gban_format = kwargs.get('gban', False)
     entities = []
     for entity in msg.get_entities_text():
@@ -74,7 +74,7 @@ async def _info_from_arguments(client, msg, args, kwargs) -> MDTeXDocument:
             if isinstance(user, Channel):
                 errors.append(str(entity))
                 continue
-            users.append(str(await _collect_user_info(client, user, **kwargs)))
+            users.append(str(await _collect_user_info(client, user, db, **kwargs)))
         except constants.GET_ENTITY_ERRORS:
             errors.append(str(entity))
     if users and gban_format:
@@ -96,7 +96,7 @@ async def _info_from_reply(client, msg, db, kwargs, tags) -> MDTeXDocument:
         user: User = await client.get_entity(forward.sender_id)
     else:
         user: User = await client.get_entity(reply_msg.sender_id)
-    user_section = await _collect_user_info(client, user, **kwargs)
+    user_section = await _collect_user_info(client, user, db, **kwargs)
     if anzeige and isinstance(user_section, Section):
         data = await helpers.create_strafanzeige(user.id, reply_msg)
         key = db.strafanzeigen.add(data)
@@ -104,7 +104,7 @@ async def _info_from_reply(client, msg, db, kwargs, tags) -> MDTeXDocument:
     return MDTeXDocument(user_section)
 
 
-async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyValueItem]:
+async def _collect_user_info(client, user, db, **kwargs) -> Union[str, Section, KeyValueItem]:
     id_only = kwargs.get('id', False)
     gban_format = kwargs.get('gban', False)
     show_general = kwargs.get('general', True)
@@ -129,7 +129,7 @@ async def _collect_user_info(client, user, **kwargs) -> Union[str, Section, KeyV
         title = Bold(full_name)
 
     sw_ban = None
-    ban_reason = client.db.banlist.get_user(user.id)
+    ban_reason = db.banlist.get_user(user.id)
     if ban_reason:
         ban_reason = ban_reason['reason']
         if client.sw and client.sw.permission.value <= Permission.User.value:

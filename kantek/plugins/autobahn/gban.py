@@ -178,7 +178,7 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) ->
 
 
 @k.command('ungban')
-async def ungban(client: Client, msg: Message,
+async def ungban(client: Client, db: ArangoDB, msg: Message,
                  args: List, event: Command) -> Optional[MDTeXDocument]:
     """Globally unban a User
 
@@ -200,7 +200,7 @@ async def ungban(client: Client, msg: Message,
 
     unbanned_users = []
     for uid in users_to_unban:
-        if client.db.banlist.get_user(uid):
+        if db.banlist.get_user(uid):
             await client.ungban(uid)
             unbanned_users.append(str(uid))
     if unbanned_users:
