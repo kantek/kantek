@@ -242,7 +242,7 @@ class ArangoDB:  # pylint: disable = R0902
                                username=username,
                                password=password)
         self.db = self._get_db(name)
-        self.groups: Strafanzeigen = self._get_collection('Chats')
+        self.chats: Chats = self._get_collection('Chats')
         self.ab_bio_blacklist: AutobahnBioBlacklist = self._get_collection('AutobahnBioBlacklist')
         self.ab_string_blacklist: AutobahnStringBlacklist = self._get_collection(
             'AutobahnStringBlacklist')

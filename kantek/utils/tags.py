@@ -13,7 +13,7 @@ class Tags:
 
     def __init__(self, event: NewMessage.Event):
         db: ArangoDB = event.client.db
-        collection = db.groups
+        collection = db.chats
 
         if not event.is_private:
             self._document = collection.get_chat(event.chat_id)
