@@ -46,11 +46,8 @@ async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, ev
             commands = (await reply_msg.download_media(bytes)).decode().split('\n')
         else:
             commands = reply_msg.text.split('\n')
-        current = datetime.now()
-        next_time = datetime(current.year, current.month,
-                             current.day, current.hour, 0, 0).astimezone(timezone.utc)
-        next_time += timedelta(hours=1)
-        from_time = next_time
+        from_time = datetime.now()
+        next_time = from_time.astimezone(timezone.utc)
         for cmd in commands:
             if cmd:
                 if dynamic:
@@ -62,9 +59,9 @@ async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, ev
         return MDTeXDocument(
             Section('Scheduled Messages',
                     KeyValueItem(Bold('From'),
-                                 from_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
+                                 from_time.strftime('%Y-%m-%d %H:%M:%S')),
                     KeyValueItem(Bold('To'),
-                                 next_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
+                                 next_time.astimezone(from_time.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
                     KeyValueItem(Bold('Count'), Code(len(commands)))
                     ))
 
