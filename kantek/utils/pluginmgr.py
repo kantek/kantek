@@ -37,7 +37,7 @@ class _Signature:  # pylint: disable = R0902
 class _SubCommand:
     callback: Callable
     command: str
-    args: _Signature
+    signature: _Signature
     auto_respond: bool
 
 
@@ -179,7 +179,7 @@ class PluginManager:
                 if subcommand:
                     callback = subcommand.callback
                     skip_args = 2
-                    args: _Signature = subcommand.args
+                    args: _Signature = subcommand.signature
                     cmd: _SubCommand = subcommand
                     help_topic.append(cmd.command)
 

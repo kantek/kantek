@@ -43,7 +43,7 @@ async def requires(client: Client, args, kwargs) -> MDTeXDocument:
             _cmd.append(KeyValueItem(_requires, req))
         if cmd.subcommands:
             for scname, scmd in cmd.subcommands.items():
-                screq = scmd.args.__dict__[_requires]
+                screq = scmd.signature.__dict__[_requires]
                 if screq is not hide:
                     _scmd = SubSubSection(scname,
                                           KeyValueItem(_requires, screq))
