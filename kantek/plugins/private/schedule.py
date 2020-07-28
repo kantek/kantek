@@ -47,14 +47,13 @@ async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, ev
         else:
             commands = reply_msg.text.split('\n')
         current = datetime.now()
-        next_time = datetime(current.year, current.month,
-                             current.day, current.hour, 0, 0).astimezone(timezone.utc)
-        next_time += timedelta(hours=1)
+        next_time = current.astimezone(timezone.utc)
+        next_time += timedelta(minutes=5)
         from_time = next_time
         for cmd in commands:
             if cmd:
                 if dynamic:
-                    offset = len(cmd.split()) ** 0.7
+                    offset = (len(cmd.split()) ** 0.7)*60
                 await client.send_message(chat, cmd, schedule=next_time)
                 next_time += timedelta(seconds=offset)
                 await asyncio.sleep(0.5)
