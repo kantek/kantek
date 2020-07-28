@@ -1,4 +1,6 @@
 """Module containing all operations related to ArangoDB"""
+import secrets
+import time
 from typing import Dict, Optional, Any
 
 from pyArango.collection import Collection, Field
@@ -29,14 +31,11 @@ class Chats(Collection):
         }
     }
 
-    def add(self, chat_id: int) -> Optional[Document]:
+    def add_chat(self, chat_id: int) -> Optional[Document]:
         """Add a Chat to the DB or return an existing one.
-
         Args:
             chat_id: The id of the chat
-
         Returns: The chat Document
-
         """
         data = {'_key': str(chat_id),
                 'id': chat_id,
@@ -49,28 +48,16 @@ class Chats(Collection):
         except CreationError:
             return None
 
-    def get(self, chat_id: int) -> Document:
+    def get_chat(self, chat_id: int) -> Document:
         """Return a Chat document
-
         Args:
             chat_id: The id of the chat
-
         Returns: The chat Document
-
         """
         try:
             return self[chat_id]
         except DocumentNotFoundError:
-            return self.add(chat_id)
-
-    def tags(self, chat_id: int):
-        _document = self.get(chat_id)
-        return _document['named_tags'].getStore()
-
-    def update_tags(self, chat_id: int, new: Dict):
-        _document = self.get(chat_id)
-        _document['named_tags'] = new
-        _document.save()
+            return self.add_chat(chat_id)
 
 
 class AutobahnBlacklist(Collection):
@@ -91,14 +78,11 @@ class AutobahnBlacklist(Collection):
         }
     }
 
-    def add(self, item: str) -> Optional[Document]:
+    def add_item(self, item: str) -> Optional[Document]:
         """Add a Chat to the DB or return an existing one.
-
         Args:
             item: The id of the chat
-
         Returns: The chat Document
-
         """
         data = {'string': item}
 
@@ -108,16 +92,6 @@ class AutobahnBlacklist(Collection):
             return doc
         except CreationError:
             return None
-
-    def get(self, item: str) -> Optional[Document]:
-        return self.fetchByExample({'string': item}, batchSize=1)
-
-    def retire(self, item):
-        existing_one: Document = self.fetchFirstExample({'string': item})
-        if existing_one:
-            existing_one[0].delete()
-        else:
-            return False
 
     def get_all(self) -> Dict[str, str]:
         """Get all strings in the Blacklist."""
@@ -183,13 +157,10 @@ class BanList(Collection):
 
     def add_user(self, _id: int, reason: str) -> Optional[Document]:
         """Add a Chat to the DB or return an existing one.
-
         Args:
             _id: The id of the User
             reason: The ban reason
-
         Returns: The chat Document
-
         """
         data = {'_key': _id,
                 'id': _id,
@@ -204,12 +175,9 @@ class BanList(Collection):
 
     def get_user(self, uid: int) -> Optional[Document]:
         """Fetch a users document
-
         Args:
             uid: User ID
-
         Returns: None or the Document
-
         """
         try:
             return self.fetchDocument(uid)
@@ -229,9 +197,10 @@ class Strafanzeigen(Collection):
         'on_save': True,
     }
 
-    def add(self, creation_date, content, key):
+    def add(self, content):
+        key = secrets.token_urlsafe(10)
         data = {
-            'creation_date': creation_date,
+            'creation_date': time.time(),
             'data': content,
             'key': key
         }
@@ -299,12 +268,9 @@ class ArangoDB:  # pylint: disable = R0902
 
     def _get_db(self, db: str) -> Database:
         """Return a database. Create it if it doesn't exist yet.
-
         Args:
             db: The name of the Database
-
         Returns: The Database object
-
         """
         if self.conn.hasDatabase(db):
             return self.conn[db]
@@ -313,12 +279,9 @@ class ArangoDB:  # pylint: disable = R0902
 
     def _get_collection(self, collection: str) -> Collection:
         """Return a collection of create it if it doesn't exist yet.
-
         Args:
             collection: The name of the collection
-
         Returns: The Collection object
-
         """
         if self.db.hasCollection(collection):
             return self.db[collection]
