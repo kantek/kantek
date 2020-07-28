@@ -58,7 +58,7 @@ async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, ev
                 try:
                     await client.send_message(chat, cmd, schedule=next_time)
                 except FloodWaitError as err:
-                    msg.edit(f'FloodWait. Sleeping for {err.seconds} seconds.')
+                    await msg.edit(f'FloodWait. Sleeping for {err.seconds} seconds.')
                     await asyncio.sleep(err.seconds)
 
                 next_time += timedelta(seconds=offset)
