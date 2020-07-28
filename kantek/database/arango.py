@@ -1,6 +1,4 @@
 """Module containing all operations related to ArangoDB"""
-import secrets
-import time
 from typing import Dict, Optional, Any
 
 from pyArango.collection import Collection, Field
@@ -31,7 +29,7 @@ class Chats(Collection):
         }
     }
 
-    def add_chat(self, chat_id: int) -> Optional[Document]:
+    def add(self, chat_id: int) -> Optional[Document]:
         """Add a Chat to the DB or return an existing one.
 
         Args:
@@ -51,7 +49,7 @@ class Chats(Collection):
         except CreationError:
             return None
 
-    def get_chat(self, chat_id: int) -> Document:
+    def get(self, chat_id: int) -> Document:
         """Return a Chat document
 
         Args:
@@ -63,7 +61,16 @@ class Chats(Collection):
         try:
             return self[chat_id]
         except DocumentNotFoundError:
-            return self.add_chat(chat_id)
+            return self.add(chat_id)
+
+    def tags(self, chat_id: int):
+        _document = self.get(chat_id)
+        return _document['named_tags'].getStore()
+
+    def update_tags(self, chat_id: int, new: Dict):
+        _document = self.get(chat_id)
+        _document['named_tags'] = new
+        _document.save()
 
 
 class AutobahnBlacklist(Collection):
@@ -84,7 +91,7 @@ class AutobahnBlacklist(Collection):
         }
     }
 
-    def add_item(self, item: str) -> Optional[Document]:
+    def add(self, item: str) -> Optional[Document]:
         """Add a Chat to the DB or return an existing one.
 
         Args:
@@ -101,6 +108,16 @@ class AutobahnBlacklist(Collection):
             return doc
         except CreationError:
             return None
+
+    def get(self, item: str) -> Optional[Document]:
+        return self.fetchByExample({'string': item}, batchSize=1)
+
+    def retire(self, item):
+        existing_one: Document = self.fetchFirstExample({'string': item})
+        if existing_one:
+            existing_one[0].delete()
+        else:
+            return False
 
     def get_all(self) -> Dict[str, str]:
         """Get all strings in the Blacklist."""
@@ -212,10 +229,9 @@ class Strafanzeigen(Collection):
         'on_save': True,
     }
 
-    def add(self, content):
-        key = secrets.token_urlsafe(10)
+    def add(self, creation_date, content, key):
         data = {
-            'creation_date': time.time(),
+            'creation_date': creation_date,
             'data': content,
             'key': key
         }

@@ -44,12 +44,10 @@ async def requires(client: Client, args, kwargs) -> MDTeXDocument:
         if cmd.subcommands:
             for scname, scmd in cmd.subcommands.items():
                 screq = scmd.args.__dict__[_requires]
-                print(screq)
                 if screq is not hide:
                     _scmd = SubSubSection(scname,
                                           KeyValueItem(_requires, screq))
                     _cmd.append(_scmd)
         if _cmd.items:
             result.append(_cmd)
-    # print(commands)
     return MDTeXDocument(result)
