@@ -199,7 +199,7 @@ class PluginManager:
             _cmd: Optional[_Command] = PluginManager.commands.get('help')
             if _cmd:
                 cmd = _cmd
-                args: _Signature = cmd.args
+                args: _Signature = cmd.signature
                 callback = cmd.callback
                 _args = help_topic
                 _kwargs = {}
