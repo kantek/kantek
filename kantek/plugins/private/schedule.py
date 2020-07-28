@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict
 
+from telethon.errors import FloodWaitError
 from telethon.tl.functions.messages import GetScheduledHistoryRequest, DeleteScheduledMessagesRequest
 from telethon.tl.patched import Message
 from telethon.tl.types import Channel, MessageMediaDocument
@@ -54,7 +55,12 @@ async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, ev
             if cmd:
                 if dynamic:
                     offset = (len(cmd.split()) ** 0.7)*60
-                await client.send_message(chat, cmd, schedule=next_time)
+                try:
+                    await client.send_message(chat, cmd, schedule=next_time)
+                except FloodWaitError as err:
+                    msg.edit(f'FloodWait. Sleeping for {err.seconds} seconds.')
+                    await asyncio.sleep(err.seconds)
+
                 next_time += timedelta(seconds=offset)
                 await asyncio.sleep(0.5)
         await event.delete()
