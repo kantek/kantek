@@ -1,6 +1,5 @@
 """Main bot module. Setup logging, register components"""
 import logging
-import os
 
 import logzero
 from spamwatch.client import Client as SWClient
@@ -28,11 +27,7 @@ def main() -> None:
     handler = TGChannelLogHandler(config.log_bot_token,
                                   config.log_channel_id)
     tlog.addHandler(handler)
-
-    client = Client(
-        os.path.abspath(config.session_name),
-        config.api_id,
-        config.api_hash)
+    client = Client(str(config.session_name), config.api_id, config.api_hash)
     # noinspection PyTypeChecker
     client.start(config.phone)
     client.config = config
