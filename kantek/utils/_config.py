@@ -10,10 +10,6 @@ logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
 tlog = logging.getLogger('kantek-channel-log')
 
 
-def _default_prefix():
-    return ['.']
-
-
 @dataclass
 class ConfigWrapper:
     api_id: int
@@ -34,7 +30,7 @@ class ConfigWrapper:
     db_name: str = "kantek"
     db_host: str = 'http://127.0.0.1:8529'
 
-    cmd_prefix: List[str] = field(default_factory=_default_prefix)
+    cmd_prefix: List[str] = field(default_factory=lambda: ['.'])
 
     session_name: str = 'kantek-session'
 
