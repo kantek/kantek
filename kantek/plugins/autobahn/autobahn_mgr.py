@@ -213,7 +213,7 @@ async def del_(db: Database, args) -> MDTeXDocument:
 
 
 @autobahn.subcommand()
-async def query(kwargs, db: Database) -> MDTeXDocument:
+async def query(args, kwargs, db: Database) -> MDTeXDocument:
     """Query a blacklist for a specific code.
 
     Blacklist names are _not_ the hexadecimal short hands
@@ -226,7 +226,7 @@ async def query(kwargs, db: Database) -> MDTeXDocument:
         {cmd} type: domain code: 3
         {cmd} type: channel code: 4..20
     """
-    item_type = kwargs.get('type')
+    item_type = kwargs.get('type') or args[0]
     code = kwargs.get('code')
 
     hex_type = None
