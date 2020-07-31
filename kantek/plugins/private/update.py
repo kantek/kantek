@@ -1,4 +1,4 @@
-from asyncio import subprocess
+import subprocess
 
 from utils._config import Config
 from utils.client import Client
@@ -19,11 +19,9 @@ async def update(client: Client, event: Command) -> None:
     progess_message = await client.respond(event, MDTeXDocument(
         Section('Updating',
                 f'Running {Code("git pull")}')))
-    await subprocess.create_subprocess_shell('git pull -q')
-    proc = await subprocess.create_subprocess_shell('git rev-parse --short HEAD',
-                                                    stdout=subprocess.PIPE,
-                                                    stderr=subprocess.PIPE)
-    new_commit = (await proc.stdout.read()).decode().strip()
+    subprocess.call(['git', 'pull', '-q'])
+    proc = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
+    new_commit = proc.decode().strip()
     await progess_message.delete()
     await client.respond(
         event,
@@ -32,3 +30,4 @@ async def update(client: Client, event: Command) -> None:
                     KeyValueItem('New commit', Link(new_commit, f'{config.source_url}/commit/{new_commit}')),
                     Italic('Restarting bot'))))
     await client.disconnect()
+    await client.aioclient.close()
