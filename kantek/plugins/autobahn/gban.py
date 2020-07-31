@@ -53,7 +53,10 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
         {cmd}
     """
     _gban = tags.get('gban')
-    admin = bool(chat.creator or chat.admin_rights)
+    if event.is_private:
+        admin = False
+    else:
+        admin = bool(chat.creator or chat.admin_rights)
     only_joinspam = kwargs.get('only_joinspam', False) or kwargs.get('oj', False)
     sa_key = kwargs.get('sa')
     anzeige = None
