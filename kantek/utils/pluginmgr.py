@@ -10,6 +10,7 @@ from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
 from typing import Callable, List, Dict, Optional, Tuple
 
+import logzero
 from telethon import events
 from telethon.events import NewMessage
 from telethon.events.common import EventBuilder
@@ -22,6 +23,7 @@ from utils._config import Config
 from utils.mdtex import *
 from utils.tags import Tags
 
+logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
 tlog = logging.getLogger('kantek-channel-log')
 
 
@@ -253,6 +255,7 @@ class PluginManager:
             elif isinstance(cmd, _SubCommand):
                 command = cmd.command
             tlog.error(f'An error occured while running `{command}`', exc_info=err)
+            logger.exception(err)
 
 
 k = PluginManager
