@@ -8,7 +8,7 @@ from PIL import UnidentifiedImageError
 from photohash import hashes_are_similar
 from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
-from telethon.errors import UserNotParticipantError
+from telethon.errors import UserNotParticipantError, AuthBytesInvalidError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
@@ -87,12 +87,16 @@ async def join_polizei(event: ChatAction.Event) -> None:
             ban_type, ban_reason = db.blacklists.bio.hex_type, item.index
 
     if user.profile_photo:
-        dl_photo = await client.download_file(user.profile_photo)
-        photo_hash = await hash_photo(dl_photo)
+        try:
+            dl_photo = await client.download_file(user.profile_photo)
+        except AuthBytesInvalidError:
+            dl_photo = None
+        if dl_photo:
+            photo_hash = await hash_photo(dl_photo)
 
-        for mhash in mhash_blacklist:
-            if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
-                ban_type, ban_reason = db.blacklists.mhash.hex_type, mhash.index
+            for mhash in mhash_blacklist:
+                if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
+                    ban_type, ban_reason = db.blacklists.mhash.hex_type, mhash.index
 
     if ban_type and ban_reason:
         await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
