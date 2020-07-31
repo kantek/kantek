@@ -78,7 +78,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     if not result:
         return
     else:
-        ban_reason = result[0]['reason']
+        ban_reason = result.reason
     admins = [p.id for p in await client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins())]
     if uid not in admins:
         try:
