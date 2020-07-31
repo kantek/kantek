@@ -141,7 +141,7 @@ class PluginManager:
             self.client.add_event_handler(new_callback, event)
 
         for e in self.events:
-            self.client.add_event_handler(e.callback, e.event)
+            self.client.add_event_handler(functools.partial(self._event_callback, e), e.event)
 
     def _import_plugins(self) -> None:
         """Import all plugins so the decorators are run"""
@@ -153,6 +153,14 @@ class PluginManager:
                     _module: ModuleSpec = importlib.util.spec_from_file_location(name, path)
                     loader: SourceFileLoader = _module.loader
                     loader.load_module()
+
+    @staticmethod
+    async def _event_callback(event: _Event, tg_event) -> None:
+        try:
+            await event.callback(tg_event)
+        except Exception as err:
+            name = event.callback.__name__
+            tlog.error(f'An error occured in the event `{name}`', exc_info=err)
 
     @staticmethod
     async def _callback(cmd: _Command, args: _Signature, admins: bool, event: NewMessage.Event) -> None:
