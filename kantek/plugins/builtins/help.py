@@ -73,7 +73,7 @@ def get_event_info(event, subcommands, config) -> MDTeXDocument:
 def get_command_info(cmd, subcommands, config) -> MDTeXDocument:
     cmd_name = cmd.commands[0]
     if not subcommands:
-        help_cmd = f'{config.help_prefix}{cmd_name}'
+        help_cmd = f'{config.cmd_prefix[0]}{cmd_name}'
         description = get_description(cmd.callback, help_cmd)
         help_msg = MDTeXDocument(Section(f'Help for {help_cmd}'), description)
 
@@ -101,7 +101,7 @@ def get_command_info(cmd, subcommands, config) -> MDTeXDocument:
         if subcommand is None:
             return MDTeXDocument(
                 Section('Error', f'Unknown subcommand {Code(subcommands[0])} for command {Code(cmd_name)}'))
-        help_cmd = f'{config.help_prefix}{cmd_name} {subcommand.command}'
+        help_cmd = f'{config.cmd_prefix[0]}{cmd_name} {subcommand.command}'
         description = get_description(subcommand.callback, help_cmd)
 
         help_msg = MDTeXDocument(Section(f'Help for {help_cmd}'), description)
@@ -114,7 +114,7 @@ def get_description(callback: Callable, help_cmd: str) -> str:
     description = inspect.getdoc(callback)
     if description is None:
         return 'No description'
-    description = description.format(cmd=help_cmd, prefix=config.help_prefix)
+    description = description.format(cmd=help_cmd, prefix=config.cmd_prefix[0])
     description = SECTION_PATTERN.sub(str(Bold(r'\g<name>')), description)
     return description
 

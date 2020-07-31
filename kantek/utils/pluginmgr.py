@@ -134,7 +134,8 @@ class PluginManager:
     def register_all(self):
         """Add all commands and events to the client"""
         for p in self.commands.values():
-            pattern = re.compile(fr'{self.config.cmd_prefix}({"|".join(p.commands)})\b', re.I)
+            prefix = '|'.join([re.escape(p) for p in self.config.cmd_prefix])
+            pattern = re.compile(fr'({prefix})({"|".join(p.commands)})\b', re.I)
             if p.admins:
                 event = events.NewMessage(pattern=pattern)
             else:

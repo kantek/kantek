@@ -1,7 +1,8 @@
 import json
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import List
 
 import logzero
 
@@ -29,8 +30,8 @@ class ConfigWrapper:
     db_name: str = "kantek"
     db_host: str = 'http://127.0.0.1:8529'
 
-    cmd_prefix: str = r'\.'
-    help_prefix: str = '.'
+    cmd_prefix: List[str] = field(default_factory=['.'])
+
     session_name: str = 'kantek-session'
 
     spamwatch_host: str = 'https://api.spamwat.ch'
@@ -54,6 +55,9 @@ class Config:  # pylint: disable = R0902
             with open(config_path) as f:
                 config = json.load(f)
                 config['plugin_path'] = plugin_path
+                if prefix := config.get('cmd_prefix'):
+                    if isinstance(prefix, str):
+                        config['cmd_prefix'] = [prefix]
                 cfg = ConfigWrapper(**config)
                 cfg.session_name = (sessions_dir / cfg.session_name).absolute()
                 return cfg

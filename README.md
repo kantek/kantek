@@ -79,19 +79,12 @@ Get it from http://my.telegram.org/
 | No       | int  | `-`       |
 
 ### cmd_prefix
-If a valid regex character is used it has to be escaped. 
-For example to use `\` as prefix you would have to put `\\\\` into the config.  
+ Provide single prefix or a list of prefixes
+ These will be escaped automatically
 
-| Required | Type | Default |
-| -------- | ---- | ------- |
-| No       | str  | `.`     |
-
-### help_prefix
-The prefix that is used in the help commands examples. This does not need to be regex escaped.
-
-| Required | Type | Default |
-| -------- | ---- | ------- |
-| No       | str  | `.`     |
+| Required | Type     | Default |
+| -------- | -------- | ------- |
+| No       | str|list | `.`     |
 
 ### session_name
 
