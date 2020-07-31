@@ -169,6 +169,8 @@ async def _collect_user_info(client, user, db, **kwargs) -> Union[str, Section, 
                 KeyValueItem('admin', Code(sw_ban.admin)),
                 KeyValueItem('message', Code(ban_message)),
             ])
+        elif not client.sw:
+            spamwatch.append(Italic('Disabled'))
         else:
             spamwatch.append(KeyValueItem('banned', Code('False')))
 
