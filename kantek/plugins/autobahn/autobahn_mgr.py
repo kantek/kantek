@@ -241,7 +241,7 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
                                   Code(item.value)) for item in all_items]
         else:
             items = [Pre(', '.join([item.value for item in all_items]))]
-        return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}]'), *items)
+        return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}]', *items))
 
     elif hex_type is not None and code is not None:
         if isinstance(code, int):
