@@ -128,8 +128,8 @@ class AutobahnBlacklist(Collection):
         documents = db.query('FOR doc IN @@blacklist '
                              'FILTER doc._key in @keys '
                              'RETURN doc',
-                             bind_vars={'@blacklist': self.name,
-                                        'keys': map(str, indices)})
+                             bind_vars={'@blacklist': self.__class__.__name__,
+                                        'keys': list(map(str, indices))})
         return [BlacklistItem(doc["_key"], doc['string'], False)
                 for doc in documents]
 
