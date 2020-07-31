@@ -56,4 +56,5 @@ class TGChannelLogHandler(Handler):
         asyncio.ensure_future(self.bot.send_message(
             chat_id=self.channel_id,
             text=self.format(record),
-            parse_mode='markdown'))
+            parse_mode='markdown',
+            disable_web_page_preview=True))

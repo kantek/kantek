@@ -4,6 +4,7 @@ import csv
 import hashlib
 import logging
 import re
+import subprocess
 import urllib
 from io import BytesIO, StringIO
 from typing import Dict, List, Tuple
@@ -17,6 +18,7 @@ from telethon.tl.custom import Message
 from telethon.tl.types import User, DocumentAttributeFilename
 
 from utils import parsers
+from utils._config import Config
 
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
@@ -157,3 +159,13 @@ async def create_strafanzeige(uid, msg: Message):
     msg_link = f't.me/c/{chat_id}/{msg_id}'
     data = f'{uid} link:{msg_link}'
     return data
+
+
+def get_commit():
+    proc = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
+    return proc.decode().strip()
+
+
+def link_commit(hash):
+    config = Config()
+    return f'{config.source_url}/commit/{hash}'

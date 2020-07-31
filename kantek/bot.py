@@ -6,6 +6,7 @@ import logzero
 from spamwatch.client import Client as SWClient
 
 from database.database import Database
+from utils import helpers
 from utils._config import Config
 from utils.client import Client
 from utils.loghandler import TGChannelLogHandler
@@ -43,7 +44,7 @@ def main() -> None:
     logger.info('Connecting to Database')
     client.db = Database(config.db_type, config)
 
-    tlog.info('Started Kantek v%s', __version__)
+    tlog.info('Started Kantek v%s [%s]', __version__, helpers.link_commit(helpers.get_commit()))
     logger.info('Started Kantek v%s', __version__)
 
     if config.spamwatch_host and config.spamwatch_token:
