@@ -144,7 +144,7 @@ async def add(client: Client, db: Database, msg: Message, args,
                 dl_photo = await reply_msg.download_media(bytes)
                 photo_hash = await helpers.hash_photo(dl_photo)
                 await msg.delete()
-                existing_one = blacklist.get(item)
+                existing_one = blacklist.get_by_value(photo_hash)
 
                 if not existing_one:
                     entry = blacklist.add(photo_hash)
