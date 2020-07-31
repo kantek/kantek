@@ -10,7 +10,7 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.types import Channel, InputReportReasonSpam, InputPeerChannel
 
-from database.arango import ArangoDB
+from database.database import Database
 from utils import helpers, parsers
 from utils.client import Client
 from utils.mdtex import *
@@ -24,7 +24,7 @@ CHUNK_SIZE = 10
 
 
 @k.command('gban')
-async def gban(client: Client, db: ArangoDB, tags: Tags, chat: Channel, msg: Message,
+async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Message,
                args: List, kwargs: Dict, event: Command) -> None:
     """Globally ban a user.
 
@@ -58,9 +58,8 @@ async def gban(client: Client, db: ArangoDB, tags: Tags, chat: Channel, msg: Mes
     sa_key = kwargs.get('sa')
     anzeige = None
     if sa_key:
-        doc = db.strafanzeigen.get(sa_key)
-        if doc:
-            anzeige = doc['data']
+        anzeige = db.strafanzeigen.get(sa_key)
+
     if anzeige:
         _kw, _args = parsers.arguments(anzeige)
         kwargs.update(_kw)
@@ -178,7 +177,7 @@ def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) ->
 
 
 @k.command('ungban')
-async def ungban(client: Client, db: ArangoDB, msg: Message,
+async def ungban(client: Client, db: Database, msg: Message,
                  args: List, event: Command) -> Optional[MDTeXDocument]:
     """Globally unban a User
 
@@ -200,7 +199,7 @@ async def ungban(client: Client, db: ArangoDB, msg: Message,
 
     unbanned_users = []
     for uid in users_to_unban:
-        if db.banlist.get_user(uid):
+        if db.banlist.get(uid):
             await client.ungban(uid)
             unbanned_users.append(str(uid))
     if unbanned_users:

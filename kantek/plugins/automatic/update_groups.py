@@ -23,4 +23,4 @@ async def add_groups(event: NewMessage.Event) -> None:
     if event.is_private:
         return
     client: Client = event.client
-    client.db.chats.get_chat(event.chat_id)
+    client.db.chats.get(event.chat_id)

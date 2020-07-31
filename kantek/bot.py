@@ -3,9 +3,9 @@ import logging
 import os
 
 import logzero
-
 from spamwatch.client import Client as SWClient
-from database.arango import ArangoDB
+
+from database.database import Database
 from utils._config import Config
 from utils.client import Client
 from utils.loghandler import TGChannelLogHandler
@@ -34,7 +34,6 @@ def main() -> None:
         config.api_hash)
     # noinspection PyTypeChecker
     client.start(config.phone)
-
     client.config = config
     client.kantek_version = __version__
 
@@ -42,10 +41,7 @@ def main() -> None:
     client.plugin_mgr.register_all()
 
     logger.info('Connecting to Database')
-    client.db = ArangoDB(config.db_host,
-                         config.db_username,
-                         config.db_password,
-                         config.db_name)
+    client.db = Database(config.db_type, config)
 
     tlog.info('Started Kantek v%s', __version__)
     logger.info('Started Kantek v%s', __version__)

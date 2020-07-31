@@ -5,13 +5,12 @@ import logging
 import os
 import time
 from io import BytesIO
-from typing import List
 
 from spamwatch.types import Ban, Permission
 from telethon.tl.custom import Message
 from telethon.tl.types import DocumentAttributeFilename
 
-from database.arango import ArangoDB
+from database.database import Database
 from utils import helpers
 from utils.client import Client
 from utils.mdtex import *
@@ -29,7 +28,7 @@ async def banlist() -> None:
 
 
 @banlist.subcommand()
-async def query(db: ArangoDB, args, kwargs) -> MDTeXDocument:
+async def query(db: Database, args, kwargs) -> MDTeXDocument:
     """Query the banlist for the total ban count, a specific user or a ban reason.
 
     If no arguments are provided the total count will be returned.
@@ -48,29 +47,20 @@ async def query(db: ArangoDB, args, kwargs) -> MDTeXDocument:
     """
     reason = kwargs.get('reason')
     if args:
-        uids = [str(uid) for uid in args]
-        users = db.query('For doc in BanList '
-                         'FILTER doc._key in @ids '
-                         'RETURN doc', bind_vars={'ids': uids})
-        query_results = [KeyValueItem(Code(user['id']), user['reason'])
+        users = db.banlist.get_multiple(args)
+        query_results = [KeyValueItem(Code(user.id), user.reason)
                          for user in users] or [Italic('None')]
     elif reason is not None:
-        result: List[int] = db.query('FOR doc IN BanList '
-                                     'FILTER doc.reason LIKE @reason '
-                                     'COLLECT WITH COUNT INTO length '
-                                     'RETURN length', bind_vars={'reason': reason}).result
-        query_results = [KeyValueItem(Bold('Count'), Code(result[0]))]
+        count: int = db.banlist.count_reason(reason)
+        query_results = [KeyValueItem(Bold('Count'), Code(count))]
     else:
-        result: List[int] = db.query('FOR doc IN BanList '
-                                     'COLLECT WITH COUNT INTO length '
-                                     'RETURN length').result
-
-        query_results = [KeyValueItem(Bold('Total Count'), Code(result[0]))]
+        count: int = db.banlist.total_count()
+        query_results = [KeyValueItem(Bold('Total Count'), Code(count))]
     return MDTeXDocument(Section('Query Results', *query_results))
 
 
 @banlist.subcommand()
-async def import_(client: Client, db: ArangoDB, msg: Message) -> MDTeXDocument:
+async def import_(client: Client, db: Database, msg: Message) -> MDTeXDocument:
     """Import a CSV to the banlist.
 
     The CSV file should end in .csv and have a `id` and `reason` column
@@ -86,11 +76,7 @@ async def import_(client: Client, db: ArangoDB, msg: Message) -> MDTeXDocument:
             start_time = time.time()
             _banlist = await helpers.rose_csv_to_dict(data)
             if _banlist:
-                db.query('FOR ban in @banlist '
-                         'UPSERT {"_key": ban.id} '
-                         'INSERT ban '
-                         'UPDATE {"reason": ban.reason} '
-                         'IN BanList', bind_vars={'banlist': _banlist})
+                db.banlist.upsert_multiple(_banlist)
                 if client.sw and client.sw.permission in [Permission.Admin, Permission.Root]:
                     bans = {}
                     for b in _banlist:
@@ -113,7 +99,7 @@ async def import_(client: Client, db: ArangoDB, msg: Message) -> MDTeXDocument:
 
 
 @banlist.subcommand()
-async def export(client: Client, db: ArangoDB, chat, msg, kwargs) -> None:
+async def export(client: Client, db: Database, chat, msg, kwargs) -> None:
     """Export the banlist as CSV.
 
     The format is `id,reason` and can be imported into most bots.
@@ -135,12 +121,9 @@ async def export(client: Client, db: ArangoDB, chat, msg, kwargs) -> None:
         _banlist = None
 
     if with_diff:
-        users = db.query('For doc in BanList '
-                         'FILTER doc._key not in @ids '
-                         'RETURN doc', bind_vars={'ids': _banlist})
+        users = db.banlist.get_all_not_in(_banlist)
     else:
-        users = db.query('For doc in BanList '
-                         'RETURN doc')
+        users = db.banlist.get_all()
     export = BytesIO()
     wrapper_file = codecs.getwriter('utf-8')(export)
     cwriter = csv.writer(wrapper_file, lineterminator='\n')

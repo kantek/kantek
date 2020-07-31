@@ -1,7 +1,5 @@
 """Module containing all operations related to ArangoDB"""
-import secrets
-import time
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 
 from pyArango.collection import Collection, Field
 from pyArango.connection import Connection
@@ -10,6 +8,8 @@ from pyArango.document import Document
 from pyArango.query import AQLQuery
 from pyArango.theExceptions import CreationError, DocumentNotFoundError
 from pyArango.validation import Int, NotNull
+
+from database.types import BlacklistItem, Chat, BannedUser
 
 
 class Chats(Collection):
@@ -31,7 +31,7 @@ class Chats(Collection):
         }
     }
 
-    def add_chat(self, chat_id: int) -> Optional[Document]:
+    def add(self, chat_id: int) -> Optional[Chat]:
         """Add a Chat to the DB or return an existing one.
         Args:
             chat_id: The id of the chat
@@ -44,20 +44,26 @@ class Chats(Collection):
         try:
             doc = self.createDocument(data)
             doc.save()
-            return doc
+            return Chat(chat_id, {})
         except CreationError:
             return None
 
-    def get_chat(self, chat_id: int) -> Document:
+    def get(self, chat_id: int) -> Chat:
         """Return a Chat document
         Args:
             chat_id: The id of the chat
         Returns: The chat Document
         """
         try:
-            return self[chat_id]
+            doc = self[chat_id]
+            return Chat(doc['id'], doc['named_tags'].getStore())
         except DocumentNotFoundError:
-            return self.add_chat(chat_id)
+            return self.add(chat_id)
+
+    def update_tags(self, chat_id: int, new: Dict):
+        _document = self[chat_id]
+        _document['named_tags'] = new
+        _document.save()
 
 
 class AutobahnBlacklist(Collection):
@@ -78,7 +84,7 @@ class AutobahnBlacklist(Collection):
         }
     }
 
-    def add_item(self, item: str) -> Optional[Document]:
+    def add(self, item: str) -> Optional[BlacklistItem]:
         """Add a Chat to the DB or return an existing one.
         Args:
             item: The id of the chat
@@ -89,13 +95,41 @@ class AutobahnBlacklist(Collection):
         try:
             doc = self.createDocument(data)
             doc.save()
-            return doc
+            return BlacklistItem(doc["_key"], doc['string'], False)
         except CreationError:
             return None
 
-    def get_all(self) -> Dict[str, str]:
+    def get_by_value(self, item: str) -> Optional[BlacklistItem]:
+        doc = self.fetchByExample({'string': item}, batchSize=1)
+        if doc:
+            return BlacklistItem(doc["_key"], doc['string'], False)
+        else:
+            return None
+
+    def get(self, index):
+        doc = self.fetchDocument(index).getStore()
+        return BlacklistItem(doc["_key"], doc['string'], False)
+
+    def retire(self, item):
+        existing_one: Document = self.fetchFirstExample({'string': item})
+        if existing_one:
+            existing_one[0].delete()
+        else:
+            return False
+
+    def get_all(self) -> List[BlacklistItem]:
         """Get all strings in the Blacklist."""
-        return {doc['string']: doc['_key'] for doc in self.fetchAll()}
+        return [BlacklistItem(doc["_key"], doc['string'], False)
+                for doc in self.fetchAll()]
+
+    def get_indices(self, indices, db):
+        documents = db.query('FOR doc IN @@blacklist '
+                             'FILTER doc._key in @keys '
+                             'RETURN doc',
+                             bind_vars={'@blacklist': self.name,
+                                        'keys': map(str, indices)})
+        return [BlacklistItem(doc["_key"], doc['string'], False)
+                for doc in documents]
 
 
 class AutobahnBioBlacklist(AutobahnBlacklist):
@@ -155,34 +189,77 @@ class BanList(Collection):
         }
     }
 
-    def add_user(self, _id: int, reason: str) -> Optional[Document]:
+    def add_user(self, _id: int, reason: str) -> Optional[BannedUser]:
         """Add a Chat to the DB or return an existing one.
         Args:
             _id: The id of the User
             reason: The ban reason
         Returns: The chat Document
         """
-        data = {'_key': _id,
-                'id': _id,
-                'reason': reason}
+        data = {
+            '_key': _id,
+            'id': _id,
+            'reason': reason
+        }
 
         try:
             doc = self.createDocument(data)
             doc.save()
-            return doc
+            return BannedUser(doc['id'], doc['reason'])
         except CreationError:
             return None
 
-    def get_user(self, uid: int) -> Optional[Document]:
+    def get_user(self, uid: int) -> Optional[BannedUser]:
         """Fetch a users document
         Args:
             uid: User ID
         Returns: None or the Document
         """
         try:
-            return self.fetchDocument(uid)
+            doc = self.fetchDocument(uid)
+            return BannedUser(doc['id'], doc['reason'])
         except DocumentNotFoundError:
             return None
+
+    def remove(self, uid, db):
+        db.query('REMOVE {"_key": @uid} IN BanList', bind_vars={'uid': str(uid)})
+
+    def get_multiple(self, uids, db) -> List[BannedUser]:
+        docs = db.query('For doc in BanList '
+                        'FILTER doc._key in @ids '
+                        'RETURN doc', bind_vars={'ids': map(str, uids)})
+        return [BannedUser(doc['id'], doc['reason']) for doc in docs]
+
+    def count_reason(self, reason, db) -> int:
+        return db.query(
+            'FOR doc IN BanList '
+            'FILTER doc.reason LIKE @reason '
+            'COLLECT WITH COUNT INTO length '
+            'RETURN length', bind_vars={'reason': reason}).result[0]
+
+    def total_count(self, db) -> int:
+        return db.query('FOR doc IN BanList '
+                        'COLLECT WITH COUNT INTO length '
+                        'RETURN length').result[0]
+
+    def upsert_multiple(self, bans, db) -> None:
+        bans = [{"_key": ban['id'], **ban} for ban in bans]
+        db.query('FOR ban in @banlist '
+                 'UPSERT {"_key": ban.id, "id": ban.id} '
+                 'INSERT ban '
+                 'UPDATE {"reason": ban.reason} '
+                 'IN BanList', bind_vars={'banlist': bans})
+
+    def get_all(self, db) -> List[BannedUser]:
+        docs = db.query('For doc in BanList RETURN doc')
+        return [BannedUser(doc['id'], doc['reason']) for doc in docs]
+
+    def get_all_not_in(self, not_in, db) -> List[BannedUser]:
+        docs = db.query('For doc in BanList '
+                        'FILTER doc._key not in @ids '
+                        'RETURN doc', bind_vars={'ids': not_in})
+
+        return [BannedUser(doc['id'], doc['reason']) for doc in docs]
 
 
 class Strafanzeigen(Collection):
@@ -197,10 +274,9 @@ class Strafanzeigen(Collection):
         'on_save': True,
     }
 
-    def add(self, content):
-        key = secrets.token_urlsafe(10)
+    def add(self, creation_date, content, key):
         data = {
-            'creation_date': time.time(),
+            'creation_date': creation_date,
             'data': content,
             'key': key
         }
@@ -212,9 +288,9 @@ class Strafanzeigen(Collection):
         except CreationError:
             return None
 
-    def get(self, key):
+    def get(self, key) -> Optional[str]:
         try:
-            return self.fetchByExample({'key': key}, 1)[0]
+            return self.fetchByExample({'key': key}, 1)[0]['data']
         except IndexError:
             return None
 

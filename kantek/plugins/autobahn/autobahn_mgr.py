@@ -5,11 +5,10 @@ import re
 from collections import Counter
 
 import logzero
-from pyArango.document import Document
 from telethon.errors import MessageIdInvalidError
 from telethon.tl.custom import Message
 
-from database.arango import ArangoDB
+from database.database import Database, ItemDoesNotExistError
 from utils import helpers, constants
 from utils.client import Client
 from utils.mdtex import *
@@ -44,7 +43,7 @@ async def autobahn() -> MDTeXDocument:
 
 
 @autobahn.subcommand()
-async def add(client: Client, db: ArangoDB, msg: Message, args,
+async def add(client: Client, db: Database, msg: Message, args,
               event) -> MDTeXDocument:  # pylint: disable = R1702
     """Add a item to its blacklist.
 
@@ -65,11 +64,11 @@ async def add(client: Client, db: ArangoDB, msg: Message, args,
     existing_items = []
     skipped_items = []
     hex_type = AUTOBAHN_TYPES.get(item_type)
-    collection = db.ab_collection_map.get(hex_type)
+    blacklist = db.blacklists.get_by_value(hex_type)
     warn_message = ''
 
     for item in items:  # pylint: disable = R1702
-        if hex_type is None or collection is None:
+        if hex_type is None or blacklist is None:
             continue
         if hex_type == '0x3':
             _item = item
@@ -105,11 +104,9 @@ async def add(client: Client, db: ArangoDB, msg: Message, args,
         if item is None:
             skipped_items.append(item)
             continue
-
-        existing_one = collection.fetchByExample({'string': item}, batchSize=1)
-
+        existing_one = blacklist.get_by_value(item)
         if not existing_one:
-            collection.add_item(item)
+            blacklist.add(item)
             added_items.append(Code(item))
         else:
             existing_items.append(Code(item))
@@ -125,11 +122,11 @@ async def add(client: Client, db: ArangoDB, msg: Message, args,
                     progress_callback=lambda r, t: _sync_file_callback(r, t, msg))
                 file_hash = await helpers.hash_file(file)
                 await msg.delete()
-                existing_one = collection.fetchByExample({'string': file_hash}, batchSize=1)
+                existing_one = blacklist.get(item)
 
                 short_hash = f'{file_hash[:15]}[...]'
                 if not existing_one:
-                    collection.add_item(file_hash)
+                    blacklist.add(file_hash)
                     added_items.append(Code(short_hash))
                 else:
                     existing_items.append(Code(short_hash))
@@ -146,10 +143,10 @@ async def add(client: Client, db: ArangoDB, msg: Message, args,
                 dl_photo = await reply_msg.download_media(bytes)
                 photo_hash = await helpers.hash_photo(dl_photo)
                 await msg.delete()
-                existing_one = collection.fetchByExample({'string': photo_hash}, batchSize=1)
+                existing_one = blacklist.get(item)
 
                 if not existing_one:
-                    collection.add_item(photo_hash)
+                    blacklist.add(photo_hash)
                     if Counter(photo_hash).get('0', 0) > 8:
                         warn_message = ('The image seems to contain a lot of the same color.'
                                         ' This might lead to false positives.')
@@ -177,7 +174,7 @@ async def add(client: Client, db: ArangoDB, msg: Message, args,
 
 
 @autobahn.subcommand()
-async def del_(db: ArangoDB, args) -> MDTeXDocument:
+async def del_(db: Database, args) -> MDTeXDocument:
     """Remove a item from its blacklist.
 
     Blacklist names are _not_ the hexadecimal short hands
@@ -196,18 +193,19 @@ async def del_(db: ArangoDB, args) -> MDTeXDocument:
     removed_items = []
     for item in items:
         hex_type = AUTOBAHN_TYPES.get(item_type)
-        collection = db.ab_collection_map.get(hex_type)
-        if hex_type is None or collection is None:
+        blacklist = db.blacklists.get_by_value(hex_type)
+        if hex_type is None or blacklist is None:
             continue
 
         if hex_type == '0x3':
             _, chat_id, _ = await helpers.resolve_invite_link(str(item))
             item = chat_id
 
-        existing_one: Document = collection.fetchFirstExample({'string': item})
-        if existing_one:
-            existing_one[0].delete()
+        try:
+            blacklist.retire(item)
             removed_items.append(item)
+        except ItemDoesNotExistError:
+            pass
 
     return MDTeXDocument(Section('Deleted Items:',
                                  SubSection(item_type,
@@ -215,7 +213,7 @@ async def del_(db: ArangoDB, args) -> MDTeXDocument:
 
 
 @autobahn.subcommand()
-async def query(kwargs, db: ArangoDB) -> MDTeXDocument:
+async def query(kwargs, db: Database) -> MDTeXDocument:
     """Query a blacklist for a specific code.
 
     Blacklist names are _not_ the hexadecimal short hands
@@ -232,32 +230,27 @@ async def query(kwargs, db: ArangoDB) -> MDTeXDocument:
     code = kwargs.get('code')
 
     hex_type = None
-    collection = None
+    blacklist = None
     if item_type is not None:
         hex_type = AUTOBAHN_TYPES.get(item_type)
-        collection = db.ab_collection_map[hex_type]
+        blacklist = db.blacklists.get_by_value(hex_type)
     if code is None:
-        all_strings = collection.fetchAll()
-        if not len(all_strings) > 100:
-            items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
-                                  Code(doc['string'])) for doc in all_strings]
+        all_items = blacklist.get_all()
+        if not len(all_items) > 100:
+            items = [KeyValueItem(Bold(f'0x{item.index}'.rjust(5)),
+                                  Code(item.value)) for item in all_items]
         else:
-            items = [Pre(', '.join([doc['string'] for doc in all_strings]))]
+            items = [Pre(', '.join([item.value for item in all_items]))]
         return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}]'), *items)
 
     elif hex_type is not None and code is not None:
         if isinstance(code, int):
-            string = collection.fetchDocument(code).getStore()['string']
-            return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}] code: {code}'), Code(string))
+            value = blacklist.get(code).value
+            return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}] code: {code}'), Code(value))
         elif isinstance(code, (range, list)):
-            keys = [str(i) for i in code]
-            documents = db.query('FOR doc IN @@collection '
-                                 'FILTER doc._key in @keys '
-                                 'RETURN doc',
-                                 bind_vars={'@collection': collection.name,
-                                            'keys': keys})
-            items = [KeyValueItem(Bold(f'0x{doc["_key"]}'.rjust(5)),
-                                  Code(doc['string'])) for doc in documents]
+            items = blacklist.get_indices(code)
+            items = [KeyValueItem(Bold(f'0x{item.index}'.rjust(5)),
+                                  Code(item.value)) for item in items]
             return MDTeXDocument(
                 Section(f'Items for for type: {item_type}[{hex_type}]'), *items)
 

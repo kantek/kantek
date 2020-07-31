@@ -6,7 +6,7 @@ from spamwatch.types import Permission
 from telethon.tl.custom import Forward, Message
 from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, User, Channel
 
-from database.arango import ArangoDB
+from database.database import Database
 from utils import helpers, constants
 from utils.client import Client
 from utils.mdtex import *
@@ -17,7 +17,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('user', 'u')
-async def user_info(msg: Message, tags: Tags, client: Client, db: ArangoDB,
+async def user_info(msg: Message, tags: Tags, client: Client, db: Database,
                     args: List, kwargs: Dict) -> Optional[MDTeXDocument]:
     """Show information about a user. Can be used in reply to a message.
 
@@ -129,9 +129,9 @@ async def _collect_user_info(client, user, db, **kwargs) -> Union[str, Section, 
         title = Bold(full_name)
 
     sw_ban = None
-    ban_reason = db.banlist.get_user(user.id)
+    ban_reason = db.banlist.get(user.id)
     if ban_reason:
-        ban_reason = ban_reason['reason']
+        ban_reason = ban_reason.reason
         if client.sw and client.sw.permission.value <= Permission.User.value:
             sw_ban = client.sw.get_ban(int(user.id))
             ban_message = sw_ban.message

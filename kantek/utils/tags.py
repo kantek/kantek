@@ -1,8 +1,9 @@
 from typing import Optional, Union
 
+from pyArango.document import DocumentStore
 from telethon.events import NewMessage
 
-from database.arango import ArangoDB
+from database.database import Database
 
 TagValue = Union[bool, str, int]
 TagName = Union[int, str]
@@ -12,12 +13,10 @@ class Tags:
     """Class to manage the tags of a chat"""
 
     def __init__(self, event: NewMessage.Event):
-        db: ArangoDB = event.client.db
-        collection = db.chats
-
+        self.db: Database = event.client.db
+        self.chat_id = event.chat_id
         if not event.is_private:
-            self._document = collection.get_chat(event.chat_id)
-            self.named_tags = self._document['named_tags'].getStore()
+            self.named_tags = self.db.chats.get(self.chat_id).tags
         else:
             self.named_tags = {
                 "polizei": "exclude"
@@ -58,11 +57,6 @@ class Tags:
     def __setitem__(self, key: TagName, value: TagValue) -> None:
         self.set(key, value)
 
-    def clear(self) -> None:
-        """Clears all tags that a Chat has."""
-        self._document['named_tags'] = {}
-        self._document.save()
-
     def remove(self, tag_name: TagName) -> None:
         """Delete a tag.
 
@@ -79,6 +73,10 @@ class Tags:
     def __delitem__(self, key: TagName) -> None:
         self.remove(key)
 
+    def clear(self) -> None:
+        """Clears all tags that a Chat has."""
+        self.named_tags = {}
+        self._save()
+
     def _save(self):
-        self._document['named_tags'] = self.named_tags
-        self._document.save()
+        self.db.chats.update_tags(self.chat_id, self.named_tags)

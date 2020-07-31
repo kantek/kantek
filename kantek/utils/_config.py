@@ -15,6 +15,7 @@ class Config:  # pylint: disable = R0902
     api_hash: str
     phone: str
 
+    db_type: str = 'arango'
     db_username: str = "kantek"
     db_name: str = "kantek"
     db_password: str
@@ -85,6 +86,7 @@ class Config:  # pylint: disable = R0902
         self.gban_group = config.get('gban_group')
         if error:
             assert self.gban_group is not None, "gban_group is not set"
+        self.db_type = config.get('db_type', self.db_type)
         self.db_username = config.get('db_username', self.db_username)
         self.db_name = config.get('db_name', self.db_name)
         self.db_password = config.get('db_password')
