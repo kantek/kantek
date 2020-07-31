@@ -226,8 +226,10 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
         {cmd} type: domain code: 3
         {cmd} type: channel code: 4..20
     """
-    item_type = kwargs.get('type') or args[0]
+    item_type = kwargs.get('type')
     code = kwargs.get('code')
+    if item_type is None and args:
+        item_type = args[0]
 
     hex_type = None
     blacklist = None
