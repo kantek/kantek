@@ -11,6 +11,7 @@ from telethon.tl.functions.channels import (DeleteUserHistoryRequest,
 from telethon.tl.types import Channel, User
 
 from utils.client import Client
+from utils.constants import GET_ENTITY_ERRORS
 from utils.pluginmgr import k
 from utils.tags import Tags
 
@@ -48,6 +49,8 @@ async def kriminalamt(event: ChatAction.Event) -> None:
 
     try:
         await client(GetParticipantRequest(chat, user))
+    except GET_ENTITY_ERRORS:
+        return
     except UserNotParticipantError:
         reason = f'Kriminalamt #{chat.id} No. {delay}'
         userid = event.user_id
