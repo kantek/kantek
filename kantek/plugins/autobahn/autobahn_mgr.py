@@ -27,6 +27,8 @@ AUTOBAHN_TYPES = {
     'mhash': '0x6',
     'tld': '0x7',
 }
+# any higher and the message will exceed the 100 entity limit
+MAX_QUERY_ITEMS = 45
 
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
@@ -223,8 +225,9 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
         `code`: The index of the item, can be a range
 
     Examples:
-        {cmd} type: domain code: 3
-        {cmd} type: channel code: 4..20
+        {cmd} domain code: 3
+        {cmd} channel code: 4..20
+        {cmd} channel
     """
     item_type = kwargs.get('type')
     code = kwargs.get('code')
@@ -236,25 +239,29 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
     if item_type is not None:
         hex_type = AUTOBAHN_TYPES.get(item_type, item_type)
         blacklist = db.blacklists.get(hex_type)
-    if code is None:
-        all_items = blacklist.get_all()
-        if not len(all_items) > 100:
-            items = [KeyValueItem(Bold(f'0x{item.index}'.rjust(5)),
-                                  Code(item.value)) for item in all_items]
-        else:
-            items = [Pre(', '.join([item.value for item in all_items]))]
-        return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}]', *items))
 
-    elif hex_type is not None and code is not None:
+    blacklist_items = blacklist.get_all()
+
+    if code is not None:
         if isinstance(code, int):
-            value = blacklist.get(code).value
-            return MDTeXDocument(Section(f'Items for type: {item_type}[{hex_type}] code: {code}'), Code(value))
-        elif isinstance(code, (range, list)):
-            items = blacklist.get_indices(code)
-            items = [KeyValueItem(Bold(f'0x{item.index}'.rjust(5)),
-                                  Code(item.value)) for item in items]
-            return MDTeXDocument(
-                Section(f'Items for for type: {item_type}[{hex_type}]'), *items)
+            code = [code]
+        all_items = blacklist.get_indices(list(code)[:MAX_QUERY_ITEMS])
+    else:
+        all_items = blacklist_items
+    items = [KeyValueItem(Bold(item.index), Code(item.value)) for item in all_items[:MAX_QUERY_ITEMS]]
+
+    return MDTeXDocument(
+        Section(f'Items for type: {item_type}[{hex_type}]', *items or [Italic('None')]),
+        Italic(f'Total count: {len(blacklist_items)}') if blacklist_items else None
+    )
+
+    # if hex_type is not None and code is not None:
+    #     if isinstance(code, int):
+    #         items = [code]
+    #     items = blacklist.get_indices(list(code))
+    #     items = [KeyValueItem(Bold(f'0x{item.index}'.rjust(5)),
+    #                           Code(item.value)) for item in items]
+    #     return MDTeXDocument(Section(f'Items for for type: {item_type}[{hex_type}]'), *items)
 
 
 @autobahn.subcommand()
