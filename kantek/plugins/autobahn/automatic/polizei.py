@@ -103,12 +103,11 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     db: Database = client.db
     chat: Channel = await event.get_chat()
     await event.delete()
-    try:
-        old_ban = db.banlist.get(userid)
-        if old_ban:
-            if old_ban.reason == formatted_reason:
-                logger.info('User ID `%s` already banned for the same reason.', userid)
-                return
+    old_ban = db.banlist.get(userid)
+    if old_ban:
+        if old_ban.reason == formatted_reason:
+            logger.info('User ID `%s` already banned for the same reason.', userid)
+            return
     if chat.creator or chat.admin_rights:
         if bancmd == 'manual':
             await client.ban(chat, userid)
