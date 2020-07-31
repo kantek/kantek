@@ -8,6 +8,7 @@ from PIL import UnidentifiedImageError
 from photohash import hashes_are_similar
 from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
+from telethon.errors import UserNotParticipantError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
@@ -134,7 +135,7 @@ async def _check_message(event):  # pylint: disable = R0911
         result = await client(GetParticipantRequest(event.chat_id, user_id))
         if isinstance(result.participant, ChannelParticipantAdmin):
             return False, False
-    except ValueError:
+    except (ValueError, UserNotParticipantError):
         return False, False
 
     # no need to ban bots as they can only be added by users anyway
