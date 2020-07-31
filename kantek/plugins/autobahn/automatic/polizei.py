@@ -107,13 +107,14 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     client: Client = event.client
     db: Database = client.db
     chat: Channel = await event.get_chat()
+    admin = chat.creator or chat.admin_rights
     await event.delete()
     old_ban = db.banlist.get(userid)
     if old_ban:
         if old_ban.reason == formatted_reason:
             logger.info('User ID `%s` already banned for the same reason.', userid)
             return
-    if chat.creator or chat.admin_rights:
+    if admin:
         if bancmd == 'manual':
             await client.ban(chat, userid)
         elif bancmd is not None:
@@ -122,7 +123,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     await client.gban(userid, formatted_reason, await helpers.textify_message(event.message))
 
     message_count = len(await client.get_messages(chat, from_user=userid, limit=10))
-    if message_count <= 5:
+    if admin and message_count <= 5:
         await client(DeleteUserHistoryRequest(chat, userid))
 
 
