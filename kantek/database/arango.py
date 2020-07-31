@@ -102,6 +102,7 @@ class AutobahnBlacklist(Collection):
     def get_by_value(self, item: str) -> Optional[BlacklistItem]:
         doc = self.fetchByExample({'string': item}, batchSize=1)
         if doc:
+            doc = doc[0]
             return BlacklistItem(doc["_key"], doc['string'], False)
         else:
             return None
