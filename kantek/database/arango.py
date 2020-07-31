@@ -10,6 +10,7 @@ from pyArango.theExceptions import CreationError, DocumentNotFoundError
 from pyArango.validation import Int, NotNull
 
 from database.types import BlacklistItem, Chat, BannedUser
+from utils._config import Config
 
 
 class Chats(Collection):
@@ -360,7 +361,11 @@ class ArangoDB:  # pylint: disable = R0902
             collection: The name of the collection
         Returns: The Collection object
         """
+        config = Config()
         if self.db.hasCollection(collection):
             return self.db[collection]
         else:
-            return self.db.createCollection(collection, replication_factor=1)
+            if config.db_cluster_mode:
+                return self.db.createCollection(collection, replication_factor=1)
+            else:
+                return self.db.createCollection(collection)

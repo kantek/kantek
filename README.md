@@ -60,6 +60,16 @@ Get it from http://my.telegram.org/
 | -------- | ---- | ---------------------- |
 | No       | str  | http://127.0.0.1:8529  |
 
+### db_cluster_mode
+Set this if you use your Database in a cluster
+
+If using ArangoDB this will mean you blacklist indices will be very large
+
+| Required | Type | Default                |
+| -------- | ---- | ---------------------- |
+| No       | bool | false  |
+
+
 ### log_bot_token
 
 | Required | Type | Default   |
