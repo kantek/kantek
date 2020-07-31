@@ -96,7 +96,9 @@ class Config:  # pylint: disable = R0902
 
         self.session_name = config.get('session_name', self.session_name)
         self.cmd_prefix = config.get('cmd_prefix', self.cmd_prefix)
+        self.help_prefix = config.get('help_prefix', self.help_prefix)
         self.spamwatch_host = config.get('spamwatch_host', self.spamwatch_host)
+        self.source_url = config.get('source_url', self.source_url)
         self.spamwatch_token = config.get('spamwatch_token', self.spamwatch_token)
         self.debug_mode = config.get('debug_mode', self.debug_mode)
 
