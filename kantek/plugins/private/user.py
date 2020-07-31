@@ -132,8 +132,9 @@ async def _collect_user_info(client, user, db, **kwargs) -> Union[str, Section, 
     ban_reason = db.banlist.get(user.id)
     if ban_reason:
         ban_reason = ban_reason.reason
-        if client.sw and client.sw.permission.value <= Permission.User.value:
-            sw_ban = client.sw.get_ban(int(user.id))
+    if client.sw and client.sw.permission.value <= Permission.User.value:
+        sw_ban = client.sw.get_ban(int(user.id))
+        if sw_ban:
             ban_message = sw_ban.message
             if ban_message and not full_ban_msg:
                 ban_message = f'{ban_message[:128]}{"[...]" if len(ban_message) > 128 else ""}'
@@ -152,7 +153,7 @@ async def _collect_user_info(client, user, db, **kwargs) -> Union[str, Section, 
         if user.username is not None or show_all:
             general.append(KeyValueItem('username', Code(user.username)))
 
-        if ban_reason and not show_spamwatch:
+        if ban_reason:
             general.append(KeyValueItem('ban_reason', Code(ban_reason)))
         elif not show_spamwatch:
             general.append(KeyValueItem('gbanned', Code('False')))
