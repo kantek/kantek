@@ -106,10 +106,10 @@ async def add(client: Client, db: Database, msg: Message, args,
             continue
         existing_one = blacklist.get_by_value(item)
         if not existing_one:
-            blacklist.add(item)
-            added_items.append(Code(item))
+            entry = blacklist.add(item)
+            added_items.append(KeyValueItem(entry.index, Code(entry.value)))
         else:
-            existing_items.append(Code(item))
+            existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
 
     if not items and hex_type == '0x5':
         if msg.is_reply:
@@ -124,12 +124,13 @@ async def add(client: Client, db: Database, msg: Message, args,
                 await msg.delete()
                 existing_one = blacklist.get(item)
 
-                short_hash = f'{file_hash[:15]}[...]'
+
                 if not existing_one:
-                    blacklist.add(file_hash)
-                    added_items.append(Code(short_hash))
+                    entry = blacklist.add(file_hash)
+                    short_hash = f'{entry.value[:15]}[...]'
+                    KeyValueItem(entry.index, Code(short_hash))
                 else:
-                    existing_items.append(Code(short_hash))
+                    existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
             else:
                 return MDTeXDocument(Section('Error', 'Need to reply to a file'))
         else:
@@ -146,14 +147,14 @@ async def add(client: Client, db: Database, msg: Message, args,
                 existing_one = blacklist.get(item)
 
                 if not existing_one:
-                    blacklist.add(photo_hash)
+                    entry = blacklist.add(photo_hash)
                     if Counter(photo_hash).get('0', 0) > 8:
                         warn_message = ('The image seems to contain a lot of the same color.'
                                         ' This might lead to false positives.')
 
-                    added_items.append(Code(photo_hash))
+                    added_items.append(KeyValueItem(entry.index, Code(entry.value)))
                 else:
-                    existing_items.append(Code(photo_hash))
+                    existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
             else:
                 return MDTeXDocument(Section('Error', 'Need to reply to a photo'))
         else:
