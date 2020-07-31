@@ -1,8 +1,8 @@
+from datetime import timedelta
 from pprint import pformat
 from typing import List, Dict
 
-from telethon.tl.custom import Message
-
+from utils import parsers
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, _Command, _Signature
@@ -57,8 +57,9 @@ async def requires(client: Client, args, kwargs) -> MDTeXDocument:
             result.append(_cmd)
     return MDTeXDocument(result)
 
+
 @dev.subcommand()
-async def args(msg: Message, args: List, kwargs: Dict) -> MDTeXDocument:
+async def args(args: List, kwargs: Dict) -> MDTeXDocument:
     """Show the raw output of the argument parser
 
     Examples:
@@ -89,3 +90,24 @@ async def args(msg: Message, args: List, kwargs: Dict) -> MDTeXDocument:
                 KeyValueItem('args', Pre(pformat(args, width=30))),
                 KeyValueItem('keyword_args', Pre(pformat(kwargs, width=30))))
     )
+
+
+@dev.subcommand()
+async def time(args: List[str]) -> MDTeXDocument:
+    """Parse specified duration expressions into timedeltas
+    Arguments:
+        `exprs`: Time expressions
+
+    Examples:
+        {cmd} 1d
+        {cmd} 1h30m 20s1m
+        {cmd} 2w3d3h5s
+    """
+    m = Section('Parsed Durations')
+    for arg in args:
+        seconds = parsers.time(arg)
+        m.append(
+            SubSection(arg,
+                       KeyValueItem('seconds', seconds),
+                       KeyValueItem('formatted', str(timedelta(seconds=seconds)))))
+    return MDTeXDocument(m)
