@@ -247,7 +247,12 @@ class PluginManager:
             if result and cmd.auto_respond:
                 await client.respond(event, str(result))
         except Exception as err:
-            tlog.error(f'An error occured while running `{cmd.commands[0]}`', exc_info=err)
+            command = ''
+            if isinstance(cmd, _Command):
+                command = cmd.commands[0]
+            elif isinstance(cmd, _SubCommand):
+                command = cmd.command
+            tlog.error(f'An error occured while running `{command}`', exc_info=err)
 
 
 k = PluginManager

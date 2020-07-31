@@ -64,7 +64,7 @@ async def add(client: Client, db: Database, msg: Message, args,
     existing_items = []
     skipped_items = []
     hex_type = AUTOBAHN_TYPES.get(item_type)
-    blacklist = db.blacklists.get_by_value(hex_type)
+    blacklist = db.blacklists.get(hex_type)
     warn_message = ''
 
     for item in items:  # pylint: disable = R1702
