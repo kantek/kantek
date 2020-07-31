@@ -1,8 +1,10 @@
 import functools
 import importlib
 import inspect
+import logging
 import os
 import re
+import traceback
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
@@ -19,6 +21,8 @@ from utils import helpers
 from utils._config import Config
 from utils.mdtex import *
 from utils.tags import Tags
+
+tlog = logging.getLogger('kantek-channel-log')
 
 
 @dataclass
@@ -230,9 +234,12 @@ class PluginManager:
         if args.tags:
             callback_args['tags'] = Tags(event)
 
-        result = await callback(**callback_args)
-        if result and cmd.auto_respond:
-            await client.respond(event, str(result))
+        try:
+            result = await callback(**callback_args)
+            if result and cmd.auto_respond:
+                await client.respond(event, str(result))
+        except Exception as err:
+            tlog.error(f'An error occured while running `{cmd.commands[0]}`', exc_info=err)
 
 
 k = PluginManager

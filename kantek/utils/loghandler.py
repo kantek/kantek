@@ -1,5 +1,6 @@
 """Module with the Custom Logging Handler for logging to a Telegram Channel."""
 import asyncio
+import traceback
 from datetime import datetime
 from logging import Handler, LogRecord, Logger
 from typing import Union, Dict
@@ -36,15 +37,18 @@ class TGChannelLogHandler(Handler):
         # only add the function name if the logging call came from one.
         if record.funcName != '<module>':
             origin += f' `❯` `{record.funcName}`'
+        formatted_traceback = ''.join(traceback.format_exception(*record.exc_info)) if record.exc_info else ''
         _log_entry = {
             'origin': origin,
-            'level': f'`{record.levelname.title()}({record.levelno})`',
-            'time': f'`{log_time}`',
-            'msg': record.getMessage()
+            'level': f'{record.levelname.title()}({record.levelno})',
+            'time': f'{log_time}',
+            'msg': record.getMessage(),
+            'traceback': f'```\n{formatted_traceback}```' if formatted_traceback else ''
         }
         log_entry = []
         for k, v in _log_entry.items():
-            log_entry.append(f'`{k}:` {v}')
+            if v:
+                log_entry.append(f'`{k}:` {v}')
         return '\n'.join(log_entry)
 
     def emit(self, record: LogRecord) -> None:
