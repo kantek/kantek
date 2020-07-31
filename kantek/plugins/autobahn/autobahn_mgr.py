@@ -124,7 +124,6 @@ async def add(client: Client, db: Database, msg: Message, args,
                 await msg.delete()
                 existing_one = blacklist.get(item)
 
-
                 if not existing_one:
                     entry = blacklist.add(file_hash)
                     short_hash = f'{entry.value[:15]}[...]'
@@ -254,6 +253,21 @@ async def query(kwargs, db: Database) -> MDTeXDocument:
                                   Code(item.value)) for item in items]
             return MDTeXDocument(
                 Section(f'Items for for type: {item_type}[{hex_type}]'), *items)
+
+
+@autobahn.subcommand()
+async def count(db: Database) -> MDTeXDocument:
+    """Display item count of each blacklist
+
+    Examples:
+        {cmd}
+    """
+    sec = Section('Blacklist Item Count')
+    for hextype, blacklist in db.blacklists._map.items():
+        name = f'{blacklist.__class__.__name__.replace("Blacklist", "")} [{Code(hextype)}]'
+        sec.append(KeyValueItem(name, len(blacklist.get_all())))
+
+    return MDTeXDocument(sec)
 
 
 def _sync_file_callback(received: int, total: int, msg: Message) -> None:
