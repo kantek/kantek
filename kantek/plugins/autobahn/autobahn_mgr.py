@@ -193,9 +193,10 @@ async def del_(db: Database, args) -> MDTeXDocument:
     item_type = args[0]
     items = args[1:]
     removed_items = []
+    skipped_items = []
     for item in items:
         hex_type = AUTOBAHN_TYPES.get(item_type)
-        blacklist = db.blacklists.get_by_value(hex_type)
+        blacklist = db.blacklists.get(hex_type)
         if hex_type is None or blacklist is None:
             continue
 
@@ -205,13 +206,14 @@ async def del_(db: Database, args) -> MDTeXDocument:
 
         try:
             blacklist.retire(item)
-            removed_items.append(item)
+            removed_items.append(Code(item))
         except ItemDoesNotExistError:
-            pass
+            skipped_items.append(Code(item))
 
     return MDTeXDocument(Section('Deleted Items:',
-                                 SubSection(item_type,
-                                            *removed_items)))
+                                 SubSection(item_type, *removed_items)) if removed_items else None,
+                         Section('Skipped Items:',
+                                 SubSection(item_type, *skipped_items)) if skipped_items else None)
 
 
 @autobahn.subcommand()

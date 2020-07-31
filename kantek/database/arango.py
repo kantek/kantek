@@ -116,6 +116,7 @@ class AutobahnBlacklist(Collection):
         existing_one: Document = self.fetchFirstExample({'string': item})
         if existing_one:
             existing_one[0].delete()
+            return True
         else:
             return False
 
