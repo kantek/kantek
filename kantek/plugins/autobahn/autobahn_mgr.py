@@ -232,8 +232,8 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
     hex_type = None
     blacklist = None
     if item_type is not None:
-        hex_type = AUTOBAHN_TYPES.get(item_type)
-        blacklist = db.blacklists.get_by_value(hex_type)
+        hex_type = AUTOBAHN_TYPES.get(item_type, item_type)
+        blacklist = db.blacklists.get(hex_type)
     if code is None:
         all_items = blacklist.get_all()
         if not len(all_items) > 100:
