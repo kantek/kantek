@@ -20,7 +20,7 @@ from telethon.tl.types import ChatBannedRights, User
 from yarl import URL
 
 from database.database import Database
-from utils._config import Config
+from utils.config import Config
 from utils.constants import SCHEDULE_DELETION_COMMAND
 from utils.mdtex import *
 from utils.pluginmgr import PluginManager

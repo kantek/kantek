@@ -2,7 +2,7 @@ import inspect
 import re
 from typing import Callable
 
-from utils._config import Config
+from utils.config import Config
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, _Command, _Event

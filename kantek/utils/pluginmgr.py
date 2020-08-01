@@ -19,7 +19,7 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import ChannelParticipantAdmin
 
 from utils import helpers
-from utils._config import Config
+from utils.config import Config
 from utils.mdtex import *
 from utils.tags import Tags
 

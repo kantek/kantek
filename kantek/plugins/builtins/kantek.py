@@ -7,7 +7,7 @@ from telethon.errors import ChatSendStickersForbiddenError
 from telethon.tl.functions.messages import GetStickerSetRequest
 from telethon.tl.types import InputStickerSetShortName, StickerSet, Channel
 
-from utils._config import Config
+from utils.config import Config
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k

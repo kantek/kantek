@@ -4,7 +4,7 @@ from typing import Union, Dict, List, Optional
 
 from database.arango import ArangoDB
 from database.types import BlacklistItem, BannedUser, Chat
-from utils._config import Config
+from utils.config import Config
 
 
 class UnknownDatabaseError(Exception):

@@ -10,7 +10,7 @@ from pyArango.theExceptions import CreationError, DocumentNotFoundError
 from pyArango.validation import Int, NotNull
 
 from database.types import BlacklistItem, Chat, BannedUser
-from utils._config import Config
+from utils.config import Config
 
 
 class Chats(Collection):
