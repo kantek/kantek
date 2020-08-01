@@ -44,8 +44,11 @@ class ConfigWrapper:
 
 class Config:  # pylint: disable = R0902
     """Handle loading config options"""
+    instance = None
 
     def __new__(cls):
+        if cls.instance is not None:
+            return cls.instance
         bot_dir = Path(__file__).parent.parent
         sessions_dir = bot_dir / 'sessions'
         plugin_path = bot_dir / 'plugins'
@@ -60,4 +63,5 @@ class Config:  # pylint: disable = R0902
                         config['cmd_prefix'] = [prefix]
                 cfg = ConfigWrapper(**config)
                 cfg.session_name = (sessions_dir / cfg.session_name).absolute()
+                cls.instance = cfg
                 return cfg
