@@ -120,6 +120,7 @@ def get_description(callback: Callable, help_cmd: str) -> str:
 
 
 def get_misc_topics(topic, subtopics) -> MDTeXDocument:
+    config = Config()
     subtopic = None
     if subtopics:
         subtopic = subtopics[0]
@@ -145,9 +146,10 @@ def get_misc_topics(topic, subtopics) -> MDTeXDocument:
             )
         elif subtopic == 'args':
             return MDTeXDocument(
-                Section('Time'),
+                Section('Arguments'),
                 'Parse arguments into positional and keyword arguments. '
                 'Convert values into their respective types',
+                f'To test them out copy them and pass them to {Code(f"{config.cmd_prefix[0]}dev args")}',
 
                 Section('Examples:',
                         SubSection('Positonal Arguments',
@@ -163,9 +165,11 @@ def get_misc_topics(topic, subtopics) -> MDTeXDocument:
                                    Code('"positional argument with spaces"')),
                         SubSection('Ranges',
                                    Code('range: 1..10'),
+                                   Code('1..10'),
                                    Code('ids: -10..20')),
                         SubSection('Lists',
                                    Code('vals: ["val1", "val2"]'),
-                                   Code('vals: [1, 2, 3]')),
+                                   Code('vals: [1, 2, 3]'),
+                                   Code('[1,2,3]')),
                         ),
             )
