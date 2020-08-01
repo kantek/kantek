@@ -235,7 +235,8 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
     code = kwargs.get('code')
     if item_type is None and args:
         item_type = args[0]
-
+    else:
+        return MDTeXDocument(Section('Error', Italic('No blacklist name specified')))
     if code is None and len(args) > 1:
         code = args[1]
 
