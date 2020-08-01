@@ -21,7 +21,7 @@ from utils import helpers, constants
 from utils.client import Client
 from utils.helpers import hash_photo
 from utils.pluginmgr import k
-from utils.tags import get_tags
+from utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -44,7 +44,7 @@ async def polizei(event: NewMessage.Event) -> None:
         return
     client: Client = event.client
     chat: Channel = await event.get_chat()
-    tags = await get_tags(event)
+    tags = await Tags.create(event)
     bancmd = tags.get('gbancmd', 'manual')
     polizei_tag = tags.get('polizei')
     if polizei_tag == 'exclude':
@@ -66,7 +66,7 @@ async def join_polizei(event: ChatAction.Event) -> None:
     client: Client = event.client
     chat: Channel = await event.get_chat()
     db: Database = client.db
-    tags = await get_tags(event)
+    tags = await Tags.create(event)
     bancmd = tags.get('gbancmd')
     polizei_tag = tags.get('polizei')
     if polizei_tag == 'exclude':

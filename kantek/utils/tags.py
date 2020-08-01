@@ -8,11 +8,6 @@ TagValue = Union[bool, str, int]
 TagName = Union[int, str]
 
 
-async def get_tags(event) -> 'Tags':
-    tags = Tags(event)
-    await tags.setup()
-    return tags
-
 
 class Tags:
     """Class to manage the tags of a chat"""
@@ -21,6 +16,12 @@ class Tags:
         self.db: Database = event.client.db
         self.chat_id = event.chat_id
         self._event = event
+
+    @classmethod
+    async def create(cls, event) -> 'Tags':
+        tags = Tags(event)
+        await tags.setup()
+        return tags
 
     async def setup(self):
         if not self._event.is_private:
