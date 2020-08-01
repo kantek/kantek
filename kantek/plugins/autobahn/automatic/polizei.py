@@ -305,11 +305,14 @@ async def _check_message(event):  # pylint: disable = R0911
         except constants.DOWNLOAD_ERRORS:
             dl_photo = None
         if dl_photo:
-            photo_hash = await hash_photo(dl_photo)
-
-            for mhash in db.blacklists.mhash.get_all():
-                if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
-                    return db.blacklists.mhash.hex_type, mhash.index
+            try:
+                photo_hash = await hash_photo(dl_photo)
+            except UnidentifiedImageError:
+                photo_hash = None
+            if photo_hash:
+                for mhash in db.blacklists.mhash.get_all():
+                    if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
+                        return db.blacklists.mhash.hex_type, mhash.index
 
     return False, False
 
