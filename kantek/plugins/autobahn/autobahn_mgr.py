@@ -227,14 +227,17 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
         `code`: The index of the item, can be a range
 
     Examples:
-        {cmd} domain code: 3
-        {cmd} channel code: 4..20
+        {cmd} domain 3
+        {cmd} channel 4..20
         {cmd} channel
     """
     item_type = kwargs.get('type')
     code = kwargs.get('code')
     if item_type is None and args:
         item_type = args[0]
+
+    if code is None and len(args) > 1:
+        code = args[1]
 
     hex_type = None
     blacklist = None
