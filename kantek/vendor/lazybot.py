@@ -15,9 +15,8 @@ class Bot:
         async def request(**kwargs):
             """Do the post request to telegram."""
             method = self.snake_to_camel(method_name)
-            req = await self.aioclient.post(self.url + f'/{method}', data=kwargs)
-            result = await req.json()
-            return result
+            async with self.aioclient.post(self.url + f'/{method}', data=kwargs) as req:
+                return await req.json()
 
         return request
 
