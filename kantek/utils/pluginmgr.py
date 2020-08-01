@@ -4,7 +4,6 @@ import inspect
 import logging
 import os
 import re
-import traceback
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
@@ -112,8 +111,8 @@ class PluginManager:
 
         def decorator(callback):
             signature = inspect.signature(callback)
-            auto_respond = signature.return_annotation is MDTeXDocument or signature.return_annotation is Optional[
-                MDTeXDocument]
+            auto_respond = (signature.return_annotation is MDTeXDocument
+                            or signature.return_annotation is Optional[MDTeXDocument])
             args = _Signature(**{n: True for n in signature.parameters.keys()})
             cmd = _Command(callback, private, admins, commands, args, auto_respond, document)
             cls.commands[commands[0]] = cmd
