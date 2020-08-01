@@ -2,6 +2,7 @@ from datetime import timedelta
 from pprint import pformat
 from typing import List, Dict
 
+from database.database import Database
 from utils import parsers
 from utils.client import Client
 from utils.mdtex import *
@@ -111,3 +112,22 @@ async def time(args: List[str]) -> MDTeXDocument:
                        KeyValueItem('seconds', seconds),
                        KeyValueItem('formatted', str(timedelta(seconds=seconds)))))
     return MDTeXDocument(m)
+
+
+@dev.subcommand()
+async def sa(kwargs, db: Database) -> MDTeXDocument:
+    """Output the value of a Strafanzeige
+
+    Arguments:
+        `sa`: Strafanzeige key
+
+    Examples:
+        {cmd} sa: 1ssfG8uYtduwWA
+    """
+    sa = kwargs.get('sa')
+    if value := db.strafanzeigen.get(sa):
+        return MDTeXDocument(Section('Strafanzeige',
+                                     KeyValueItem('key', Code(sa)),
+                                     KeyValueItem('value', Code(value))))
+    else:
+        return MDTeXDocument(Section('Strafanzeige', Italic('Key does not exist')))
