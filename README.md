@@ -12,7 +12,7 @@ Because of that it checks every message your account receives for blacklisted it
 If you want to use Kantek without the administration part, simply remove the `plugins/autobahn` folder to disable these features. 
 
 ## Requirements
-Python 3.6+ is required to run the bot.
+Python 3.8+ is required to run the bot.
 ArangoDB 3.5+ is used to store bot data.
 
 ## Setup
