@@ -26,26 +26,24 @@ async def kriminalamt(event: ChatAction.Event) -> None:
 
     This plugin was made for a specific kind of bot that joins a chat, checks if the "Add Users" permission is enabled and if it is not it immediately leaves.
 
-    The plugin is disabled by default and must first be enabled by setting the tag in a chat. A time of 1 second is suggested.
+    The plugin is disabled by default and must first be enabled by setting the tag to True in a chat.
 
     Tags:
-        kriminalamt: The time in seconds
+        `-kriminalamt`: If kriminalamt should run or not
     """
     client: Client = event.client
     chat: Channel = await event.get_chat()
     user: User = await event.get_user()
     tags = Tags(event)
-    kriminalamt_tag = tags.get('kriminalamt')
+    enabled = tags.get('kriminalamt', False)
     bancmd = tags.get('gbancmd', 'manual')
     delay = 1
     if not event.user_joined or not (chat.creator or chat.admin_rights):
         return
-    if not kriminalamt_tag or user.bot:
+
+    if not enabled or user.bot:
         return
-    elif isinstance(kriminalamt_tag, int):
-        delay = kriminalamt_tag
-    elif isinstance(kriminalamt_tag, str) and kriminalamt_tag.isdigit():
-        delay = int(kriminalamt_tag)
+
     await asyncio.sleep(delay)
 
     try:
