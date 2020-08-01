@@ -8,7 +8,8 @@ from telethon.errors import UserNotParticipantError
 from telethon.events import ChatAction
 from telethon.tl.functions.channels import (DeleteUserHistoryRequest,
                                             GetParticipantRequest)
-from telethon.tl.types import Channel, User
+from telethon.tl.types import (Channel, User, ChannelAdminLogEventActionParticipantLeave,
+                               ChannelAdminLogEventActionParticipantJoin)
 
 from utils.client import Client
 from utils.constants import GET_ENTITY_ERRORS
@@ -37,7 +38,7 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     kriminalamt_tag = tags.get('kriminalamt')
     bancmd = tags.get('gbancmd', 'manual')
     delay = 1
-    if not event.user_joined:
+    if not event.user_joined or not (chat.creator or chat.admin_rights):
         return
     if not kriminalamt_tag or user.bot:
         return
@@ -52,19 +53,29 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     except GET_ENTITY_ERRORS:
         return
     except UserNotParticipantError:
-        reason = f'Kriminalamt #{chat.id} No. {delay}'
         userid = event.user_id
+        leave_event = None
+        async for e in client.iter_admin_log(chat, join=True, leave=True):
+            if e.user_id == userid:
+                if isinstance(e.action, ChannelAdminLogEventActionParticipantLeave):
+                    leave_event = e
+                elif isinstance(e.action, ChannelAdminLogEventActionParticipantJoin):
+                    if leave_event and e.date < leave_event.date:
+                        diff = leave_event.date - e.date
+                        if diff.seconds > delay:
+                            return
+        if leave_event is None:
+            return
+        reason = f'Kriminalamt #{chat.id} No. {delay}'
         await client.gban(userid, reason)
+        if bancmd == 'manual':
+            await client.ban(chat, userid)
+        elif bancmd is not None:
+            await event.reply(f'{bancmd} {userid} {reason}')
+            await asyncio.sleep(0.25)
 
-        if chat.creator or chat.admin_rights:
-            if bancmd == 'manual':
-                await client.ban(chat, userid)
-            elif bancmd is not None:
-                await event.reply(f'{bancmd} {userid} {reason}')
-                await asyncio.sleep(0.25)
-
-            messages = await client.get_messages(chat, from_user=userid, limit=0)
-            if messages.total <= 5:
-                await client(DeleteUserHistoryRequest(chat, userid))
-            else:
-                await event.delete()
+        messages = await client.get_messages(chat, from_user=userid, limit=0)
+        if messages.total <= 5:
+            await client(DeleteUserHistoryRequest(chat, userid))
+        else:
+            await event.delete()
