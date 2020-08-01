@@ -1,6 +1,5 @@
 from typing import Optional, Union
 
-from pyArango.document import DocumentStore
 from telethon.events import NewMessage
 
 from database.database import Database
@@ -9,14 +8,23 @@ TagValue = Union[bool, str, int]
 TagName = Union[int, str]
 
 
+async def get_tags(event) -> 'Tags':
+    tags = Tags(event)
+    await tags.setup()
+    return tags
+
+
 class Tags:
     """Class to manage the tags of a chat"""
 
     def __init__(self, event: NewMessage.Event):
         self.db: Database = event.client.db
         self.chat_id = event.chat_id
-        if not event.is_private:
-            self.named_tags = self.db.chats.get(self.chat_id).tags
+        self._event = event
+
+    async def setup(self):
+        if not self._event.is_private:
+            self.named_tags = (await self.db.chats.get(self.chat_id)).tags
         else:
             self.named_tags = {
                 "polizei": "exclude"

@@ -32,7 +32,7 @@ class Chats(Collection):
         }
     }
 
-    def add(self, chat_id: int) -> Optional[Chat]:
+    async def add(self, chat_id: int) -> Optional[Chat]:
         """Add a Chat to the DB or return an existing one.
         Args:
             chat_id: The id of the chat
@@ -49,7 +49,7 @@ class Chats(Collection):
         except CreationError:
             return None
 
-    def get(self, chat_id: int) -> Chat:
+    async def get(self, chat_id: int) -> Chat:
         """Return a Chat document
         Args:
             chat_id: The id of the chat
@@ -61,7 +61,7 @@ class Chats(Collection):
         except DocumentNotFoundError:
             return self.add(chat_id)
 
-    def update_tags(self, chat_id: int, new: Dict):
+    async def update_tags(self, chat_id: int, new: Dict):
         _document = self[chat_id]
         _document['named_tags'] = new
         _document.save()
@@ -85,7 +85,7 @@ class AutobahnBlacklist(Collection):
         }
     }
 
-    def add(self, item: str) -> Optional[BlacklistItem]:
+    async def add(self, item: str) -> Optional[BlacklistItem]:
         """Add a Chat to the DB or return an existing one.
         Args:
             item: The id of the chat
@@ -100,7 +100,7 @@ class AutobahnBlacklist(Collection):
         except CreationError:
             return None
 
-    def get_by_value(self, item: str) -> Optional[BlacklistItem]:
+    async def get_by_value(self, item: str) -> Optional[BlacklistItem]:
         doc = self.fetchByExample({'string': item}, batchSize=1)
         if doc:
             doc = doc[0]
@@ -108,11 +108,11 @@ class AutobahnBlacklist(Collection):
         else:
             return None
 
-    def get(self, index):
+    async def get(self, index):
         doc = self.fetchDocument(index).getStore()
         return BlacklistItem(doc["_key"], doc['string'], False)
 
-    def retire(self, item):
+    async def retire(self, item):
         existing_one: Document = self.fetchFirstExample({'string': item})
         if existing_one:
             existing_one[0].delete()
@@ -120,12 +120,12 @@ class AutobahnBlacklist(Collection):
         else:
             return False
 
-    def get_all(self) -> List[BlacklistItem]:
+    async def get_all(self) -> List[BlacklistItem]:
         """Get all strings in the Blacklist."""
         return [BlacklistItem(doc["_key"], doc['string'], False)
                 for doc in self.fetchAll()]
 
-    def get_indices(self, indices, db):
+    async def get_indices(self, indices, db):
         documents = db.query('FOR doc IN @@blacklist '
                              'FILTER doc._key in @keys '
                              'RETURN doc',
@@ -192,7 +192,7 @@ class BanList(Collection):
         }
     }
 
-    def add_user(self, _id: int, reason: str) -> Optional[BannedUser]:
+    async def add_user(self, _id: int, reason: str) -> Optional[BannedUser]:
         """Add a Chat to the DB or return an existing one.
         Args:
             _id: The id of the User
@@ -212,7 +212,7 @@ class BanList(Collection):
         except CreationError:
             return None
 
-    def get_user(self, uid: int) -> Optional[BannedUser]:
+    async def get_user(self, uid: int) -> Optional[BannedUser]:
         """Fetch a users document
         Args:
             uid: User ID
@@ -224,28 +224,28 @@ class BanList(Collection):
         except DocumentNotFoundError:
             return None
 
-    def remove(self, uid, db):
+    async def remove(self, uid, db):
         db.query('REMOVE {"_key": @uid} IN BanList', bind_vars={'uid': str(uid)})
 
-    def get_multiple(self, uids, db) -> List[BannedUser]:
+    async def get_multiple(self, uids, db) -> List[BannedUser]:
         docs = db.query('For doc in BanList '
                         'FILTER doc._key in @ids '
                         'RETURN doc', bind_vars={'ids': map(str, uids)})
         return [BannedUser(doc['id'], doc['reason']) for doc in docs]
 
-    def count_reason(self, reason, db) -> int:
+    async def count_reason(self, reason, db) -> int:
         return db.query(
             'FOR doc IN BanList '
             'FILTER doc.reason LIKE @reason '
             'COLLECT WITH COUNT INTO length '
             'RETURN length', bind_vars={'reason': reason}).result[0]
 
-    def total_count(self, db) -> int:
+    async def total_count(self, db) -> int:
         return db.query('FOR doc IN BanList '
                         'COLLECT WITH COUNT INTO length '
                         'RETURN length').result[0]
 
-    def upsert_multiple(self, bans, db) -> None:
+    async def upsert_multiple(self, bans, db) -> None:
         bans = [{"_key": ban['id'], **ban} for ban in bans]
         db.query('FOR ban in @banlist '
                  'UPSERT {"_key": ban.id, "id": ban.id} '
@@ -253,11 +253,11 @@ class BanList(Collection):
                  'UPDATE {"reason": ban.reason} '
                  'IN BanList', bind_vars={'banlist': bans})
 
-    def get_all(self, db) -> List[BannedUser]:
+    async def get_all(self, db) -> List[BannedUser]:
         docs = db.query('For doc in BanList RETURN doc')
         return [BannedUser(doc['id'], doc['reason']) for doc in docs]
 
-    def get_all_not_in(self, not_in, db) -> List[BannedUser]:
+    async def get_all_not_in(self, not_in, db) -> List[BannedUser]:
         docs = db.query('For doc in BanList '
                         'FILTER doc._key not in @ids '
                         'RETURN doc', bind_vars={'ids': not_in})
@@ -277,7 +277,7 @@ class Strafanzeigen(Collection):
         'on_save': True,
     }
 
-    def add(self, creation_date, content, key):
+    async def add(self, creation_date, content, key):
         data = {
             'creation_date': creation_date,
             'data': content,
@@ -291,7 +291,7 @@ class Strafanzeigen(Collection):
         except CreationError:
             return None
 
-    def get(self, key) -> Optional[str]:
+    async def get(self, key) -> Optional[str]:
         try:
             return self.fetchByExample({'key': key}, 1)[0]['data']
         except IndexError:

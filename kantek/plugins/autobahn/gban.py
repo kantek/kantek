@@ -202,7 +202,7 @@ async def ungban(client: Client, db: Database, msg: Message,
 
     unbanned_users = []
     for uid in users_to_unban:
-        if db.banlist.get(uid):
+        if await db.banlist.get(uid):
             await client.ungban(uid)
             unbanned_users.append(str(uid))
     if unbanned_users:

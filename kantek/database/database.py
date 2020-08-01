@@ -24,25 +24,25 @@ class Blacklist(Table):
     # temporary until I remove arangodb
     name = None
 
-    def add(self, item: str) -> BlacklistItem:
-        return getattr(self.db, self.name).add(item)
+    async def add(self, item: str) -> BlacklistItem:
+        return await getattr(self.db, self.name).add(item)
 
-    def get_by_value(self, item) -> BlacklistItem:
-        return getattr(self.db, self.name).get_by_value(item)
+    async def get_by_value(self, item) -> BlacklistItem:
+        return await getattr(self.db, self.name).get_by_value(item)
 
-    def get(self, index) -> BlacklistItem:
-        return getattr(self.db, self.name).get(index)
+    async def get(self, index) -> BlacklistItem:
+        return await getattr(self.db, self.name).get(index)
 
-    def retire(self, item):
-        result = getattr(self.db, self.name).retire(item)
+    async def retire(self, item):
+        result = await getattr(self.db, self.name).retire(item)
         if not result:
             raise ItemDoesNotExistError()
 
-    def get_all(self) -> List[BlacklistItem]:
-        return getattr(self.db, self.name).get_all()
+    async def get_all(self) -> List[BlacklistItem]:
+        return await getattr(self.db, self.name).get_all()
 
-    def get_indices(self, indices) -> List[BlacklistItem]:
-        return getattr(self.db, self.name).get_indices(indices, self.db)
+    async def get_indices(self, indices) -> List[BlacklistItem]:
+        return await getattr(self.db, self.name).get_indices(indices, self.db)
 
 
 class BioBlacklist(Blacklist):
@@ -88,53 +88,53 @@ class TLDBlacklist(Blacklist):
 
 
 class Strafanzeigen(Table):
-    def add(self, content) -> str:
+    async def add(self, content) -> str:
         key = secrets.token_urlsafe(10)
         creation_date = time.time()
-        return self.db.strafanzeigen.add(creation_date, content, key)
+        return await self.db.strafanzeigen.add(creation_date, content, key)
 
-    def get(self, sa_key) -> Optional[str]:
-        return self.db.strafanzeigen.get(sa_key)
+    async def get(self, sa_key) -> Optional[str]:
+        return await self.db.strafanzeigen.get(sa_key)
 
 
 class Banlist(Table):
-    def get(self, uid) -> BannedUser:
-        return self.db.banlist.get_user(uid)
+    async def get(self, uid) -> BannedUser:
+        return await self.db.banlist.get_user(uid)
 
-    def add(self, uid: int, reason: str) -> BannedUser:
-        return self.db.banlist.add_user(uid, reason)
+    async def add(self, uid: int, reason: str) -> BannedUser:
+        return await self.db.banlist.add_user(uid, reason)
 
-    def remove(self, uid: int) -> None:
-        return self.db.banlist.remove(uid, self.db)
+    async def remove(self, uid: int) -> None:
+        return await self.db.banlist.remove(uid, self.db)
 
-    def get_multiple(self, ids) -> List[BannedUser]:
-        return self.db.banlist.get_multiple(ids, self.db)
+    async def get_multiple(self, ids) -> List[BannedUser]:
+        return await self.db.banlist.get_multiple(ids, self.db)
 
-    def count_reason(self, reason) -> int:
-        return self.db.banlist.count_reason(reason, self.db)
+    async def count_reason(self, reason) -> int:
+        return await self.db.banlist.count_reason(reason, self.db)
 
-    def total_count(self) -> int:
-        return self.db.banlist.total_count(self.db)
+    async def total_count(self) -> int:
+        return await self.db.banlist.total_count(self.db)
 
-    def upsert_multiple(self, bans: List[Dict[str, str]]) -> None:
-        return self.db.banlist.upsert_multiple(bans, self.db)
+    async def upsert_multiple(self, bans: List[Dict[str, str]]) -> None:
+        return await self.db.banlist.upsert_multiple(bans, self.db)
 
-    def get_all(self) -> List[BannedUser]:
-        return self.db.banlist.get_all(self.db)
+    async def get_all(self) -> List[BannedUser]:
+        return await self.db.banlist.get_all(self.db)
 
-    def get_all_not_in(self, not_in) -> List[BannedUser]:
-        return self.db.banlist.get_all_not_in(not_in, self.db)
+    async def get_all_not_in(self, not_in) -> List[BannedUser]:
+        return await self.db.banlist.get_all_not_in(not_in, self.db)
 
 
 class Chats(Table):
-    def add(self, chat_id: int) -> Chat:
-        return self.db.chats.add(chat_id)
+    async def add(self, chat_id: int) -> Chat:
+        return await self.db.chats.add(chat_id)
 
-    def get(self, chat_id: int) -> Chat:
-        return self.db.chats.get(chat_id)
+    async def get(self, chat_id: int) -> Chat:
+        return await self.db.chats.get(chat_id)
 
-    def update_tags(self, chat_id: int, new: Dict):
-        return self.db.chats.update_tags(chat_id, new)
+    async def update_tags(self, chat_id: int, new: Dict):
+        return await self.db.chats.update_tags(chat_id, new)
 
 
 class Blacklists:
@@ -157,7 +157,7 @@ class Blacklists:
             '0x7': self.tld
         }
 
-    def get(self, hex_type: str):
+    async def get(self, hex_type: str):
         return self._map.get(hex_type)
 
 

@@ -47,14 +47,14 @@ async def query(db: Database, args, kwargs) -> MDTeXDocument:
     """
     reason = kwargs.get('reason')
     if args:
-        users = db.banlist.get_multiple(args)
+        users = await db.banlist.get_multiple(args)
         query_results = [KeyValueItem(Code(user.id), user.reason)
                          for user in users] or [Italic('None')]
     elif reason is not None:
-        count: int = db.banlist.count_reason(reason)
+        count: int = await db.banlist.count_reason(reason)
         query_results = [KeyValueItem(Bold('Count'), Code(count))]
     else:
-        count: int = db.banlist.total_count()
+        count: int = await db.banlist.total_count()
         query_results = [KeyValueItem(Bold('Total Count'), Code(count))]
     return MDTeXDocument(Section('Query Results', *query_results))
 
@@ -76,7 +76,7 @@ async def import_(client: Client, db: Database, msg: Message) -> MDTeXDocument:
             start_time = time.time()
             _banlist = await helpers.rose_csv_to_dict(data)
             if _banlist:
-                db.banlist.upsert_multiple(_banlist)
+                await db.banlist.upsert_multiple(_banlist)
                 if client.sw and client.sw.permission in [Permission.Admin, Permission.Root]:
                     bans = {}
                     for b in _banlist:
@@ -121,9 +121,9 @@ async def export(client: Client, db: Database, chat, msg, kwargs) -> None:
         _banlist = None
 
     if with_diff:
-        users = db.banlist.get_all_not_in(_banlist)
+        users = await db.banlist.get_all_not_in(_banlist)
     else:
-        users = db.banlist.get_all()
+        users = await db.banlist.get_all()
     export = BytesIO()
     wrapper_file = codecs.getwriter('utf-8')(export)
     cwriter = csv.writer(wrapper_file, lineterminator='\n')

@@ -1,5 +1,4 @@
 """Module containing regex parsers for different occasions."""
-import itertools
 import re
 from typing import Dict, List, Pattern, Tuple, Union
 

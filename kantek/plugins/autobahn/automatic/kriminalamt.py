@@ -14,7 +14,7 @@ from telethon.tl.types import (Channel, User, ChannelAdminLogEventActionParticip
 from utils.client import Client
 from utils.constants import GET_ENTITY_ERRORS
 from utils.pluginmgr import k
-from utils.tags import Tags
+from utils.tags import get_tags
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -34,7 +34,7 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     client: Client = event.client
     chat: Channel = await event.get_chat()
     user: User = await event.get_user()
-    tags = Tags(event)
+    tags = await get_tags(event)
     enabled = tags.get('kriminalamt', False)
     bancmd = tags.get('gbancmd', 'manual')
     delay = 1

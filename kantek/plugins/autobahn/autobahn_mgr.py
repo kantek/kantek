@@ -66,7 +66,7 @@ async def add(client: Client, db: Database, msg: Message, args,
     existing_items = []
     skipped_items = []
     hex_type = AUTOBAHN_TYPES.get(item_type)
-    blacklist = db.blacklists.get(hex_type)
+    blacklist = await db.blacklists.get(hex_type)
     warn_message = ''
 
     for item in items:  # pylint: disable = R1702
@@ -106,7 +106,7 @@ async def add(client: Client, db: Database, msg: Message, args,
         if item is None:
             skipped_items.append(item)
             continue
-        existing_one = blacklist.get_by_value(item)
+        existing_one = await blacklist.get_by_value(item)
         if not existing_one:
             entry = blacklist.add(item)
             added_items.append(KeyValueItem(entry.index, Code(entry.value)))
@@ -124,10 +124,10 @@ async def add(client: Client, db: Database, msg: Message, args,
                     progress_callback=lambda r, t: _sync_file_callback(r, t, msg))
                 file_hash = helpers.hash_file(file)
                 await msg.delete()
-                existing_one = blacklist.get(item)
+                existing_one = await blacklist.get(item)
 
                 if not existing_one:
-                    entry = blacklist.add(file_hash)
+                    entry = await blacklist.add(file_hash)
                     short_hash = f'{entry.value[:15]}[...]'
                     KeyValueItem(entry.index, Code(short_hash))
                 else:
@@ -145,7 +145,7 @@ async def add(client: Client, db: Database, msg: Message, args,
                 dl_photo = await reply_msg.download_media(bytes)
                 photo_hash = await helpers.hash_photo(dl_photo)
                 await msg.delete()
-                existing_one = blacklist.get_by_value(photo_hash)
+                existing_one = await blacklist.get_by_value(photo_hash)
 
                 if not existing_one:
                     entry = blacklist.add(photo_hash)
@@ -196,7 +196,7 @@ async def del_(db: Database, args) -> MDTeXDocument:
     skipped_items = []
     for item in items:
         hex_type = AUTOBAHN_TYPES.get(item_type)
-        blacklist = db.blacklists.get(hex_type)
+        blacklist = await db.blacklists.get(hex_type)
         if hex_type is None or blacklist is None:
             continue
 
@@ -205,7 +205,7 @@ async def del_(db: Database, args) -> MDTeXDocument:
             item = chat_id
 
         try:
-            blacklist.retire(item)
+            await blacklist.retire(item)
             removed_items.append(Code(item))
         except ItemDoesNotExistError:
             skipped_items.append(Code(item))
@@ -243,9 +243,9 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
     blacklist = None
     if item_type is not None:
         hex_type = AUTOBAHN_TYPES.get(item_type, item_type)
-        blacklist = db.blacklists.get(hex_type)
+        blacklist = await db.blacklists.get(hex_type)
 
-    blacklist_items = blacklist.get_all()
+    blacklist_items = await blacklist.get_all()
 
     if code is not None:
         if isinstance(code, int):
@@ -279,7 +279,7 @@ async def count(db: Database) -> MDTeXDocument:
     sec = Section('Blacklist Item Count')
     for hextype, blacklist in db.blacklists._map.items():
         name = f'{blacklist.__class__.__name__.replace("Blacklist", "")} [{Code(hextype)}]'
-        sec.append(KeyValueItem(name, len(blacklist.get_all())))
+        sec.append(KeyValueItem(name, len(await blacklist.get_all())))
 
     return MDTeXDocument(sec)
 

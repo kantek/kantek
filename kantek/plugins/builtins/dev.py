@@ -125,7 +125,7 @@ async def sa(kwargs, db: Database) -> MDTeXDocument:
         {cmd} sa: 1ssfG8uYtduwWA
     """
     sa = kwargs.get('sa')
-    if value := db.strafanzeigen.get(sa):
+    if value := await db.strafanzeigen.get(sa):
         return MDTeXDocument(Section('Strafanzeige',
                                      KeyValueItem('key', Code(sa)),
                                      KeyValueItem('value', Code(value))))

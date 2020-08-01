@@ -20,7 +20,7 @@ from telethon.tl.types import ChannelParticipantAdmin
 from utils import helpers
 from utils.config import Config
 from utils.mdtex import *
-from utils.tags import Tags
+from utils.tags import get_tags
 
 logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
 tlog = logging.getLogger('kantek-channel-log')
@@ -242,7 +242,7 @@ class PluginManager:
             callback_args['event'] = event
 
         if args.tags:
-            callback_args['tags'] = Tags(event)
+            callback_args['tags'] = await get_tags(event)
 
         try:
             result = await callback(**callback_args)

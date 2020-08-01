@@ -90,7 +90,7 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
         # if the user account is deleted this can be None
         if uid is None:
             return False, 'Deleted account'
-        user = self.db.banlist.get(uid)
+        user = await self.db.banlist.get(uid)
         for ban_reason in AUTOMATED_BAN_REASONS:
             if user and (ban_reason in user.reason.lower()):
                 if ban_reason == 'kriminalamt':
@@ -120,7 +120,7 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
             'reason': reason
         }
 
-        self.db.banlist.upsert_multiple([data])
+        await self.db.banlist.upsert_multiple([data])
 
         if self.sw and self.sw.permission in [Permission.Admin,
                                               Permission.Root]:
@@ -160,7 +160,7 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
                                          max_id=1000000,
                                          clear_mentions=True)
 
-        self.db.banlist.remove(uid)
+        await self.db.banlist.remove(uid)
         if self.sw and self.sw.permission in [Permission.Admin,
                                               Permission.Root]:
             self.sw.delete_ban(int(uid))

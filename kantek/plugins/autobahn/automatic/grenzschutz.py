@@ -13,7 +13,7 @@ from database.database import Database
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k
-from utils.tags import Tags
+from utils.tags import get_tags
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -54,7 +54,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         if not chat.admin_rights.ban_users:
             return
     db: Database = client.db
-    tags = Tags(event)
+    tags = await get_tags(event)
     polizei_tag = tags.get('polizei')
     grenzschutz_tag = tags.get('grenzschutz')
     silent = grenzschutz_tag == 'silent'
@@ -74,7 +74,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     except ValueError as err:
         logger.error(err)
 
-    result = db.banlist.get(uid)
+    result = await db.banlist.get(uid)
     if not result:
         return
     else:

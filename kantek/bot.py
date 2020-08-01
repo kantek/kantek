@@ -6,8 +6,8 @@ from spamwatch.client import Client as SWClient
 
 from database.database import Database
 from utils import helpers
-from utils.config import Config
 from utils.client import Client
+from utils.config import Config
 from utils.loghandler import TGChannelLogHandler
 from utils.pluginmgr import PluginManager
 

@@ -10,7 +10,7 @@ from database.database import Database
 from utils import helpers, constants
 from utils.client import Client
 from utils.mdtex import *
-from utils.pluginmgr import k, Command
+from utils.pluginmgr import k
 from utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -99,7 +99,7 @@ async def _info_from_reply(client, msg, db, kwargs, tags) -> MDTeXDocument:
     user_section = await _collect_user_info(client, user, db, **kwargs)
     if anzeige and isinstance(user_section, Section):
         data = await helpers.create_strafanzeige(user.id, reply_msg)
-        key = db.strafanzeigen.add(data)
+        key = await db.strafanzeigen.add(data)
         user_section.append(SubSection('Strafanzeige', KeyValueItem('code', Code(f'sa: {key}'))))
     return MDTeXDocument(user_section)
 
@@ -129,7 +129,7 @@ async def _collect_user_info(client, user, db, **kwargs) -> Union[str, Section, 
         title = Bold(full_name)
 
     sw_ban = None
-    ban_reason = db.banlist.get(user.id)
+    ban_reason = await db.banlist.get(user.id)
     if ban_reason:
         ban_reason = ban_reason.reason
     if client.sw and client.sw.permission.value <= Permission.User.value:

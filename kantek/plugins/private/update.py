@@ -1,7 +1,6 @@
 import subprocess
 
 from utils import helpers
-from utils.config import Config
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command

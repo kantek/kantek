@@ -6,9 +6,8 @@ import logging
 import logzero
 from PIL import UnidentifiedImageError
 from photohash import hashes_are_similar
-from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
-from telethon.errors import UserNotParticipantError, AuthBytesInvalidError, FileIdInvalidError, ChannelPrivateError
+from telethon.errors import UserNotParticipantError, ChannelPrivateError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
@@ -22,7 +21,7 @@ from utils import helpers, constants
 from utils.client import Client
 from utils.helpers import hash_photo
 from utils.pluginmgr import k
-from utils.tags import Tags
+from utils.tags import get_tags
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -45,7 +44,7 @@ async def polizei(event: NewMessage.Event) -> None:
         return
     client: Client = event.client
     chat: Channel = await event.get_chat()
-    tags = Tags(event)
+    tags = await get_tags(event)
     bancmd = tags.get('gbancmd', 'manual')
     polizei_tag = tags.get('polizei')
     if polizei_tag == 'exclude':
@@ -67,14 +66,14 @@ async def join_polizei(event: ChatAction.Event) -> None:
     client: Client = event.client
     chat: Channel = await event.get_chat()
     db: Database = client.db
-    tags = Tags(event)
+    tags = await get_tags(event)
     bancmd = tags.get('gbancmd')
     polizei_tag = tags.get('polizei')
     if polizei_tag == 'exclude':
         return
     ban_type, ban_reason = False, False
-    bio_blacklist = db.blacklists.bio.get_all()
-    mhash_blacklist = db.blacklists.mhash.get_all()
+    bio_blacklist = await db.blacklists.bio.get_all()
+    mhash_blacklist = await db.blacklists.mhash.get_all()
 
     try:
         user: UserFull = await client(GetFullUserRequest(await event.get_input_user()))
@@ -109,7 +108,7 @@ async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
     chat: Channel = await event.get_chat()
     admin = chat.creator or chat.admin_rights
     await event.delete()
-    old_ban = db.banlist.get(userid)
+    old_ban = await db.banlist.get(userid)
     if old_ban:
         if old_ban.reason == formatted_reason:
             logger.info('User ID `%s` already banned for the same reason.', userid)
@@ -163,7 +162,7 @@ async def _check_message(event):  # pylint: disable = R0911
 
     inline_bot = msg.via_bot_id
     if inline_bot is not None:
-        result = db.blacklists.channel.get_by_value(inline_bot)
+        result = await db.blacklists.channel.get_by_value(inline_bot)
         if result:
             return db.blacklists.channel.hex_type, result.index
 
@@ -173,12 +172,12 @@ async def _check_message(event):  # pylint: disable = R0911
         for button in itertools.chain.from_iterable(_buttons):
             if button.url:
                 _, chat_id, _ = await helpers.resolve_invite_link(button.url)
-                result = db.blacklists.channel.get_by_value(chat_id)
+                result = await db.blacklists.channel.get_by_value(chat_id)
                 if result:
                     return db.blacklists.channel.hex_type, result.index
 
                 domain = await client.resolve_url(button.url)
-                result = db.blacklists.domain.get_by_value(domain)
+                result = await db.blacklists.domain.get_by_value(domain)
                 if result:
                     return db.blacklists.domain.hex_type, result.index
 
@@ -187,21 +186,21 @@ async def _check_message(event):  # pylint: disable = R0911
                 #     return db.ab_tld_blacklist.hex_type, tld_index
 
                 face_domain = await helpers.netloc(button.url)
-                result = db.blacklists.domain.get_by_value(face_domain)
+                result = await db.blacklists.domain.get_by_value(face_domain)
                 if result:
                     return db.blacklists.domain.hex_type, result.index
 
                 elif domain in constants.TELEGRAM_DOMAINS:
                     _entity = await client.get_cached_entity(domain)
                     if _entity:
-                        result = db.blacklists.channel.get_by_value(_entity)
+                        result = await db.blacklists.channel.get_by_value(_entity)
                         if result:
                             return db.blacklists.channel.hex_type, result.index
 
     entities = msg.get_entities_text()
     for entity, text in entities:  # pylint: disable = R1702
         _, chat_id, _ = await helpers.resolve_invite_link(text)
-        result = db.blacklists.channel.get_by_value(chat_id)
+        result = await db.blacklists.channel.get_by_value(chat_id)
         if result:
             return db.blacklists.channel.hex_type, result.index
 
@@ -242,7 +241,7 @@ async def _check_message(event):  # pylint: disable = R0911
                     if profile_photo:
                         try:
                             photo_hash = await hash_photo(profile_photo)
-                            for mhash in db.blacklists.mhash.get_all():
+                            for mhash in await db.blacklists.mhash.get_all():
                                 if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
                                     return db.blacklists.mhash.hex_type, mhash.index
                         except UnidentifiedImageError:
@@ -256,7 +255,7 @@ async def _check_message(event):  # pylint: disable = R0911
             face_domain = await helpers.netloc(f'http://{domain}')
 
         if domain:
-            result = db.blacklists.domain.get_by_value(domain)
+            result = await db.blacklists.domain.get_by_value(domain)
             if result:
                 return db.blacklists.domain.hex_type, result.index
             # else:
@@ -265,7 +264,7 @@ async def _check_message(event):  # pylint: disable = R0911
             #     return db.ab_tld_blacklist.hex_type, tld_index
 
         if face_domain:
-            result = db.blacklists.domain.get_by_value(face_domain)
+            result = await db.blacklists.domain.get_by_value(face_domain)
             if result:
                 return db.blacklists.domain.hex_type, result.index
             # else:
@@ -274,11 +273,11 @@ async def _check_message(event):  # pylint: disable = R0911
             #     return db.ab_tld_blacklist.hex_type, tld_index
 
         if channel:
-            result = db.blacklists.channel.get_by_value(channel)
+            result = await db.blacklists.channel.get_by_value(channel)
             if result:
                 return db.blacklists.channel.hex_type, result.index
 
-    for string in db.blacklists.string.get_all():
+    for string in await db.blacklists.string.get_all():
         if string.value in msg.raw_text:
             return db.blacklists.string.hex_type, string.index
 
@@ -293,7 +292,7 @@ async def _check_message(event):  # pylint: disable = R0911
                 dl_file = None
             if dl_file:
                 filehash = helpers.hash_file(dl_file)
-                result = db.blacklists.file.get_by_value(filehash)
+                result = await db.blacklists.file.get_by_value(filehash)
                 if result:
                     return db.blacklists.file.hex_type, result.index
         else:
@@ -310,7 +309,7 @@ async def _check_message(event):  # pylint: disable = R0911
             except UnidentifiedImageError:
                 photo_hash = None
             if photo_hash:
-                for mhash in db.blacklists.mhash.get_all():
+                for mhash in await db.blacklists.mhash.get_all():
                     if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
                         return db.blacklists.mhash.hex_type, mhash.index
 
