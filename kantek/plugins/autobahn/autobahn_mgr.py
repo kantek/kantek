@@ -122,7 +122,7 @@ async def add(client: Client, db: Database, msg: Message, args,
                 file = await reply_msg.download_media(
                     bytes,
                     progress_callback=lambda r, t: _sync_file_callback(r, t, msg))
-                file_hash = await helpers.hash_file(file)
+                file_hash = helpers.hash_file(file)
                 await msg.delete()
                 existing_one = blacklist.get(item)
 
