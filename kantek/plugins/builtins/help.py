@@ -166,6 +166,7 @@ def get_misc_topics(topic, subtopics) -> MDTeXDocument:
                         SubSection('Ranges',
                                    Code('range: 1..10'),
                                    Code('1..10'),
+                                   Code('..10'),
                                    Code('ids: -10..20')),
                         SubSection('Lists',
                                    Code('vals: ["val1", "val2"]'),

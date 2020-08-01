@@ -1,17 +1,18 @@
 """Module containing regex parsers for different occasions."""
+import itertools
 import re
 from typing import Dict, List, Pattern, Tuple, Union
 
-KEYWORD_ARGUMENT: Pattern = re.compile(r'(\S+):\s?(\[.+?\]|\".+\"|[\w-]\S*)')
+KEYWORD_ARGUMENT: Pattern = re.compile(r'(\S+):\s?(\[.+?\]|\".+\"|[\w\-\.]\S*)')
 FLAG_ARGUMENT: Pattern = re.compile(r'(?:\s|^)-\w+')
 QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")')
-RANGE_PATTERN: Pattern = re.compile(r'-?\d+\.\.-?\d+')
+RANGE_PATTERN: Pattern = re.compile(r'(?P<start>-?\d+)?\.\.(?P<end>-?\d+)?')
 BOOL_MAP = {
     'false': False,
     'true': True,
 }
 
-Value = Union[int, str, float, complex, bool]
+Value = Union[int, str, float, complex, bool, range, List['Value']]
 KeywordArgument = Union[Value, range, List[Value]]
 
 EXPR_PATTERN: Pattern = re.compile(r'(?P<duration>\d+)(?P<unit>[smhdw])')
@@ -43,9 +44,12 @@ def _parse_types(val: str) -> Value:
     if re.search(r'\[.*\]', val):
         val = re.sub(r'[\[\]]', '', val).split(',')
         return [_parse_types(v.strip()) for v in val]
-    elif re.search(RANGE_PATTERN, val):
-        start, stop = val.split('..')
-        return range(int(start), int(stop))
+    elif match := re.search(RANGE_PATTERN, val):
+        end = int(match.group('end'))
+        if start := match.group('start'):
+            return range(int(start), end)
+        else:
+            return range(end)
     else:
         return BOOL_MAP.get(val.lower(), val)
 
@@ -118,6 +122,9 @@ def arguments(args: str) -> Tuple[Dict[str, KeywordArgument], List[Value]]:
 
     >>> arguments('[1..5,6..10]')
     ({}, [[range(1, 5), range(6, 10)]])
+
+    >>> arguments('..20 range: ..20')
+    ({'range': range(0, 20)}, [range(0, 20)])
 
     Args:
         args: The string with the arguments that should be parsed
