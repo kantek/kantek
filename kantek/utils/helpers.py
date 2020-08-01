@@ -15,7 +15,7 @@ from PIL import Image
 from telethon import utils
 from telethon.events import NewMessage
 from telethon.tl.custom import Message
-from telethon.tl.types import User, DocumentAttributeFilename
+from telethon.tl.types import User, DocumentAttributeFilename, PeerChannel, PeerUser
 
 from utils import parsers
 from utils.config import Config
@@ -154,7 +154,12 @@ async def textify_message(msg: Message):
 
 
 async def create_strafanzeige(uid, msg: Message):
-    chat_id = (msg.chat_id * -1) - int(1e12)
+    if isinstance(msg.to_id, PeerChannel):
+        chat_id = msg.to_id.channel_id
+    elif isinstance(msg.to_id, PeerUser):
+        chat_id = msg.from_id
+    else:
+        chat_id = msg.chat_id
     msg_id = msg.id
     msg_link = f't.me/c/{chat_id}/{msg_id}'
     data = f'{uid} link:{msg_link}'
