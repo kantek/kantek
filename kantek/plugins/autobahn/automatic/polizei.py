@@ -8,7 +8,7 @@ from PIL import UnidentifiedImageError
 from photohash import hashes_are_similar
 from pyArango.theExceptions import DocumentNotFoundError
 from telethon import events
-from telethon.errors import UserNotParticipantError, AuthBytesInvalidError, FileIdInvalidError
+from telethon.errors import UserNotParticipantError, AuthBytesInvalidError, FileIdInvalidError, ChannelPrivateError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
@@ -89,7 +89,7 @@ async def join_polizei(event: ChatAction.Event) -> None:
     if user.profile_photo:
         try:
             dl_photo = await client.download_file(user.profile_photo)
-        except (AuthBytesInvalidError, FileIdInvalidError):
+        except constants.DOWNLOAD_ERRORS:
             dl_photo = None
         if dl_photo:
             photo_hash = await hash_photo(dl_photo)
@@ -235,17 +235,21 @@ async def _check_message(event):  # pylint: disable = R0911
                 full_entity = await client.get_cached_entity(_entity)
                 if full_entity:
                     channel = full_entity.id
-                    profile_photo = await client.download_profile_photo(full_entity, bytes)
                     try:
-                        photo_hash = await hash_photo(profile_photo)
-                        for mhash in db.blacklists.mhash.get_all():
-                            if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
-                                return db.blacklists.mhash.hex_type, mhash.index
-                    except UnidentifiedImageError:
-                        pass
+                        profile_photo = await client.download_profile_photo(full_entity, bytes)
+                    except constants.DOWNLOAD_ERRORS:
+                        profile_photo = None
+                    if profile_photo:
+                        try:
+                            photo_hash = await hash_photo(profile_photo)
+                            for mhash in db.blacklists.mhash.get_all():
+                                if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
+                                    return db.blacklists.mhash.hex_type, mhash.index
+                        except UnidentifiedImageError:
+                            pass
 
-            except constants.GET_ENTITY_ERRORS as err:
-                logger.error(err)
+            except (*constants.GET_ENTITY_ERRORS, ChannelPrivateError):
+                pass
 
         # urllib doesnt like urls without a protocol
         if not face_domain:
@@ -283,21 +287,29 @@ async def _check_message(event):  # pylint: disable = R0911
         ten_mib = (1024 ** 2) * 10
         # Only download files to avoid downloading photos
         if msg.document and msg.file.size < ten_mib:
-            dl_file = await msg.download_media(bytes)
-            filehash = helpers.hash_file(dl_file)
-            result = db.blacklists.file.get_by_value(filehash)
-            if result:
-                return db.blacklists.file.hex_type, result.index
+            try:
+                dl_file = await msg.download_media(bytes)
+            except constants.DOWNLOAD_ERRORS:
+                dl_file = None
+            if dl_file:
+                filehash = helpers.hash_file(dl_file)
+                result = db.blacklists.file.get_by_value(filehash)
+                if result:
+                    return db.blacklists.file.hex_type, result.index
         else:
-            logger.warning('Skipped file because it was too large or not a document')
+            pass
 
     if msg.photo:
-        dl_photo = await msg.download_media(bytes)
-        photo_hash = await hash_photo(dl_photo)
+        try:
+            dl_photo = await msg.download_media(bytes)
+        except constants.DOWNLOAD_ERRORS:
+            dl_photo = None
+        if dl_photo:
+            photo_hash = await hash_photo(dl_photo)
 
-        for mhash in db.blacklists.mhash.get_all():
-            if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
-                return db.blacklists.mhash.hex_type, mhash.index
+            for mhash in db.blacklists.mhash.get_all():
+                if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
+                    return db.blacklists.mhash.hex_type, mhash.index
 
     return False, False
 
