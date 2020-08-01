@@ -27,6 +27,8 @@ async def stats(client: Client, event: Command) -> MDTeXDocument:  # pylint: dis
     bots = 0
     deleted_bots = 0
     groups = 0
+    supergroups = 0
+    normal_groups = 0
     broadcast_channels = 0
     admin_in_groups = 0
     creator_in_groups = 0
@@ -48,6 +50,7 @@ async def stats(client: Client, event: Command) -> MDTeXDocument:  # pylint: dis
 
             elif entity.megagroup:
                 groups += 1
+                supergroups += 1
                 if entity.creator or entity.admin_rights:
                     admin_in_groups += 1
                 if entity.creator:
@@ -65,6 +68,7 @@ async def stats(client: Client, event: Command) -> MDTeXDocument:  # pylint: dis
 
         elif isinstance(entity, Chat):
             groups += 1
+            normal_groups += 1
             if entity.creator or entity.admin_rights:
                 admin_in_groups += 1
             if entity.creator:
@@ -89,6 +93,8 @@ async def stats(client: Client, event: Command) -> MDTeXDocument:  # pylint: dis
                            KeyValueItem('Deleted', deleted_bots))),
         Section('Groups',
                 KeyValueItem('Total', groups),
+                KeyValueItem('Supergroups', supergroups),
+                KeyValueItem('Normal', normal_groups),
                 SubSection('Admin rights',
                            KeyValueItem('Total', admin_in_groups),
                            KeyValueItem('Creator', creator_in_groups),
