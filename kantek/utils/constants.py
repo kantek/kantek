@@ -1,6 +1,5 @@
-from
 from telethon.errors import (UsernameInvalidError, UsernameNotOccupiedError, InviteHashInvalidError,
-                             AuthBytesInvalidError)
+                             AuthBytesInvalidError, FileIdInvalidError)
 
 TELEGRAM_DOMAINS = ['t.me',
                     'telegram.org',
