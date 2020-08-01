@@ -24,7 +24,7 @@ async def tag(chat: Channel, tags: Tags) -> MDTeXDocument:
     """
     named_tags: Dict = tags.named_tags
     data = []
-    data += [KeyValueItem(key, value) for key, value in named_tags.items()]
+    data += [KeyValueItem(key, Code(value)) for key, value in named_tags.items()]
     if not data:
         data.append(Code('None'))
     return MDTeXDocument(
