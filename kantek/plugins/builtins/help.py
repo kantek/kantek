@@ -2,8 +2,8 @@ import inspect
 import re
 from typing import Callable
 
-from utils.config import Config
 from utils.client import Client
+from utils.config import Config
 from utils.mdtex import *
 from utils.pluginmgr import k, _Command, _Event
 
@@ -40,6 +40,7 @@ async def help_(client: Client, args, kwargs) -> MDTeXDocument:
             if e.name:
                 _events.append(e.name)
         toc.append(Section('Event List', *sorted(_events)))
+        toc.append(Section('Misc', 'parsers'))
         toc.append(Italic('Provide a command/event name as argument to get help for it.'))
         return toc
     if args:
@@ -130,7 +131,11 @@ def get_misc_topics(topic, subtopics) -> MDTeXDocument:
                 Section(f'Available Parsers',
                         KeyValueItem(Italic(Bold('time')),
                                      'Specify durations with a shorthand',
-                                     colon_styles=(Bold, Italic))))
+                                     colon_styles=(Bold, Italic)),
+                        KeyValueItem(Italic(Bold('args')),
+                                     'Examples for the argument parser',
+                                     colon_styles=(Bold, Italic)))
+            )
         elif subtopic == 'time':
             return MDTeXDocument(
                 Section('Time'),
