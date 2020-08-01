@@ -38,4 +38,3 @@ async def update(client: Client, event: Command, tags: Tags) -> None:
                         KeyValueItem('New commit', Link(new_commit, helpers.link_commit(new_commit))),
                         Italic('Restarting bot'))))
     await client.disconnect()
-    await client.aioclient.close()
