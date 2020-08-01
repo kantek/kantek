@@ -22,17 +22,12 @@ async def info(client: Client, tags: Tags, chat: Channel, event: Command) -> Opt
     if event.is_private:
         await event.delete()
         return
-    chat_info = Section(f'info for {chat.title}:',
-                        KeyValueItem(Bold('title'), Code(chat.title)),
-                        KeyValueItem(Bold('chat_id'), Code(event.chat_id)),
-                        KeyValueItem(Bold('access_hash'), Code(chat.access_hash)),
-                        KeyValueItem(Bold('creator'), Code(chat.creator)),
-                        KeyValueItem(Bold('broadcast'), Code(chat.broadcast)),
-                        KeyValueItem(Bold('megagroup'), Code(chat.megagroup)),
-                        KeyValueItem(Bold('min'), Code(chat.min)),
-                        KeyValueItem(Bold('username'), Code(chat.username)),
-                        KeyValueItem(Bold('verified'), Code(chat.verified)),
-                        KeyValueItem(Bold('version'), Code(chat.version)),
+    chat_info = Section(f'Info for {chat.title}:',
+                        KeyValueItem('title', Code(chat.title)),
+                        KeyValueItem('chat_id', Code(event.chat_id)),
+                        KeyValueItem('broadcast', Code(chat.broadcast)),
+                        KeyValueItem('megagroup', Code(chat.megagroup)),
+                        KeyValueItem('username', Code(chat.username)) if chat.username else None,
                         )
 
     bot_accounts = 0
@@ -46,12 +41,12 @@ async def info(client: Client, tags: Tags, chat: Channel, event: Command) -> Opt
         if user.deleted:
             deleted_accounts += 1
 
-    user_stats = Section('user stats:',
-                         KeyValueItem(Bold('total_users'), Code(total_users)),
-                         KeyValueItem(Bold('bots'), Code(bot_accounts)),
-                         KeyValueItem(Bold('deleted_accounts'), Code(deleted_accounts)))
+    user_stats = Section('User stats:',
+                         KeyValueItem('total_users', Code(total_users)),
+                         KeyValueItem('bots', Code(bot_accounts)),
+                         KeyValueItem('deleted_accounts', Code(deleted_accounts)))
 
     data = []
-    data += [KeyValueItem(Bold(key), value) for key, value in tags.named_tags.items()]
-    tags = Section('tags:', *data or [Italic('None')])
+    data += [KeyValueItem(key, value) for key, value in tags.named_tags.items()]
+    tags = Section('Tags:', *data or [Italic('None')])
     return MDTeXDocument(chat_info, user_stats, tags)
