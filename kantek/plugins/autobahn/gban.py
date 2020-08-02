@@ -7,7 +7,7 @@ from telethon.errors import UserNotParticipantError
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
-from telethon.tl.types import Channel, InputReportReasonSpam, InputPeerChannel
+from telethon.tl.types import Channel, InputReportReasonSpam, InputPeerChannel, ChannelParticipantCreator
 
 from database.database import Database
 from utils import helpers, parsers
@@ -81,12 +81,13 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
             ban_reason = DEFAULT_REASON
             try:
                 participant = await client(GetParticipantRequest(event.chat_id, reply_msg.from_id))
-                join_date = participant.participant.date
+                if not isinstance(participant.participant, ChannelParticipantCreator):
+                    join_date = participant.participant.date
 
-                if (reply_msg.date - datetime.timedelta(hours=1)) < join_date:
-                    ban_reason = 'joinspam'
-                elif only_joinspam:
-                    return
+                    if (reply_msg.date - datetime.timedelta(hours=1)) < join_date:
+                        ban_reason = 'joinspam'
+                    elif only_joinspam:
+                        return
             except UserNotParticipantError:
                 pass
 
