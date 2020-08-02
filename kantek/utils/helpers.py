@@ -48,7 +48,7 @@ async def get_args(event: NewMessage.Event, skip: int = 1) -> Tuple[Dict[str, st
     Returns:
         Parsed arguments as returned by parser.parse_arguments()
     """
-    _args = event.message.raw_text.split()[skip:]
+    _args = event.message.raw_text.split(' ')[skip:]
     return parsers.arguments(' '.join(_args))
 
 
