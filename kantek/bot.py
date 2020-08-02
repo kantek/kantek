@@ -29,6 +29,10 @@ async def main() -> None:
                                   config.log_channel_id)
     await handler.connect()
     tlog.addHandler(handler)
+
+    db = Database()
+    await db.connect(config)
+
     client = Client(str(config.session_name), config.api_id, config.api_hash)
     # noinspection PyTypeChecker
     await client.start(config.phone)
@@ -39,8 +43,7 @@ async def main() -> None:
     client.plugin_mgr.register_all()
 
     logger.info('Connecting to Database')
-    client.db = Database()
-    await client.db.connect(config)
+    client.db = db
 
     tlog.info('Started Kantek v%s [%s]', __version__, helpers.link_commit(helpers.get_commit()))
     logger.info('Started Kantek v%s', __version__)
