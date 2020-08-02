@@ -28,7 +28,8 @@ class ConfigWrapper:
     db_type: str = 'arango'
     db_username: str = "kantek"
     db_name: str = "kantek"
-    db_host: str = 'http://127.0.0.1:8529'
+    db_host: str = '127.0.0.1'
+    db_port: int = None
     db_cluster_mode: bool = False
     cmd_prefix: List[str] = field(default_factory=lambda: ['.'])
 

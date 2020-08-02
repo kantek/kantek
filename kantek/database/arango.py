@@ -1,4 +1,5 @@
 """Module containing all operations related to ArangoDB"""
+import time
 from typing import Dict, Optional, Any, List
 
 from pyArango.collection import Collection, Field
@@ -277,9 +278,9 @@ class Strafanzeigen(Collection):
         'on_save': True,
     }
 
-    async def add(self, creation_date, content, key):
+    async def add(self, content, key):
         data = {
-            'creation_date': creation_date,
+            'creation_date': time.time(),
             'data': content,
             'key': key
         }
@@ -301,8 +302,11 @@ class Strafanzeigen(Collection):
 class ArangoDB:  # pylint: disable = R0902
     """Handle creation of all required Documents."""
 
-    async def connect(self, host, username, password, name) -> None:
-        self.conn = Connection(arangoURL=host,
+    async def connect(self, host, port, username, password, name) -> None:
+        if port is None:
+            port = 8529
+        url = f'http://{host}:{port}'
+        self.conn = Connection(arangoURL=url,
                                username=username,
                                password=password)
         self.db = self._get_db(name)

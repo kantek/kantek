@@ -1,0 +1,11 @@
+# Required, do not edit
+database_type = "postgres"
+
+# Required database info
+database_name = "kantek"
+database_user = "kantek"
+database_password = ""
+
+# Configurable database info
+database_host = "localhost"         # default "localhost"
+database_port = "5432"              # default "5432"

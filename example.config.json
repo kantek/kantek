@@ -4,6 +4,7 @@
     "phone": "+123456789",
 
     "db_password": "PASSWORD",
+    "db_type": "arango",
 
     "log_bot_token": "123456789:AABBCCDDEEFFGGHH",
     "log_channel_id": -100123456789

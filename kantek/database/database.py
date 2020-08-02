@@ -3,6 +3,7 @@ import time
 from typing import Union, Dict, List, Optional
 
 from database.arango import ArangoDB
+from database.postgres import Postgres
 from database.types import BlacklistItem, BannedUser, Chat
 from utils.config import Config
 
@@ -90,8 +91,7 @@ class TLDBlacklist(Blacklist):
 class Strafanzeigen(Table):
     async def add(self, content) -> str:
         key = secrets.token_urlsafe(10)
-        creation_date = time.time()
-        return await self.db.strafanzeigen.add(creation_date, content, key)
+        return await self.db.strafanzeigen.add(content, key)
 
     async def get(self, sa_key) -> Optional[str]:
         return await self.db.strafanzeigen.get(sa_key)
@@ -162,12 +162,18 @@ class Blacklists:
 
 
 class Database:
-    db: Union[ArangoDB]
+    db: Union[ArangoDB, Postgres]
 
     async def connect(self, config: Config):
         if config.db_type == 'arango':
             self.db = ArangoDB()
-            await self.db.connect(config.db_host,
+            await self.db.connect(config.db_host, config.db_port,
+                                  config.db_username,
+                                  config.db_password,
+                                  config.db_name)
+        elif config.db_type == 'postgres':
+            self.db = Postgres()
+            await self.db.connect(config.db_host, config.db_port,
                                   config.db_username,
                                   config.db_password,
                                   config.db_name)
