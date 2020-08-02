@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Coroutine
 
 from telethon.events import NewMessage
 
@@ -46,10 +46,7 @@ class Tags:
         """
         return self.named_tags.get(tag_name, default)
 
-    def __getitem__(self, item: TagName) -> TagValue:
-        return self.get(item)
-
-    def set(self, tag_name: TagName, value: Optional[TagValue]) -> None:
+    async def set(self, tag_name: TagName, value: Optional[TagValue]) -> None:
         """Set a tags value or create it.
         If value is None a normal tag will be created. If the value is not None a named tag with
          that value will be created
@@ -61,12 +58,9 @@ class Tags:
 
         """
         self.named_tags[tag_name] = value
-        self._save()
+        await self._save()
 
-    def __setitem__(self, key: TagName, value: TagValue) -> None:
-        self.set(key, value)
-
-    def remove(self, tag_name: TagName) -> None:
+    async def remove(self, tag_name: TagName) -> None:
         """Delete a tag.
 
         Args:
@@ -77,15 +71,12 @@ class Tags:
         """
         if tag_name in self.named_tags:
             del self.named_tags[tag_name]
-        self._save()
+        await self._save()
 
-    def __delitem__(self, key: TagName) -> None:
-        self.remove(key)
-
-    def clear(self) -> None:
+    async def clear(self) -> None:
         """Clears all tags that a Chat has."""
         self.named_tags = {}
-        self._save()
+        await self._save()
 
-    def _save(self):
-        self.db.chats.update_tags(self.chat_id, self.named_tags)
+    async def _save(self):
+        await self.db.chats.update_tags(self.chat_id, self.named_tags)
