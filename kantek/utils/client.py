@@ -21,7 +21,6 @@ from yarl import URL
 
 from database.database import Database
 from utils.config import Config
-from utils.constants import SCHEDULE_DELETION_COMMAND
 from utils.mdtex import *
 from utils.pluginmgr import PluginManager
 
@@ -71,7 +70,7 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
             sent_msg: Message = await event.respond(msg, link_preview=link_preview)
         if delete is not None:
             # While asyncio.sleep would work it would stop the function from returning which is annoying
-            await self.send_message(sent_msg.chat, f'{SCHEDULE_DELETION_COMMAND} [Scheduled deletion]',
+            await self.send_message(sent_msg.chat, f'{self.config.prefix}delete [Scheduled deletion]',
                                     schedule=datetime.timedelta(seconds=delete), reply_to=sent_msg.id,
                                     link_preview=link_preview)
         return sent_msg

@@ -13,5 +13,3 @@ TELEGRAM_DOMAINS = ['t.me',
 GET_ENTITY_ERRORS = (UsernameNotOccupiedError, UsernameInvalidError, ValueError, InviteHashInvalidError)
 
 DOWNLOAD_ERRORS = (AuthBytesInvalidError, FileIdInvalidError)
-
-SCHEDULE_DELETION_COMMAND = "kantek_scheduled_delete"
