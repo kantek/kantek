@@ -25,7 +25,7 @@ class ConfigWrapper:
 
     plugin_path: str
 
-    db_type: str = 'postgres'
+    db_type: str = 'arango'
     db_username: str = "kantek"
     db_name: str = "kantek"
     db_host: str = '127.0.0.1'
