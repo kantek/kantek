@@ -38,6 +38,11 @@ After setting up the database:
 - Put the Authentication data into the config file.
 - Run bot.py
 
+## Migrating from ArangoDB to Postgres
+If you postgres runs on nonstandard values set `pg_db_username`, `pg_db_name`, `pg_db_host`, `pg_db_port`, `pg_db_password`
+Stop your bot and run `migrate_to_postgres.py`. This will move everything over. If you have removed blacklist items with the old database you now might see `<retired item from legacy database>` as items when querying for some indices. This is done to keep the new indices the same. These items are disabled and users won't be banned for it. 
+Once the migration is done. Change your `db_*` to the new settings and restart the bot.
+
 ## Config
 ### api_id
 Get it from http://my.telegram.org/

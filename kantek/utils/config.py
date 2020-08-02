@@ -31,6 +31,13 @@ class ConfigWrapper:
     db_host: str = '127.0.0.1'
     db_port: int = None
     db_cluster_mode: bool = False
+
+    pg_db_username: str = "kantek"
+    pg_db_name: str = "kantek"
+    pg_db_host: str = '127.0.0.1'
+    pg_db_port: int = None
+    pg_db_password: str = ''
+
     cmd_prefix: List[str] = field(default_factory=lambda: ['.'])
 
     session_name: str = 'kantek-session'
