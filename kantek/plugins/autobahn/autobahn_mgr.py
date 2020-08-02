@@ -148,7 +148,7 @@ async def add(client: Client, db: Database, msg: Message, args,
                 existing_one = await blacklist.get_by_value(photo_hash)
 
                 if not existing_one:
-                    entry = blacklist.add(photo_hash)
+                    entry = await blacklist.add(photo_hash)
                     if Counter(photo_hash).get('0', 0) > 8:
                         warn_message = ('The image seems to contain a lot of the same color.'
                                         ' This might lead to false positives.')

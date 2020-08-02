@@ -61,7 +61,7 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
     sa_key = kwargs.get('sa')
     anzeige = None
     if sa_key:
-        anzeige = db.strafanzeigen.get(sa_key)
+        anzeige = await db.strafanzeigen.get(sa_key)
 
     if anzeige:
         _kw, _args = parsers.arguments(anzeige)
