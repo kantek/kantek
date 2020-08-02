@@ -20,13 +20,47 @@ async def update(client: Client, event: Command, tags: Tags) -> None:
         {cmd}
     """
     silent = tags.get('update', False)
+
+    # region git pull
     if not silent:
         progess_message = await client.respond(event, MDTeXDocument(
             Section('Updating',
                     f'Running {Code("git pull")}')))
     else:
         await event.delete()
-    subprocess.call(['git', 'pull', '-q'])
+
+    proc = subprocess.call(['git', 'pull', '-q'])
+    if proc != 0:
+        msg = MDTeXDocument(
+            Section('Error',
+                    f'{Code("git")} returned non-zero exit code.',
+                    'Please update manually'))
+        if not silent:
+            await progess_message.edit(str(msg))
+        else:
+            await client.respond(event, msg)
+        return
+    # endregion
+
+    # region migrant
+    if not silent:
+        await progess_message.edit(str(MDTeXDocument(
+            Section('Updating',
+                    f'Running {Code("migrant apply --all")}'))))
+    proc = subprocess.run(['migrant', 'apply', '--all'], stderr=subprocess.PIPE)
+    if proc.returncode != 0:
+        if b'MigrationComplete' not in proc.stderr:
+            msg = MDTeXDocument(
+                Section('Error',
+                        f'{Code("migrant")} returned non-zero exit code.',
+                        'Please update manually'))
+            if not silent:
+                await progess_message.edit(str(msg))
+            else:
+                await client.respond(event, msg)
+            return
+    # endregion
+
     new_commit = helpers.get_commit()
     if not silent:
         await progess_message.delete()
