@@ -30,6 +30,7 @@ ArangoDB might be deprecated in the future so using postgres is suggested.
 
 ### ArangoDB
 - Set `db_type` to `arango` in the config
+- Install the driver with `pip install pyArango~=1.3.4`
 - Create a user and a Database in ArangoDB. Give the user full permissions to the Database. The config defaults to the user and database name to `kantek` can be changed with [db_username](#db_username) and [db_name](#db_name) respectively.
 
 After setting up the database:
