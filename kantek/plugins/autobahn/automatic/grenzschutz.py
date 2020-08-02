@@ -7,9 +7,11 @@ from telethon.errors import UserIdInvalidError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.types import (Channel, ChannelParticipantsAdmins, MessageActionChatJoinedByLink,
                                MessageActionChatAddUser)
+from telethon.utils import get_display_name
 
 from database.database import Database
 from utils.client import Client
+from utils.constants import GET_ENTITY_ERRORS
 from utils.mdtex import *
 from utils.pluginmgr import k
 from utils.tags import Tags
@@ -69,9 +71,10 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     if uid is None:
         return
     try:
-        user = await client.get_entity(uid)
-    except ValueError as err:
-        logger.error(err)
+        entity = await client.get_entity(uid)
+        name = get_display_name(entity)
+    except GET_ENTITY_ERRORS:
+        name = uid
 
     result = await db.banlist.get(uid)
     if not result:
@@ -90,7 +93,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
             message = MDTeXDocument(Section(
                 Bold('SpamWatch Grenzschutz Ban'),
                 KeyValueItem(Bold("User"),
-                             f'{Mention(user.first_name, uid)} [{Code(uid)}]'),
+                             f'{Mention(name, uid)} [{Code(uid)}]'),
                 KeyValueItem(Bold("Reason"),
                              ban_reason)
             ))
