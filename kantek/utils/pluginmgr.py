@@ -163,6 +163,7 @@ class PluginManager:
         except Exception as err:
             name = event.callback.__name__
             tlog.error(f'An error occured in the event `{name}`', exc_info=err)
+            logger.exception(err)
 
     @staticmethod
     async def _callback(cmd: _Command, args: _Signature, admins: bool, event: NewMessage.Event) -> None:
