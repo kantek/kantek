@@ -59,7 +59,7 @@ class Chats(Collection):
             doc = self[chat_id]
             return Chat(doc['id'], doc['named_tags'].getStore())
         except DocumentNotFoundError:
-            return self.add(chat_id)
+            return await self.add(chat_id)
 
     async def update_tags(self, chat_id: int, new: Dict):
         _document = self[chat_id]
