@@ -24,7 +24,7 @@ CHUNK_SIZE = 10
 
 @k.command('gban')
 async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Message,
-               args: List, kwargs: Dict, event: Command) -> None:
+               args: List, kwargs: Dict, event: Command) -> Optional[MDTeXDocument]:
     """Globally ban a user.
 
     This will not actively ban them from any chats except the one command was issued in as reply. GBanned users will be automatically banned on join or when writing a message by the Grenzschutz module.
@@ -166,7 +166,7 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
                 bans = _build_message(skipped_uids)
                 sections.append(Section('Skipped GBan', *bans))
 
-            await client.respond(event, MDTeXDocument(*sections))
+            return MDTeXDocument(*sections)
 
 
 def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) -> List[KeyValueItem]:
