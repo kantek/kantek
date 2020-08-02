@@ -205,8 +205,9 @@ class Postgres:  # pylint: disable = R0902
     async def connect(self, host, port, username, password, name) -> None:
         if port is None:
             port = 5432
-        self.pool = await asyncpg.create_pool(user=username, password=password,
-                                              database=name, host=host, port=port)
+        self.pool: Pool = await asyncpg.create_pool(user=username, password=password,
+                                                    database=name, host=host, port=port)
+
         self.chats: Chats = Chats(self.pool)
         self.ab_bio_blacklist: AutobahnBioBlacklist = AutobahnBioBlacklist(self.pool)
         self.ab_string_blacklist: AutobahnStringBlacklist = AutobahnStringBlacklist(self.pool)
@@ -224,3 +225,6 @@ class Postgres:  # pylint: disable = R0902
         }
         self.banlist: BanList = BanList(self.pool)
         self.strafanzeigen: Strafanzeigen = Strafanzeigen(self.pool)
+
+    async def disconnect(self):
+        await self.pool.close()

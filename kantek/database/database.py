@@ -176,3 +176,6 @@ class Database:
         self.banlist = Banlist(self)
         self.blacklists = Blacklists(self)
         self.chats = Chats(self)
+
+    async def disconnect(self):
+        await self.db.disconnect()

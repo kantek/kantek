@@ -226,4 +226,5 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
     def disconnect(self):
         loop = asyncio.get_event_loop()
         loop.create_task(self.aioclient.close())
+        loop.create_task(self.db.disconnect())
         return super().disconnect()
