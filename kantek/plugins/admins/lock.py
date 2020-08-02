@@ -1,10 +1,10 @@
-"""Plugin to manage the autobahn"""
 import logging
 
 from telethon.errors import ChatNotModifiedError
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
-from telethon.tl.types import ChatBannedRights, InputPeerChannel
+from telethon.tl.types import ChatBannedRights
 
+from database.database import Database
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k, Command
@@ -13,7 +13,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('lock', admins=True)
-async def lock(client: Client, event: Command) -> MDTeXDocument:
+async def lock(client: Client, db: Database, chat) -> MDTeXDocument:
     """Set a chat to read only.
 
     Arguments:
@@ -22,7 +22,11 @@ async def lock(client: Client, event: Command) -> MDTeXDocument:
     Examples:
         {cmd}
     """
-    chat: InputPeerChannel = await event.get_input_chat()
+    permissions = chat.default_banned_rights.to_dict()
+    del permissions['_']
+    del permissions['until_date']
+    del permissions['view_messages']
+    await db.chats.lock(chat.id, {k: v for k, v in permissions.items() if not v})
     try:
         await client(EditChatDefaultBannedRightsRequest(
             chat,

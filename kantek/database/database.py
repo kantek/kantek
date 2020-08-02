@@ -131,6 +131,9 @@ class Chats(Table):
     async def get(self, chat_id: int) -> Chat:
         return await self.db.chats.get(chat_id)
 
+    async def lock(self, chat_id: int, permissions: Dict[str, bool]):
+        await self.db.chats.lock(chat_id, permissions)
+
     async def update_tags(self, chat_id: int, new: Dict):
         return await self.db.chats.update_tags(chat_id, new)
 
