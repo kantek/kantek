@@ -152,6 +152,9 @@ async def _collect_user_info(client, user, db, **kwargs) -> Union[str, Section, 
         if user.username is not None or show_all:
             general.append(KeyValueItem('username', Code(user.username)))
 
+        if user.scam or show_all:
+            general.append(KeyValueItem('scam', Code(user.scam)))
+
         if ban_reason:
             general.append(KeyValueItem('ban_reason', Code(ban_reason)))
         elif not show_spamwatch:
