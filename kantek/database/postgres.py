@@ -82,7 +82,7 @@ class AutobahnBlacklist(TableWrapper):
     async def get_all(self) -> List[BlacklistItem]:
         """Get all strings in the Blacklist."""
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"SELECT * FROM blacklists.{self.name}")
+            rows = await conn.fetch(f"SELECT * FROM blacklists.{self.name} WHERE retired=false")
         return [BlacklistItem(row['id'], row['item'], row['retired']) for row in rows]
 
     async def get_indices(self, indices, _):
