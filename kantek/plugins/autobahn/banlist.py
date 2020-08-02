@@ -1,4 +1,3 @@
-"""Plugin to manage the banlist of the bot."""
 import codecs
 import csv
 import logging

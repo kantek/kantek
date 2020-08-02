@@ -1,4 +1,3 @@
-"""Query the SpamWatch API"""
 import logging
 from typing import List, Dict
 

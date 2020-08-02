@@ -1,4 +1,3 @@
-"""Plugin to get information about a channel."""
 import logging
 from typing import Optional
 

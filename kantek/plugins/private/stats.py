@@ -1,4 +1,3 @@
-"""Plugin to get statistics of the user account"""
 import logging
 import time
 

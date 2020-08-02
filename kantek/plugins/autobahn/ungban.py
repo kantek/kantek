@@ -1,4 +1,3 @@
-"""Plugin to handle global bans"""
 from typing import Optional, List
 
 from telethon.tl.custom import Message

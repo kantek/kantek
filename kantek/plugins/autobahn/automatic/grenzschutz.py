@@ -1,4 +1,3 @@
-"""Plugin to manage the autobahn"""
 import logging
 from typing import Union
 

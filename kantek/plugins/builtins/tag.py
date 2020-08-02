@@ -1,4 +1,3 @@
-"""Plugin to handle tagging of chats and channels."""
 import logging
 from typing import Dict
 

@@ -1,4 +1,3 @@
-"""Plugin to remove deleted Accounts from a group"""
 import asyncio
 import logging
 from typing import Optional, Dict

@@ -1,4 +1,3 @@
-"""Plugin to purge messages up to a specific point"""
 import logging
 
 from telethon.tl.custom import Message

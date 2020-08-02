@@ -1,4 +1,3 @@
-"""Plugin to schedule gbans from a file."""
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone

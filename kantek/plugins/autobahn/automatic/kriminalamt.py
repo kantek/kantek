@@ -1,4 +1,3 @@
-"""Plugin that automatically bans if a user joins and leaves immediately"""
 import asyncio
 import logging
 

@@ -1,4 +1,3 @@
-"""Plugin to manage the autobahn"""
 import asyncio
 import logging
 import re

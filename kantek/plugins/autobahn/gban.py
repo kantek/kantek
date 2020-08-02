@@ -1,4 +1,3 @@
-"""Plugin to handle global bans"""
 import asyncio
 import datetime
 import logging

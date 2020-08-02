@@ -1,4 +1,3 @@
-"""Get information on a invite link."""
 import logging
 from typing import List
 

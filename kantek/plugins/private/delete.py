@@ -1,4 +1,3 @@
-"""Plugin to delete a message"""
 import logging
 
 from telethon import events

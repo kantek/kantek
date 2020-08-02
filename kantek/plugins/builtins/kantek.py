@@ -1,4 +1,3 @@
-"""Plugin to get information about Kantek."""
 import logging
 import platform
 

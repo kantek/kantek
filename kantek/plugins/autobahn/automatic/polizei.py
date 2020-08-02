@@ -1,4 +1,3 @@
-"""Plugin that automatically bans according to a blacklist"""
 import asyncio
 import itertools
 import logging

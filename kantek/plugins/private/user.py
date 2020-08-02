@@ -1,4 +1,3 @@
-"""Plugin to get information about a user."""
 import logging
 from typing import Union, Dict, List, Optional
 
