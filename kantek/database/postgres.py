@@ -76,7 +76,7 @@ class AutobahnBlacklist(TableWrapper):
 
     async def retire(self, item):
         async with self.pool.acquire() as conn:
-            result = await conn.fetchrow("UPDATE blacklists.bio SET retired=TRUE WHERE item=$1 RETURNING id", str(item))
+            result = await conn.fetchrow(f"UPDATE blacklists.{self.name} SET retired=TRUE WHERE item=$1 RETURNING id", str(item))
         return result
 
     async def get_all(self) -> List[BlacklistItem]:
@@ -149,7 +149,7 @@ class BanList(TableWrapper):
 
     async def get_multiple(self, uids, _) -> List[BannedUser]:
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"SELECT * FROM banlist WHERE id = any($1::BIGINT[])", uids)
+            rows = await conn.fetch(f"SELECT * FROM banlist WHERE id = ANY($1::BIGINT[])", uids)
         return [BannedUser(row['id'], row['reason']) for row in rows]
 
     async def count_reason(self, reason, _) -> int:
@@ -182,7 +182,7 @@ class BanList(TableWrapper):
     async def get_all_not_in(self, not_in, _) -> List[BannedUser]:
         not_in = list(map(int, not_in))
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"SELECT * FROM banlist WHERE NOT (id = any($1::BIGINT[]))", not_in)
+            rows = await conn.fetch(f"SELECT * FROM banlist WHERE NOT (id = ANY($1::BIGINT[]))", not_in)
         return [BannedUser(row['id'], row['reason']) for row in rows]
 
 
