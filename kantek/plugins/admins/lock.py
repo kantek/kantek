@@ -1,8 +1,10 @@
 import logging
 
 from telethon.errors import ChatNotModifiedError
+from telethon.tl.custom import Message
+from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
-from telethon.tl.types import ChatBannedRights, Chat
+from telethon.tl.types import ChatBannedRights, Chat, ChannelParticipantCreator, ChannelParticipantAdmin
 
 from database.database import Database
 from utils.client import Client
@@ -13,7 +15,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('lock', admins=True)
-async def lock(client: Client, db: Database, chat: Chat, event: Command) -> MDTeXDocument:
+async def lock(client: Client, db: Database, chat: Chat, event: Command, msg: Message) -> MDTeXDocument:
     """Set a chat to read only.
 
     Arguments:
@@ -22,6 +24,15 @@ async def lock(client: Client, db: Database, chat: Chat, event: Command) -> MDTe
     Examples:
         {cmd}
     """
+    participant = (await client(GetParticipantRequest(chat, msg.from_id))).participant
+    permitted = False
+    if isinstance(participant, ChannelParticipantCreator):
+        permitted = True
+    elif isinstance(participant, ChannelParticipantAdmin):
+        rights = participant.admin_rights
+        permitted = rights.ban_users
+    if not permitted:
+        return MDTeXDocument('Insufficient permission.')
     permissions = chat.default_banned_rights.to_dict()
     del permissions['_']
     del permissions['until_date']

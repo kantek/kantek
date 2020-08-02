@@ -1,7 +1,9 @@
 import logging
 
+from telethon.tl.custom import Message
+from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
-from telethon.tl.types import ChatBannedRights
+from telethon.tl.types import ChatBannedRights, ChannelParticipantCreator, ChannelParticipantAdmin
 
 from database.database import Database
 from utils.client import Client
@@ -12,7 +14,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('unlock', admins=True)
-async def unlock(client: Client, db: Database, chat, event: Command) -> MDTeXDocument:
+async def unlock(client: Client, db: Database, chat, event: Command, msg: Message) -> MDTeXDocument:
     """Restore a chats previous permissions
 
     Arguments:
@@ -21,6 +23,15 @@ async def unlock(client: Client, db: Database, chat, event: Command) -> MDTeXDoc
     Examples:
         {cmd}
     """
+    participant = (await client(GetParticipantRequest(chat, msg.from_id))).participant
+    permitted = False
+    if isinstance(participant, ChannelParticipantCreator):
+        permitted = True
+    elif isinstance(participant, ChannelParticipantAdmin):
+        rights = participant.admin_rights
+        permitted = rights.ban_users
+    if not permitted:
+        return MDTeXDocument('Insufficient permission.')
     dbchat = await db.chats.get(event.chat_id)
     permissions = chat.default_banned_rights.to_dict()
     del permissions['_']
