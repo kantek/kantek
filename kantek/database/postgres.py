@@ -5,7 +5,6 @@ from typing import Dict, Optional, List
 
 import asyncpg as asyncpg
 from asyncpg.pool import Pool
-from pyArango.theExceptions import CreationError
 
 from database.types import BlacklistItem, Chat, BannedUser
 

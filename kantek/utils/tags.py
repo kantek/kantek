@@ -1,4 +1,4 @@
-from typing import Optional, Union, Coroutine
+from typing import Optional, Union
 
 from telethon.events import NewMessage
 
