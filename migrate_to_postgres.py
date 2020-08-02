@@ -1,6 +1,7 @@
 import asyncio
 import json
-
+import site
+site.addsitedir('./kantek')
 from database.database import Database
 from kantek.utils.config import Config
 
