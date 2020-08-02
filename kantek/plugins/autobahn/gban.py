@@ -76,7 +76,7 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
         reply_msg: Message = await msg.get_reply_message()
         uid = reply_msg.from_id
         if args:
-            ban_reason = args[0]
+            ban_reason = ' '.join(args)
         else:
             ban_reason = DEFAULT_REASON
             try:
