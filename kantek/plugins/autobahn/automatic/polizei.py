@@ -82,7 +82,7 @@ async def join_polizei(event: ChatAction.Event) -> None:
         return
 
     for item in bio_blacklist:
-        if user.about and item.value in user.about:
+        if user.about and item.value in user.about and not item.retired:
             ban_type, ban_reason = db.blacklists.bio.hex_type, item.index
 
     if user.profile_photo:
@@ -94,8 +94,9 @@ async def join_polizei(event: ChatAction.Event) -> None:
             photo_hash = await hash_photo(dl_photo)
 
             for mhash in mhash_blacklist:
-                if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
-                    ban_type, ban_reason = db.blacklists.mhash.hex_type, mhash.index
+                if mhash and not mhash.retired:
+                    if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
+                        ban_type, ban_reason = db.blacklists.mhash.hex_type, mhash.index
 
     if ban_type and ban_reason:
         await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
@@ -242,7 +243,7 @@ async def _check_message(event):  # pylint: disable = R0911
                         try:
                             photo_hash = await hash_photo(profile_photo)
                             for mhash in await db.blacklists.mhash.get_all():
-                                if mhash:
+                                if mhash and not mhash.retired:
                                     if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
                                         return db.blacklists.mhash.hex_type, mhash.index
                         except UnidentifiedImageError:
