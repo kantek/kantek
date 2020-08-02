@@ -161,7 +161,7 @@ class BanList(TableWrapper):
             return (await conn.fetchrow("SELECT count(*) FROM banlist"))['count']
 
     async def upsert_multiple(self, bans, _) -> None:
-        bans = [(int(u['id']), u['reason'], datetime.datetime.now(), None) for u in bans]
+        bans = [(int(u['id']), str(u['reason']), datetime.datetime.now(), None) for u in bans]
         async with self.pool.acquire() as conn:
             async with conn.transaction():
                 await conn.execute('CREATE TEMPORARY TABLE _data(id BIGINT, reason TEXT, date TIMESTAMP, message TEXT)'
