@@ -18,10 +18,10 @@ async def main():
     pg_config.db_port = pg_config.pg_db_port
     pg = Database()
     await pg.connect(pg_config)
-    # print('Moving banlist')
-    # all_bans = await arango.banlist.get_all()
-    # all_bans = [{'id': b.id, 'reason': b.reason} for b in all_bans]
-    # await pg.banlist.upsert_multiple(all_bans)
+    print('Moving banlist')
+    all_bans = await arango.banlist.get_all()
+    all_bans = [{'id': b.id, 'reason': b.reason} for b in all_bans]
+    await pg.banlist.upsert_multiple(all_bans)
 
     print('Moving chats')
     all_chats = arango.db.chats.fetchAll()
