@@ -74,7 +74,7 @@ def get_event_info(event, subcommands, config) -> MDTeXDocument:
 def get_command_info(cmd, subcommands, config) -> MDTeXDocument:
     cmd_name = cmd.commands[0]
     if not subcommands:
-        help_cmd = f'{config.cmd_prefix[0]}{cmd_name}'
+        help_cmd = f'{config.prefix}{cmd_name}'
         description = get_description(cmd.callback, help_cmd)
         help_msg = MDTeXDocument(Section(f'Help for {help_cmd}'), description)
 
@@ -102,7 +102,7 @@ def get_command_info(cmd, subcommands, config) -> MDTeXDocument:
         if subcommand is None:
             return MDTeXDocument(
                 Section('Error', f'Unknown subcommand {Code(subcommands[0])} for command {Code(cmd_name)}'))
-        help_cmd = f'{config.cmd_prefix[0]}{cmd_name} {subcommand.command}'
+        help_cmd = f'{config.prefix}{cmd_name} {subcommand.command}'
         description = get_description(subcommand.callback, help_cmd)
 
         help_msg = MDTeXDocument(Section(f'Help for {help_cmd}'), description)
@@ -115,7 +115,7 @@ def get_description(callback: Callable, help_cmd: str) -> str:
     description = inspect.getdoc(callback)
     if description is None:
         return 'No description'
-    description = description.format(cmd=help_cmd, prefix=config.cmd_prefix[0])
+    description = description.format(cmd=help_cmd, prefix=config.prefix)
     description = SECTION_PATTERN.sub(str(Bold(r'\g<name>')), description)
     return description
 
@@ -154,7 +154,7 @@ def get_misc_topics(topic, subtopics) -> MDTeXDocument:
                 Section('Arguments'),
                 'Parse arguments into positional and keyword arguments. '
                 'Convert values into their respective types',
-                f'To test them out copy them and pass them to {Code(f"{config.cmd_prefix[0]}dev args")}',
+                f'To test them out copy them and pass them to {Code(f"{config.prefix}dev args")}',
 
                 Section('Examples:',
                         SubSection('Positonal Arguments',

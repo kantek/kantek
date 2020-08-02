@@ -104,13 +104,19 @@ Postgres: 5432
 | -------- | ---- | --------- |
 | No       | int  | `-`       |
 
-### cmd_prefix
- Provide single prefix or a list of prefixes
- These will be escaped automatically
+### prefix
+The prefix you want to use
 
 | Required | Type     | Default |
 | -------- | -------- | ------- |
-| No       | str|list | `.`     |
+| No       | str      | `.`     |
+
+### prefixes
+A list of prefixes you want to use
+
+| Required | Type      | Default |
+| -------- | --------- | ------- |
+| No       | List[str] | `["."]` |
 
 ### session_name
 
