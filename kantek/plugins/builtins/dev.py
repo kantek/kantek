@@ -3,6 +3,7 @@ from pprint import pformat
 from typing import List, Dict
 
 from telethon.tl.custom import Message
+from telethon.tl.functions.messages import MigrateChatRequest
 
 from database.database import Database
 from utils import parsers
@@ -134,6 +135,7 @@ async def sa(kwargs, db: Database) -> MDTeXDocument:
     else:
         return MDTeXDocument(Section('Strafanzeige', Italic('Key does not exist')))
 
+
 @dev.subcommand()
 async def cat(msg, event, client):
     """Responds with the content of the file that was replied
@@ -144,3 +146,10 @@ async def cat(msg, event, client):
         data = await reply_msg.download_media(bytes)
         if data:
             await client.respond(event, data.decode())
+
+
+@dev.subcommand()
+async def upgrade(client, chat):
+    """Upgrade a normal chat to a supergroup
+    """
+    await client(MigrateChatRequest(chat.id))
