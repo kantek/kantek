@@ -127,6 +127,7 @@ async def export(client: Client, db: Database, chat, msg, kwargs) -> None:
     export = BytesIO()
     wrapper_file = codecs.getwriter('utf-8')(export)
     cwriter = csv.writer(wrapper_file, lineterminator='\n')
+    cwriter.writerow(['id', 'reason'])
     for user in users:
         cwriter.writerow([user.id, user.reason])
     stop_time = time.time() - start_time
