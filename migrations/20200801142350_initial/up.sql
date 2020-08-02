@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS banlist
 
 CREATE TABLE IF NOT EXISTS strafanzeigen
 (
-    key           TEXT      NOT NULL PRIMARY KEY,
-    data          TEXT      NOT NULL,
+    key           TEXT NOT NULL PRIMARY KEY,
+    data          TEXT NOT NULL,
     creation_date TIMESTAMP DEFAULT now()
 );
 
@@ -22,34 +22,45 @@ CREATE TABLE IF NOT EXISTS chats
 
 CREATE SCHEMA blacklists
 
-    CREATE TABLE IF NOT EXISTS base
+    CREATE TABLE IF NOT EXISTS bio
     (
         id      SERIAL NOT NULL PRIMARY KEY,
         item    TEXT   NOT NULL,
         retired BOOLEAN DEFAULT FALSE
     )
 
-    CREATE TABLE IF NOT EXISTS bio
-    (
-    ) INHERITS (base)
-
     CREATE TABLE IF NOT EXISTS string
     (
-    ) INHERITS (base)
+        id      SERIAL NOT NULL PRIMARY KEY,
+        item    TEXT   NOT NULL,
+        retired BOOLEAN DEFAULT FALSE
+    )
 
     CREATE TABLE IF NOT EXISTS channel
     (
-    ) INHERITS (base)
+        id      SERIAL NOT NULL PRIMARY KEY,
+        item    TEXT   NOT NULL,
+        retired BOOLEAN DEFAULT FALSE
+    )
 
     CREATE TABLE IF NOT EXISTS domain
     (
-    ) INHERITS (base)
+        id      SERIAL NOT NULL PRIMARY KEY,
+        item    TEXT   NOT NULL,
+        retired BOOLEAN DEFAULT FALSE
+    )
 
     CREATE TABLE IF NOT EXISTS file
     (
-    ) INHERITS (base)
+        id      SERIAL NOT NULL PRIMARY KEY,
+        item    TEXT   NOT NULL,
+        retired BOOLEAN DEFAULT FALSE
+    )
 
     CREATE TABLE IF NOT EXISTS mhash
     (
-    ) INHERITS (base)
+        id      SERIAL NOT NULL PRIMARY KEY,
+        item    TEXT   NOT NULL,
+        retired BOOLEAN DEFAULT FALSE
+    )
 ;
