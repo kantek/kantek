@@ -251,7 +251,7 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
     if code is not None:
         if isinstance(code, int):
             code = [code]
-        all_items = blacklist.get_indices(list(code)[:MAX_QUERY_ITEMS])
+        all_items = await blacklist.get_indices(list(code)[:MAX_QUERY_ITEMS])
     else:
         all_items = blacklist_items
     items = [KeyValueItem(Bold(item.index), Code(item.value)) for item in all_items[:MAX_QUERY_ITEMS]]
