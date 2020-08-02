@@ -28,11 +28,11 @@ async def main():
     all_chats = [(c['id'], json.dumps(c['named_tags'].getStore())) for c in all_chats]
     async with pg.db.chats.pool.acquire() as conn:
         async with conn.transaction():
-            await conn.execute('CREATE TEMPORARY TABLE _data(id BIGINT, tags JSONB ) ON COMMIT DROP;')
-            await conn.copy_records_to_table('_data', records=all_chats)
+            await conn.execute('CREATE TEMPORARY TABLE _chat_data(id BIGINT, tags JSONB) ON COMMIT DROP;')
+            await conn.copy_records_to_table('_chat_data', records=all_chats)
             await conn.execute('''
                     INSERT INTO chats
-                    SELECT * FROM _data
+                    SELECT * FROM _chat_data
                     ON CONFLICT (id)
                     DO UPDATE SET tags=excluded.tags
                 ''')
