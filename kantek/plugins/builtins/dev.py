@@ -2,6 +2,8 @@ from datetime import timedelta
 from pprint import pformat
 from typing import List, Dict
 
+from telethon.tl.custom import Message
+
 from database.database import Database
 from utils import parsers
 from utils.client import Client
@@ -131,3 +133,14 @@ async def sa(kwargs, db: Database) -> MDTeXDocument:
                                      KeyValueItem('value', Code(value))))
     else:
         return MDTeXDocument(Section('Strafanzeige', Italic('Key does not exist')))
+
+@dev.subcommand()
+async def cat(msg, event, client):
+    """Responds with the content of the file that was replied
+    This does not check if the message is too large or if the file is text
+    """
+    if msg.is_reply:  # pylint: disable = R1702
+        reply_msg: Message = await msg.get_reply_message()
+        data = await reply_msg.download_media(bytes)
+        if data:
+            await client.respond(event, data.decode())
