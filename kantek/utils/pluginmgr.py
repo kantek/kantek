@@ -16,9 +16,11 @@ from telethon.events.common import EventBuilder
 from telethon.tl.custom import Forward, Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import ChannelParticipantAdmin
+from telethon.utils import get_display_name
 
 from utils import helpers
 from utils.config import Config
+from utils.constants import GET_ENTITY_ERRORS
 from utils.mdtex import *
 from utils.tags import Tags
 
@@ -175,11 +177,11 @@ class PluginManager:
         """
         client = event.client
         msg: Message = event.message
+        me = await client.get_me()
         if msg.via_bot_id is not None:
             return
         if msg.forward is not None:
             forward: Forward = msg.forward
-            me = await client.get_me()
             if forward.sender_id is None or forward.sender_id != me.id:
                 return
         if msg.sticker is not None or msg.dice is not None:
@@ -197,6 +199,12 @@ class PluginManager:
                     args: _Signature = subcommand.signature
                     cmd: _SubCommand = subcommand
                     help_topic.append(cmd.command)
+
+        command_name = ''
+        if isinstance(cmd, _Command):
+            command_name = cmd.commands[0]
+        elif isinstance(cmd, _SubCommand):
+            command_name = cmd.command
 
         _kwargs, _args = await helpers.get_args(event, skip=skip_args)
 
@@ -245,17 +253,21 @@ class PluginManager:
         if args.tags:
             callback_args['tags'] = await Tags.create(event)
 
+        if admins and event.from_id != me.id:
+            try:
+                entity = await client.get_cached_entity(event.from_id)
+                name = get_display_name(entity)
+            except GET_ENTITY_ERRORS:
+                name = str(event.from_id)
+            user_link = Mention(name, event.from_id)
+            group_link = Link(get_display_name(await event.get_chat()), f't.me/c/{event.chat.id}/{event.message.id}')
+            tlog.info(f'{user_link} ran {Code(command_name)} in {group_link}')
         try:
             result = await callback(**callback_args)
             if result and cmd.auto_respond:
                 await client.respond(event, str(result))
         except Exception as err:
-            command = ''
-            if isinstance(cmd, _Command):
-                command = cmd.commands[0]
-            elif isinstance(cmd, _SubCommand):
-                command = cmd.command
-            tlog.error(f'An error occured while running `{command}`', exc_info=err)
+            tlog.error(f'An error occured while running {Code(command_name)}', exc_info=err)
             logger.exception(err)
 
 
