@@ -242,8 +242,9 @@ async def _check_message(event):  # pylint: disable = R0911
                         try:
                             photo_hash = await hash_photo(profile_photo)
                             for mhash in await db.blacklists.mhash.get_all():
-                                if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
-                                    return db.blacklists.mhash.hex_type, mhash.index
+                                if mhash:
+                                    if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
+                                        return db.blacklists.mhash.hex_type, mhash.index
                         except UnidentifiedImageError:
                             pass
 
