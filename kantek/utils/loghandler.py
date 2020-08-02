@@ -17,17 +17,17 @@ class TGChannelLogHandler(Handler):
 
     def __init__(self, bot_token: str, channel_id: Union[str, int]) -> None:
         self.bot = lazybot.Bot(bot_token)
+        self.channel_id = channel_id
         # might want to make this a instance variable if its safe to do so
-        loop = asyncio.get_event_loop()
-        self.me: Dict[str, Union[bool, str, int]] = loop.run_until_complete(self.bot.get_me())
+        super().__init__()
+
+    async def connect(self):
+        self.me: Dict[str, Union[bool, str, int]] = await self.bot.get_me()
         if not self.me['ok']:
             logger.warning('Got Error: %s %s '
                            'from the bot API. '
                            'Check if your `log_bot_token` in the config is correct.',
                            self.me.get("error_code"), self.me.get("description"))
-
-        self.channel_id = channel_id
-        super(TGChannelLogHandler, self).__init__()
 
     def format(self, record: LogRecord) -> str:
         """Format the specified record."""

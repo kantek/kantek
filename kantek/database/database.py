@@ -164,12 +164,13 @@ class Blacklists:
 class Database:
     db: Union[ArangoDB]
 
-    def __init__(self, db: str, config: Config):
-        if db == 'arango':
-            self.db = ArangoDB(config.db_host,
-                               config.db_username,
-                               config.db_password,
-                               config.db_name)
+    async def connect(self, config: Config):
+        if config.db_type == 'arango':
+            self.db = ArangoDB()
+            await self.db.connect(config.db_host,
+                                  config.db_username,
+                                  config.db_password,
+                                  config.db_name)
         else:
             raise UnknownDatabaseError('Choose from: arango')
         self.strafanzeigen = Strafanzeigen(self)

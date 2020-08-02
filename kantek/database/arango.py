@@ -301,7 +301,7 @@ class Strafanzeigen(Collection):
 class ArangoDB:  # pylint: disable = R0902
     """Handle creation of all required Documents."""
 
-    def __init__(self, host, username, password, name) -> None:
+    async def connect(self, host, username, password, name) -> None:
         self.conn = Connection(arangoURL=host,
                                username=username,
                                password=password)

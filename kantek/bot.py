@@ -1,4 +1,5 @@
 """Main bot module. Setup logging, register components"""
+import asyncio
 import logging
 
 import logzero
@@ -20,16 +21,17 @@ tlog.setLevel(logging.INFO)
 __version__ = '0.3.1'
 
 
-def main() -> None:
+async def main() -> None:
     """Register logger and components."""
     config = Config()
 
     handler = TGChannelLogHandler(config.log_bot_token,
                                   config.log_channel_id)
+    await handler.connect()
     tlog.addHandler(handler)
     client = Client(str(config.session_name), config.api_id, config.api_hash)
     # noinspection PyTypeChecker
-    client.start(config.phone)
+    await client.start(config.phone)
     client.config = config
     client.kantek_version = __version__
 
@@ -37,7 +39,8 @@ def main() -> None:
     client.plugin_mgr.register_all()
 
     logger.info('Connecting to Database')
-    client.db = Database(config.db_type, config)
+    client.db = Database()
+    await client.db.connect(config)
 
     tlog.info('Started Kantek v%s [%s]', __version__, helpers.link_commit(helpers.get_commit()))
     logger.info('Started Kantek v%s', __version__)
@@ -46,8 +49,9 @@ def main() -> None:
         client.sw = SWClient(config.spamwatch_token, host=config.spamwatch_host)
         client.sw_url = config.spamwatch_host
 
-    client.run_until_disconnected()
+    await client.run_until_disconnected()
 
 
 if __name__ == '__main__':
-    main()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
