@@ -97,4 +97,4 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
                 KeyValueItem(Bold("Reason"),
                              ban_reason)
             ))
-            await client.respond(event, str(message), reply=False, delete=120)
+            await client.respond(event, str(message), reply=False, delete='2m30s')

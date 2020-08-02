@@ -20,6 +20,7 @@ from telethon.tl.types import ChatBannedRights, User
 from yarl import URL
 
 from database.database import Database
+from utils import parsers
 from utils.config import Config
 from utils.mdtex import *
 from utils.pluginmgr import PluginManager
@@ -47,7 +48,7 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
 
     async def respond(self, event: NewMessage.Event,
                       msg: Union[str, MDTeXDocument],
-                      reply: bool = True, delete: Optional[int] = None, link_preview: bool = False) -> Message:
+                      reply: bool = True, delete: Optional[str] = None, link_preview: bool = False) -> Message:
         """Respond to the message an event caused or to the message that was replied to
 
         Args:
@@ -69,9 +70,10 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
         else:
             sent_msg: Message = await event.respond(msg, link_preview=link_preview)
         if delete is not None:
+            delete_in = parsers.time(delete)
             # While asyncio.sleep would work it would stop the function from returning which is annoying
             await self.send_message(sent_msg.chat, f'{self.config.prefix}delete [Scheduled deletion]',
-                                    schedule=datetime.timedelta(seconds=delete), reply_to=sent_msg.id,
+                                    schedule=datetime.timedelta(seconds=delete_in), reply_to=sent_msg.id,
                                     link_preview=link_preview)
         return sent_msg
 
