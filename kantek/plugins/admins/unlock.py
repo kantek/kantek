@@ -6,13 +6,13 @@ from telethon.tl.types import ChatBannedRights
 from database.database import Database
 from utils.client import Client
 from utils.mdtex import *
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('unlock', admins=True)
-async def unlock(client: Client, db: Database, chat) -> MDTeXDocument:
+async def unlock(client: Client, db: Database, chat, event: Command) -> MDTeXDocument:
     """Restore a chats previous permissions
 
     Arguments:
@@ -21,7 +21,7 @@ async def unlock(client: Client, db: Database, chat) -> MDTeXDocument:
     Examples:
         {cmd}
     """
-    dbchat = await db.chats.get(chat.id)
+    dbchat = await db.chats.get(event.chat_id)
     permissions = chat.default_banned_rights.to_dict()
     del permissions['_']
     if dbchat.locked:
@@ -33,7 +33,7 @@ async def unlock(client: Client, db: Database, chat) -> MDTeXDocument:
         await client(EditChatDefaultBannedRightsRequest(
             chat,
             banned_rights=ChatBannedRights(**new_rights)))
-        await db.chats.unlock(chat.id)
+        await db.chats.unlock(event.chat_id)
         return MDTeXDocument('Chat unlocked.')
     else:
         return MDTeXDocument('Chat not locked.')
