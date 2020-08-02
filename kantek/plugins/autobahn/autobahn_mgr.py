@@ -108,7 +108,7 @@ async def add(client: Client, db: Database, msg: Message, args,
             continue
         existing_one = await blacklist.get_by_value(item)
         if not existing_one:
-            entry = blacklist.add(item)
+            entry = await blacklist.add(item)
             added_items.append(KeyValueItem(entry.index, Code(entry.value)))
         else:
             existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
