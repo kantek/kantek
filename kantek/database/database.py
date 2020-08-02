@@ -1,9 +1,6 @@
 import secrets
-import time
 from typing import Union, Dict, List, Optional
 
-from database.arango import ArangoDB
-from database.postgres import Postgres
 from database.types import BlacklistItem, BannedUser, Chat
 from utils.config import Config
 
@@ -162,16 +159,18 @@ class Blacklists:
 
 
 class Database:
-    db: Union[ArangoDB, Postgres]
-
+    db: Union['ArangoDB', 'Postgres']
     async def connect(self, config: Config):
         if config.db_type == 'arango':
+            from database.arango import ArangoDB
+
             self.db = ArangoDB()
             await self.db.connect(config.db_host, config.db_port,
                                   config.db_username,
                                   config.db_password,
                                   config.db_name)
         elif config.db_type == 'postgres':
+            from database.postgres import Postgres
             self.db = Postgres()
             await self.db.connect(config.db_host, config.db_port,
                                   config.db_username,
