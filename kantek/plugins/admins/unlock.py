@@ -1,5 +1,6 @@
 import logging
 
+from telethon.errors import ChatNotModifiedError
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
@@ -40,10 +41,12 @@ async def unlock(client: Client, db: Database, chat, event: Command, msg: Messag
 
         for k, v in dbchat.permissions.items():
             new_rights[k] = v
-
-        await client(EditChatDefaultBannedRightsRequest(
-            chat,
-            banned_rights=ChatBannedRights(**new_rights)))
+        try:
+            await client(EditChatDefaultBannedRightsRequest(
+                chat,
+                banned_rights=ChatBannedRights(**new_rights)))
+        except ChatNotModifiedError:
+            pass
         await db.chats.unlock(event.chat_id)
         return MDTeXDocument('Chat unlocked.')
     else:
