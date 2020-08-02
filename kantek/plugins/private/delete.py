@@ -18,4 +18,5 @@ async def delete(event: NewMessage.Event) -> None:
     await msg.delete()
     if msg.is_reply:
         reply_msg: Message = await msg.get_reply_message()
-        await reply_msg.delete()
+        if reply_msg:
+            await reply_msg.delete()
