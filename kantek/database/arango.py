@@ -171,11 +171,6 @@ class AutobahnMHashBlacklist(AutobahnBlacklist):
     hex_type = '0x6'
 
 
-class AutobahnTLDBlacklist(AutobahnBlacklist):
-    """Blacklist with blacklisted top level domains"""
-    hex_type = '0x7'
-
-
 class BanList(Collection):
     """A list of banned ids and their reason"""
     _fields = {
@@ -322,8 +317,6 @@ class ArangoDB:  # pylint: disable = R0902
             'AutobahnFileBlacklist')
         self.ab_mhash_blacklist: AutobahnMHashBlacklist = self._get_collection(
             'AutobahnMHashBlacklist')
-        self.ab_tld_blacklist: AutobahnTLDBlacklist = self._get_collection(
-            'AutobahnTLDBlacklist')
         self.ab_collection_map = {
             '0x0': self.ab_bio_blacklist,
             '0x1': self.ab_string_blacklist,
@@ -331,7 +324,6 @@ class ArangoDB:  # pylint: disable = R0902
             '0x4': self.ab_domain_blacklist,
             '0x5': self.ab_file_blacklist,
             '0x6': self.ab_mhash_blacklist,
-            '0x7': self.ab_tld_blacklist
         }
         self.banlist: BanList = self._get_collection('BanList')
         self.strafanzeigen: Strafanzeigen = self._get_collection('Strafanzeigen')

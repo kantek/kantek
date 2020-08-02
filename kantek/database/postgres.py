@@ -127,12 +127,6 @@ class AutobahnMHashBlacklist(AutobahnBlacklist):
     name = 'mhash'
 
 
-class AutobahnTLDBlacklist(AutobahnBlacklist):
-    """Blacklist with blacklisted top level domains"""
-    hex_type = '0x7'
-    name = 'tld'
-
-
 class BanList(TableWrapper):
     async def add_user(self, _id: int, reason: str) -> Optional[BannedUser]:
         # unused
@@ -220,7 +214,6 @@ class Postgres:  # pylint: disable = R0902
         self.ab_domain_blacklist: AutobahnDomainBlacklist = AutobahnDomainBlacklist(self.pool)
         self.ab_file_blacklist: AutobahnFileBlacklist = AutobahnFileBlacklist(self.pool)
         self.ab_mhash_blacklist: AutobahnMHashBlacklist = AutobahnMHashBlacklist(self.pool)
-        self.ab_tld_blacklist: AutobahnTLDBlacklist = AutobahnTLDBlacklist(self.pool)
         self.ab_collection_map = {
             '0x0': self.ab_bio_blacklist,
             '0x1': self.ab_string_blacklist,
@@ -228,7 +221,6 @@ class Postgres:  # pylint: disable = R0902
             '0x4': self.ab_domain_blacklist,
             '0x5': self.ab_file_blacklist,
             '0x6': self.ab_mhash_blacklist,
-            '0x7': self.ab_tld_blacklist
         }
         self.banlist: BanList = BanList(self.pool)
         self.strafanzeigen: Strafanzeigen = Strafanzeigen(self.pool)

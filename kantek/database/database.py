@@ -143,7 +143,6 @@ class Blacklists:
         self.domain = DomainBlacklist(parent)
         self.file = FileBlacklist(parent)
         self.mhash = MHashBlacklist(parent)
-        self.tld = TLDBlacklist(parent)
         self._map = {
             '0x0': self.bio,
             '0x1': self.string,
@@ -151,7 +150,6 @@ class Blacklists:
             '0x4': self.domain,
             '0x5': self.file,
             '0x6': self.mhash,
-            '0x7': self.tld
         }
 
     async def get(self, hex_type: str):
@@ -160,6 +158,7 @@ class Blacklists:
 
 class Database:
     db: Union['ArangoDB', 'Postgres']
+
     async def connect(self, config: Config):
         if config.db_type == 'arango':
             from database.arango import ArangoDB
