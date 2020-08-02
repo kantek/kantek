@@ -8,6 +8,8 @@ from utils.config import Config
 class UnknownDatabaseError(Exception):
     pass
 
+class DeprecatedDatabaseError(Exception):
+    pass
 
 class ItemDoesNotExistError(Exception):
     pass
@@ -19,7 +21,6 @@ class Table:
 
 
 class Blacklist(Table):
-    # temporary until I remove arangodb
     name = None
 
     async def add(self, item: str) -> BlacklistItem:
@@ -161,13 +162,7 @@ class Database:
 
     async def connect(self, config: Config):
         if config.db_type == 'arango':
-            from database.arango import ArangoDB
-
-            self.db = ArangoDB()
-            await self.db.connect(config.db_host, config.db_port,
-                                  config.db_username,
-                                  config.db_password,
-                                  config.db_name)
+            raise DeprecatedDatabaseError('ArangoDB has been deprecated. Please use Postgres instead.')
         elif config.db_type == 'postgres':
             from database.postgres import Postgres
             self.db = Postgres()
@@ -176,7 +171,7 @@ class Database:
                                   config.db_password,
                                   config.db_name)
         else:
-            raise UnknownDatabaseError('Choose from: arango')
+            raise UnknownDatabaseError('Choose from: postgres')
         self.strafanzeigen = Strafanzeigen(self)
         self.banlist = Banlist(self)
         self.blacklists = Blacklists(self)
