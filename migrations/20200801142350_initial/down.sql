@@ -8,5 +8,4 @@ DROP TABLE blacklists.channel;
 DROP TABLE blacklists.domain;
 DROP TABLE blacklists.file;
 DROP TABLE blacklists.mhash;
-DROP TABLE blacklists.base;
 DROP SCHEMA blacklists;
