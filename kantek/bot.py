@@ -18,7 +18,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 tlog.setLevel(logging.INFO)
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 async def main() -> None:
