@@ -23,69 +23,59 @@ class Table:
 
 
 class Blacklist(Table):
-    name = None
+    hex_type = None
+
+    @property
+    def bl(self):
+        return self.db.blacklists.get(self.hex_type)
 
     async def add(self, item: str) -> BlacklistItem:
-        return await getattr(self.db, self.name).add(item)
+        return await self.bl.add(item)
 
     async def get_by_value(self, item) -> BlacklistItem:
-        return await getattr(self.db, self.name).get_by_value(item)
+        return await self.bl.get_by_value(item)
 
     async def get(self, index) -> BlacklistItem:
-        return await getattr(self.db, self.name).get(index)
+        return await self.bl.get(index)
 
     async def retire(self, item):
-        result = await getattr(self.db, self.name).retire(item)
+        result = await self.bl.retire(item)
         if not result:
             raise ItemDoesNotExistError()
 
     async def get_all(self) -> List[BlacklistItem]:
-        return await getattr(self.db, self.name).get_all()
+        return await self.bl.get_all()
 
     async def get_indices(self, indices) -> List[BlacklistItem]:
-        return await getattr(self.db, self.name).get_indices(indices, self.db)
+        return await self.bl.get_indices(indices)
 
 
 class BioBlacklist(Blacklist):
-    """Blacklist with strings in a bio."""
     hex_type = '0x0'
-    name = 'ab_bio_blacklist'
 
 
 class StringBlacklist(Blacklist):
-    """Blacklist with strings in a message"""
     hex_type = '0x1'
-    name = 'ab_string_blacklist'
 
 
 class ChannelBlacklist(Blacklist):
-    """Blacklist with blacklisted channel ids"""
     hex_type = '0x3'
-    name = 'ab_channel_blacklist'
 
 
 class DomainBlacklist(Blacklist):
-    """Blacklist with blacklisted domains"""
     hex_type = '0x4'
-    name = 'ab_domain_blacklist'
 
 
 class FileBlacklist(Blacklist):
-    """Blacklist with blacklisted file sha 512 hashes"""
     hex_type = '0x5'
-    name = 'ab_file_blacklist'
 
 
 class MHashBlacklist(Blacklist):
-    """Blacklist with blacklisted photo hashes"""
     hex_type = '0x6'
-    name = 'ab_mhash_blacklist'
 
 
 class TLDBlacklist(Blacklist):
-    """Blacklist with blacklisted top level domains"""
     hex_type = '0x7'
-    name = 'ab_tld_blacklist'
 
 
 class Strafanzeigen(Table):
@@ -108,25 +98,25 @@ class Banlist(Table):
         return await self.db.banlist.add_user(uid, reason)
 
     async def remove(self, uid: int) -> None:
-        return await self.db.banlist.remove(uid, self.db)
+        return await self.db.banlist.remove(uid)
 
     async def get_multiple(self, ids) -> List[BannedUser]:
-        return await self.db.banlist.get_multiple(ids, self.db)
+        return await self.db.banlist.get_multiple(ids)
 
     async def count_reason(self, reason) -> int:
-        return await self.db.banlist.count_reason(reason, self.db)
+        return await self.db.banlist.count_reason(reason)
 
     async def total_count(self) -> int:
-        return await self.db.banlist.total_count(self.db)
+        return await self.db.banlist.total_count()
 
     async def upsert_multiple(self, bans: List[Dict[str, str]]) -> None:
-        return await self.db.banlist.upsert_multiple(bans, self.db)
+        return await self.db.banlist.upsert_multiple(bans)
 
     async def get_all(self) -> List[BannedUser]:
-        return await self.db.banlist.get_all(self.db)
+        return await self.db.banlist.get_all()
 
     async def get_all_not_in(self, not_in) -> List[BannedUser]:
-        return await self.db.banlist.get_all_not_in(not_in, self.db)
+        return await self.db.banlist.get_all_not_in(not_in)
 
 
 class Chats(Table):
@@ -169,7 +159,7 @@ class Blacklists:
 
 
 class Database:
-    db: Union['ArangoDB', 'Postgres']
+    db: Union['Postgres']
 
     async def connect(self, config: Config):
         if config.db_type == 'arango':

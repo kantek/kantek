@@ -18,7 +18,11 @@ class Chats(TableWrapper):
 
     async def add(self, chat_id: int) -> Optional[Chat]:
         async with self.pool.acquire() as conn:
-            await conn.execute("INSERT INTO chats VALUES ($1, '{}') ON CONFLICT DO NOTHING", chat_id)
+            await conn.execute("""
+            INSERT INTO chats 
+            VALUES ($1, '{}') 
+            ON CONFLICT DO NOTHING
+            """, chat_id)
         return Chat(chat_id, {})
 
     async def get(self, chat_id: int) -> Chat:
@@ -43,7 +47,7 @@ class Chats(TableWrapper):
             await conn.execute("UPDATE chats SET tags=$1 WHERE id=$2", json.dumps(new), chat_id)
 
 
-class AutobahnBlacklist(TableWrapper):
+class Blacklist(TableWrapper):
     async def add(self, item: str) -> Optional[BlacklistItem]:
         """Add a Chat to the DB or return an existing one.
         Args:
@@ -84,43 +88,43 @@ class AutobahnBlacklist(TableWrapper):
             rows = await conn.fetch(f"SELECT * FROM blacklists.{self.name} WHERE retired=false")
         return [BlacklistItem(row['id'], row['item'], row['retired']) for row in rows]
 
-    async def get_indices(self, indices, _):
+    async def get_indices(self, indices):
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(f"SELECT * FROM blacklists.{self.name} WHERE id = any($1::integer[])", indices)
         return [BlacklistItem(row['id'], row['item'], row['retired']) for row in rows]
 
 
-class AutobahnBioBlacklist(AutobahnBlacklist):
+class BioBlacklist(Blacklist):
     """Blacklist with strings in a bio."""
     hex_type = '0x0'
     name = 'bio'
 
 
-class AutobahnStringBlacklist(AutobahnBlacklist):
+class StringBlacklist(Blacklist):
     """Blacklist with strings in a message"""
     hex_type = '0x1'
     name = 'string'
 
 
-class AutobahnChannelBlacklist(AutobahnBlacklist):
+class ChannelBlacklist(Blacklist):
     """Blacklist with blacklisted channel ids"""
     hex_type = '0x3'
     name = 'channel'
 
 
-class AutobahnDomainBlacklist(AutobahnBlacklist):
+class DomainBlacklist(Blacklist):
     """Blacklist with blacklisted domains"""
     hex_type = '0x4'
     name = 'domain'
 
 
-class AutobahnFileBlacklist(AutobahnBlacklist):
+class FileBlacklist(Blacklist):
     """Blacklist with blacklisted file sha 512 hashes"""
     hex_type = '0x5'
     name = 'file'
 
 
-class AutobahnMHashBlacklist(AutobahnBlacklist):
+class MHashBlacklist(Blacklist):
     """Blacklist with blacklisted photo hashes"""
     hex_type = '0x6'
     name = 'mhash'
@@ -142,24 +146,24 @@ class BanList(TableWrapper):
         if row:
             return BannedUser(row['id'], row['reason'])
 
-    async def remove(self, uid, _):
+    async def remove(self, uid):
         async with self.pool.acquire() as conn:
             await conn.execute("DELETE FROM banlist WHERE id = $1", uid)
 
-    async def get_multiple(self, uids, _) -> List[BannedUser]:
+    async def get_multiple(self, uids) -> List[BannedUser]:
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(f"SELECT * FROM banlist WHERE id = ANY($1::BIGINT[])", uids)
         return [BannedUser(row['id'], row['reason']) for row in rows]
 
-    async def count_reason(self, reason, _) -> int:
+    async def count_reason(self, reason) -> int:
         async with self.pool.acquire() as conn:
             return (await conn.fetchrow("SELECT count(*) FROM banlist WHERE reason = $1", reason))['count']
 
-    async def total_count(self, _) -> int:
+    async def total_count(self) -> int:
         async with self.pool.acquire() as conn:
             return (await conn.fetchrow("SELECT count(*) FROM banlist"))['count']
 
-    async def upsert_multiple(self, bans, _) -> None:
+    async def upsert_multiple(self, bans) -> None:
         bans = [(int(u['id']), str(u['reason']), datetime.datetime.now(), None) for u in bans]
         async with self.pool.acquire() as conn:
             async with conn.transaction():
@@ -173,12 +177,12 @@ class BanList(TableWrapper):
                         DO UPDATE SET reason=excluded.reason, date=excluded.date
                     ''')
 
-    async def get_all(self, _) -> List[BannedUser]:
+    async def get_all(self) -> List[BannedUser]:
         async with self.pool.acquire() as conn:
             rows = await conn.fetch('SELECT * FROM banlist')
         return [BannedUser(row['id'], row['reason']) for row in rows]
 
-    async def get_all_not_in(self, not_in, _) -> List[BannedUser]:
+    async def get_all_not_in(self, not_in) -> List[BannedUser]:
         not_in = list(map(int, not_in))
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(f"SELECT * FROM banlist WHERE NOT (id = ANY($1::BIGINT[]))", not_in)
@@ -204,6 +208,28 @@ class Strafanzeigen(TableWrapper):
             await conn.execute("DELETE FROM strafanzeigen WHERE creation_date + '30 minutes' < now();")
 
 
+class Blacklists:
+    def __init__(self, pool):
+        self.pool = pool
+        self.bio = BioBlacklist(pool)
+        self.string = StringBlacklist(pool)
+        self.channel = ChannelBlacklist(pool)
+        self.domain = DomainBlacklist(pool)
+        self.file = FileBlacklist(pool)
+        self.mhash = MHashBlacklist(pool)
+        self._map = {
+            '0x0': self.bio,
+            '0x1': self.string,
+            '0x3': self.channel,
+            '0x4': self.domain,
+            '0x5': self.file,
+            '0x6': self.mhash,
+        }
+
+    def get(self, hex_type: str):
+        return self._map.get(hex_type)
+
+
 class Postgres:  # pylint: disable = R0902
     async def connect(self, host, port, username, password, name) -> None:
         if port is None:
@@ -212,20 +238,7 @@ class Postgres:  # pylint: disable = R0902
                                                     database=name, host=host, port=port)
 
         self.chats: Chats = Chats(self.pool)
-        self.ab_bio_blacklist: AutobahnBioBlacklist = AutobahnBioBlacklist(self.pool)
-        self.ab_string_blacklist: AutobahnStringBlacklist = AutobahnStringBlacklist(self.pool)
-        self.ab_channel_blacklist: AutobahnChannelBlacklist = AutobahnChannelBlacklist(self.pool)
-        self.ab_domain_blacklist: AutobahnDomainBlacklist = AutobahnDomainBlacklist(self.pool)
-        self.ab_file_blacklist: AutobahnFileBlacklist = AutobahnFileBlacklist(self.pool)
-        self.ab_mhash_blacklist: AutobahnMHashBlacklist = AutobahnMHashBlacklist(self.pool)
-        self.ab_collection_map = {
-            '0x0': self.ab_bio_blacklist,
-            '0x1': self.ab_string_blacklist,
-            '0x3': self.ab_channel_blacklist,
-            '0x4': self.ab_domain_blacklist,
-            '0x5': self.ab_file_blacklist,
-            '0x6': self.ab_mhash_blacklist,
-        }
+        self.blacklists = Blacklists(self.pool)
         self.banlist: BanList = BanList(self.pool)
         self.strafanzeigen: Strafanzeigen = Strafanzeigen(self.pool)
 
