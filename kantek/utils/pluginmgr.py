@@ -208,11 +208,11 @@ class PluginManager:
 
         _kwargs, _args = await helpers.get_args(event, skip=skip_args)
 
+        chat = await event.get_chat()
         if admins and event.is_channel:
-
             uid = event.message.from_id
             own_id = (await client.get_me()).id
-            if uid != own_id and _kwargs.get('self', False):
+            if uid != own_id and _kwargs.get('self', False) or (not chat.creator and not chat.admin_rights):
                 return
             result = await client(GetParticipantRequest(event.chat_id, uid))
             if not isinstance(result.participant, ChannelParticipantAdmin) and uid != own_id:
@@ -236,7 +236,7 @@ class PluginManager:
             callback_args['db'] = client.db
 
         if args.chat:
-            callback_args['chat'] = await event.get_chat()
+            callback_args['chat'] = chat
 
         if args.msg:
             callback_args['msg'] = event.message
