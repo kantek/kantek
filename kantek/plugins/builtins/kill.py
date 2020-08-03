@@ -19,6 +19,9 @@ async def kill(client: Client) -> None:
     tlog.info('.kill executed. Disconnecting.')
 
     if config.kill_command is not None:
-        subprocess.call(config.kill_command)
+        try:
+            subprocess.call(config.kill_command)
+        except FileNotFoundError:
+            await client.disconnect()
     else:
         await client.disconnect()
