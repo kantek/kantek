@@ -32,7 +32,7 @@ class Chats(TableWrapper):
     async def lock(self, chat_id: int, permissions: Dict[str, bool]) -> None:
         async with self.pool.acquire() as conn:
             await conn.execute("UPDATE chats SET locked = TRUE, permissions=$2 WHERE id = $1",
-                                      chat_id, json.dumps(permissions))
+                               chat_id, json.dumps(permissions))
 
     async def unlock(self, chat_id: int) -> None:
         async with self.pool.acquire() as conn:
@@ -198,6 +198,10 @@ class Strafanzeigen(TableWrapper):
             return row['data']
         else:
             return None
+
+    async def cleanup(self):
+        async with self.pool.acquire() as conn:
+            await conn.execute("DELETE FROM strafanzeigen WHERE creation_date + '30 minutes' < now();")
 
 
 class Postgres:  # pylint: disable = R0902

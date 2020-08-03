@@ -14,4 +14,5 @@ async def add_groups(event: NewMessage.Event) -> None:
     if event.is_private:
         return
     client: Client = event.client
+    await client.db.cleanup()
     await client.db.chats.get(event.chat_id)

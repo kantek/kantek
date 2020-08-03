@@ -8,8 +8,10 @@ from utils.config import Config
 class UnknownDatabaseError(Exception):
     pass
 
+
 class DeprecatedDatabaseError(Exception):
     pass
+
 
 class ItemDoesNotExistError(Exception):
     pass
@@ -93,6 +95,9 @@ class Strafanzeigen(Table):
 
     async def get(self, sa_key) -> Optional[str]:
         return await self.db.strafanzeigen.get(sa_key)
+
+    async def cleanup(self):
+        await self.db.strafanzeigen.cleanup()
 
 
 class Banlist(Table):
@@ -185,3 +190,7 @@ class Database:
 
     async def disconnect(self):
         await self.db.disconnect()
+
+    async def cleanup(self):
+        """This function gets called on every new message and can be used to run cleanup tasks"""
+        await self.strafanzeigen.cleanup()
