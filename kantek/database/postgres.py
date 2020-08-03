@@ -80,7 +80,12 @@ class Blacklist(TableWrapper):
 
     async def retire(self, item):
         async with self.pool.acquire() as conn:
-            result = await conn.fetchrow(f"UPDATE blacklists.{self.name} SET retired=TRUE WHERE item=$1 RETURNING id", str(item))
+            result = await conn.fetchrow(f"""
+                UPDATE blacklists.{self.name} 
+                SET retired=TRUE
+                WHERE item=$1
+                RETURNING id
+            """, str(item))
         return result
 
     async def get_all(self) -> List[BlacklistItem]:
@@ -168,15 +173,18 @@ class BanList(TableWrapper):
         bans = [(int(u['id']), str(u['reason']), datetime.datetime.now(), None) for u in bans]
         async with self.pool.acquire() as conn:
             async with conn.transaction():
-                await conn.execute('CREATE TEMPORARY TABLE _data(id BIGINT, reason TEXT, date TIMESTAMP, message TEXT)'
-                                   ' ON COMMIT DROP;')
+                await conn.execute("""
+                    CREATE TEMPORARY TABLE _data
+                    (id BIGINT, reason TEXT, date TIMESTAMP, message TEXT)
+                    ON COMMIT DROP
+                """)
                 await conn.copy_records_to_table('_data', records=bans)
-                await conn.execute('''
+                await conn.execute("""
                         INSERT INTO banlist
                         SELECT * FROM _data
                         ON CONFLICT (id)
                         DO UPDATE SET reason=excluded.reason, date=excluded.date
-                    ''')
+                    """)
 
     async def get_all(self) -> List[BannedUser]:
         async with self.pool.acquire() as conn:
