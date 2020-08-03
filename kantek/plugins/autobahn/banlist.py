@@ -35,7 +35,7 @@ async def query(db: Database, args, kwargs) -> MDTeXDocument:
     If a list of User IDs is provided their ban reasons will be listed next to their ID.
 
     If a reason is provided the total amount of banned users for that ban reason will be returned.
-    Use an asterisk (`*`) as wildcard for ban reasons. For a literal asterisk escape it with a backslash: `\*`
+    Use an asterisk (`*`) as wildcard for ban reasons. For a literal asterisk escape it with a backslash: `\\*`
 
     Arguments:
         `ids`: User IDs the banlist should be queried for
