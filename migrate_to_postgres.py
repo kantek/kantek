@@ -14,6 +14,7 @@ async def main():
     pg_config.db_type = 'postgres'
     pg_config.db_username = pg_config.pg_db_username
     pg_config.db_name = pg_config.pg_db_name
+    pg_config.db_password = pg_config.pg_db_password
     pg_config.db_host = pg_config.pg_db_host
     pg_config.db_port = pg_config.pg_db_port
     pg = Database()
