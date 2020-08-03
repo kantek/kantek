@@ -275,6 +275,8 @@ class PluginManager:
                 await client.send_file(chat, f.getvalue(),
                                        attributes=[DocumentAttributeFilename('command_output.md')],
                                        caption='Command output too long.', reply_to=event)
+            else:
+                raise
         except Exception as err:
             tlog.error(f'An error occured while running {Code(command_name)}', exc_info=err)
             logger.exception(err)
