@@ -1,6 +1,7 @@
 """Module containing all operations related to PostgreSQL"""
 import datetime
 import json
+import re
 from typing import Dict, Optional, List
 
 import asyncpg as asyncpg
@@ -231,6 +232,8 @@ class Blacklists:
 
 
 class Postgres:  # pylint: disable = R0902
+    wildcard = '%'
+
     async def connect(self, host, port, username, password, name) -> None:
         if port is None:
             port = 5432
@@ -244,3 +247,6 @@ class Postgres:  # pylint: disable = R0902
 
     async def disconnect(self):
         await self.pool.close()
+
+    def convert_wildcard(self, query):
+        return re.sub(r'(?<!\\)\*', self.wildcard, query)

@@ -104,6 +104,7 @@ class Banlist(Table):
         return await self.db.banlist.get_multiple(ids)
 
     async def count_reason(self, reason) -> int:
+        reason = self.db.convert_wildcard(reason)
         return await self.db.banlist.count_reason(reason)
 
     async def total_count(self) -> int:
