@@ -1,12 +1,15 @@
 import logging
 import subprocess
+import shlex
+
+import logzero
 
 from utils.client import Client
 from utils.config import Config
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
-
+logger: logging.Logger = logzero.logger
 
 @k.command('kill')
 async def kill(client: Client) -> None:
@@ -20,8 +23,9 @@ async def kill(client: Client) -> None:
 
     if config.kill_command is not None:
         try:
-            subprocess.call(config.kill_command)
-        except FileNotFoundError:
+            subprocess.call(shlex.split(config.kill_command))
+        except FileNotFoundError as e:
+            logger.exception(e)
             await client.disconnect()
     else:
         await client.disconnect()
