@@ -143,6 +143,13 @@ Useful for local development. Disabled actually banning a user in groups and rep
 | -------- | ----- | ------- |
 | No       | bool  | `False` |
 
+### kill_command
+Command to be run when executing `.kill`. For example `systemctl stop kantek` or `pm2 stop kantek`
+
+| Required | Type  | Default |
+| -------- | ----- | ------- |
+| No       | str   | `-`     |
+
 ### source_url
 Used in .kantek and .update
 
