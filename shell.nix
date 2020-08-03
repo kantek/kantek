@@ -1,7 +1,7 @@
 #!/usr/bin/env nix-shell
 with import <nixpkgs> {};
 stdenv.mkDerivation {
-    name = "Kantek Postgres";
+    name = "postgres";
     buildInputs = [ postgresql ];
     shellHook =
   ''
