@@ -7,15 +7,17 @@ import re
 from dataclasses import dataclass
 from importlib._bootstrap import ModuleSpec
 from importlib._bootstrap_external import SourceFileLoader
+from io import BytesIO
 from typing import Callable, List, Dict, Optional, Tuple
 
 import logzero
 from telethon import events
+from telethon.errors import MessageTooLongError
 from telethon.events import NewMessage
 from telethon.events.common import EventBuilder
 from telethon.tl.custom import Forward, Message
 from telethon.tl.functions.channels import GetParticipantRequest
-from telethon.tl.types import ChannelParticipantAdmin
+from telethon.tl.types import ChannelParticipantAdmin, DocumentAttributeFilename
 from telethon.utils import get_display_name
 
 from utils import helpers
@@ -262,10 +264,17 @@ class PluginManager:
             user_link = Mention(name, event.from_id)
             group_link = Link(get_display_name(await event.get_chat()), f't.me/c/{event.chat.id}/{event.message.id}')
             tlog.info(f'{user_link} ran {Code(command_name)} in {group_link}')
+        result = None
         try:
             result = await callback(**callback_args)
             if result and cmd.auto_respond:
                 await client.respond(event, str(result))
+        except MessageTooLongError:
+            if result:
+                f = BytesIO(str(result).encode())
+                await client.send_file(chat, f.getvalue(),
+                                       attributes=[DocumentAttributeFilename('command_output.md')],
+                                       caption='Command output too long.', reply_to=event)
         except Exception as err:
             tlog.error(f'An error occured while running {Code(command_name)}', exc_info=err)
             logger.exception(err)
