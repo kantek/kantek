@@ -157,7 +157,7 @@ class BanList(TableWrapper):
 
     async def count_reason(self, reason) -> int:
         async with self.pool.acquire() as conn:
-            return (await conn.fetchrow("SELECT count(*) FROM banlist WHERE reason = $1", reason))['count']
+            return (await conn.fetchrow("SELECT count(*) FROM banlist WHERE reason LIKE $1", reason))['count']
 
     async def total_count(self) -> int:
         async with self.pool.acquire() as conn:
