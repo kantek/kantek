@@ -22,7 +22,7 @@ DEFAULT_REASON = 'spam[gban]'
 CHUNK_SIZE = 10
 
 
-@k.command('gban')
+@k.command('gban', delete=True)
 async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Message,
                args: List, kwargs: Dict, event: Command) -> Optional[MDTeXDocument]:
     """Globally ban a user.
@@ -70,7 +70,7 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
     verbose = False
     if _gban == 'verbose' or event.is_private:
         verbose = True
-    await msg.delete()
+
     if msg.is_reply:
         bancmd = tags.get('gbancmd')
         reply_msg: Message = await msg.get_reply_message()

@@ -32,8 +32,8 @@ async def tag(chat: Channel, tags: Tags) -> MDTeXDocument:
     )
 
 
-@tag.subcommand()
-async def add(args, kwargs, tags, event) -> None:
+@tag.subcommand(delete=True)
+async def add(kwargs, tags) -> None:
     """Add tags to the chat.
     Both positional and keyword argument are supported
 
@@ -43,11 +43,10 @@ async def add(args, kwargs, tags, event) -> None:
     """
     for name, value in kwargs.items():
         await tags.set(name, value)
-    await event.delete()
 
 
-@tag.subcommand()
-async def del_(args, tags, event) -> None:
+@tag.subcommand(delete=True)
+async def del_(args, tags) -> None:
     """Delete the specified tags from the chat.
 
     Arguments:
@@ -59,15 +58,13 @@ async def del_(args, tags, event) -> None:
     """
     for arg in args:
         await tags.remove(arg)
-    await event.delete()
 
 
-@tag.subcommand()
-async def clear(tags: Tags, event) -> None:
+@tag.subcommand(delete=True)
+async def clear(tags: Tags) -> None:
     """Clear all tags from the chat.
 
     **Examples:**
         {cmd}
     """
     await tags.clear()
-    await event.delete()

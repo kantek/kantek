@@ -8,7 +8,7 @@ from utils.mdtex import *
 from utils.pluginmgr import k, Command
 
 
-@k.command('ungban')
+@k.command('ungban', delete=True)
 async def ungban(client: Client, db: Database, msg: Message, args: List) -> Optional[MDTeXDocument]:
     """Globally unban a User
 
@@ -20,8 +20,6 @@ async def ungban(client: Client, db: Database, msg: Message, args: List) -> Opti
     Examples:
         {cmd} 777000
     """
-    await msg.delete()
-
     users_to_unban = [*args]
     if msg.is_reply:
         reply_msg: Message = await msg.get_reply_message()

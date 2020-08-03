@@ -48,6 +48,7 @@ class _SubCommand:
     command: str
     signature: _Signature
     auto_respond: bool
+    delete: bool
 
 
 @dataclass
@@ -58,11 +59,12 @@ class _Command:
     commands: Tuple[str]
     signature: _Signature
     auto_respond: bool
-    document: bool = True
+    document: bool
+    delete: bool
 
     subcommands: Optional[Dict[str, _SubCommand]] = None
 
-    def subcommand(self, command: Optional[str] = None):
+    def subcommand(self, command: Optional[str] = None, delete=False):
         if self.subcommands is None:
             self.subcommands = {}
 
@@ -73,7 +75,7 @@ class _Command:
             signature = inspect.signature(callback)
             auto_respond = signature.return_annotation is MDTeXDocument
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            cmd = _SubCommand(callback, _command, args, auto_respond)
+            cmd = _SubCommand(callback, _command, args, auto_respond, delete)
             self.subcommands[_command] = cmd
             return cmd
 
@@ -98,7 +100,8 @@ class PluginManager:
         self._import_plugins()
 
     @classmethod
-    def command(cls, *commands: str, private: bool = True, admins: bool = False, document: bool = True):
+    def command(cls, *commands: str, private: bool = True, admins: bool = False,
+                document: bool = True, delete: bool = False):
         """Add a command to the client
 
         Args:
@@ -118,7 +121,7 @@ class PluginManager:
             auto_respond = (signature.return_annotation is MDTeXDocument
                             or signature.return_annotation is Optional[MDTeXDocument])
             args = _Signature(**{n: True for n in signature.parameters.keys()})
-            cmd = _Command(callback, private, admins, commands, args, auto_respond, document)
+            cmd = _Command(callback, private, admins, commands, args, auto_respond, document, delete)
             cls.commands[commands[0]] = cmd
             return cmd
 
@@ -191,6 +194,7 @@ class PluginManager:
         callback = cmd.callback
         skip_args = 1
         help_topic = [cmd.commands[0]]
+        delete = cmd.delete
         if cmd.subcommands:
             raw_args = msg.raw_text.split()[1:]
             if raw_args:
@@ -200,6 +204,7 @@ class PluginManager:
                     skip_args = 2
                     args: _Signature = subcommand.signature
                     cmd: _SubCommand = subcommand
+                    delete = cmd.delete
                     help_topic.append(cmd.command)
 
         command_name = ''
@@ -266,9 +271,12 @@ class PluginManager:
             tlog.info(f'{user_link} ran {Code(command_name)} in {group_link}')
         result = None
         try:
+            if delete:
+                await event.delete()
             result = await callback(**callback_args)
+
             if result and cmd.auto_respond:
-                await client.respond(event, str(result))
+                await client.respond(event, str(result), reply=not delete)
         except MessageTooLongError:
             if result:
                 f = BytesIO(str(result).encode())
