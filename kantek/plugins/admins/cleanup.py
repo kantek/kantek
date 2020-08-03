@@ -32,8 +32,6 @@ async def cleanup(client: Client, chat: Channel, msg: Message,
     """
     count_only = kwargs.get('count', False)
     silent = kwargs.get('silent', False)
-    if not chat.creator and not chat.admin_rights:
-        count_only = True
     waiting_message = None
     if silent:
         await msg.delete()
