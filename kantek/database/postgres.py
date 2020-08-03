@@ -1,4 +1,4 @@
-"""Module containing all operations related to ArangoDB"""
+"""Module containing all operations related to PostgreSQL"""
 import datetime
 import json
 from typing import Dict, Optional, List
