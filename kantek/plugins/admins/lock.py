@@ -12,6 +12,7 @@ from utils import parsers
 from utils.client import Client
 from utils.config import Config
 from utils.mdtex import *
+from utils.parsers import MissingExpression
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -42,9 +43,12 @@ async def lock(client: Client, db: Database, chat: Chat, event: Command, msg: Me
 
     duration = None
     if args:
-        duration = parsers.time(args[0])
+        try:
+            duration = parsers.time(args[0])
+        except MissingExpression as err:
+            return MDTeXDocument(Italic(err))
 
-    if duration < 10:
+    if duration and duration < 10:
         return MDTeXDocument('Duration too short.')
 
     permissions = chat.default_banned_rights.to_dict()

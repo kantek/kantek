@@ -9,6 +9,7 @@ from database.database import Database
 from utils import parsers
 from utils.client import Client
 from utils.mdtex import *
+from utils.parsers import MissingExpression
 from utils.pluginmgr import k, _Command, _Signature
 
 
@@ -109,11 +110,14 @@ async def time(args: List[str]) -> MDTeXDocument:
     """
     m = Section('Parsed Durations')
     for arg in args:
-        seconds = parsers.time(arg)
-        m.append(
-            SubSection(arg,
-                       KeyValueItem('seconds', seconds),
-                       KeyValueItem('formatted', str(timedelta(seconds=seconds)))))
+        try:
+            seconds = parsers.time(arg)
+            m.append(
+                SubSection(arg,
+                           KeyValueItem('seconds', seconds),
+                           KeyValueItem('formatted', str(timedelta(seconds=seconds)))))
+        except MissingExpression as err:
+            m.append(SubSection(arg, Italic(err)))
     return MDTeXDocument(m)
 
 

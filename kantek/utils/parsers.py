@@ -160,6 +160,10 @@ def arguments(args: str) -> Tuple[Dict[str, KeywordArgument], List[Value]]:
     return keyword_args, args + quoted_args
 
 
+class MissingExpression(Exception):
+    pass
+
+
 def time(expr) -> int:
     """Parse a abbreviated time expression into seconds
 
@@ -191,7 +195,11 @@ def time(expr) -> int:
 
     Returns: The time in seconds
     """
+
     total_duration = 0
-    for duration, unit in EXPR_PATTERN.findall(expr):
-        total_duration += int(duration) * MULTIPLICATION_MAP[unit]
+    if match := EXPR_PATTERN.findall(str(expr)):
+        for duration, unit in match:
+            total_duration += int(duration) * MULTIPLICATION_MAP[unit]
+    else:
+        raise MissingExpression('No valid duration expression found.')
     return total_duration
