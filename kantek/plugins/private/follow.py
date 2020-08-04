@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from aiohttp import InvalidURL
+from aiohttp import InvalidURL, TooManyRedirects
 
 from utils.client import Client
 from utils.mdtex import *
@@ -30,11 +30,19 @@ async def follow(client: Client, args: List) -> MDTeXDocument:
         responses = []
         try:
             async with client.aioclient.get(url) as response:
-                for resp in response.history:
-                    responses.append(KeyValueItem(f'[{resp.status}]', f'{Code(resp.url)}'))
-                responses.append(KeyValueItem(f'[{response.status}]', f'{Code(response.url)}'))
+                responses.extend(format_responses([*response.history, response]))
+        except TooManyRedirects as e:
+            responses.extend(format_responses(e.history))
+            responses.append(Italic(f'Too many redirects: {Code(url)}'))
         except InvalidURL:
             responses.append(Italic(f'Invalid URL: {Code(url)}'))
-        sections.append(SubSection(f'URL {i+1}', *responses))
+        sections.append(SubSection(f'URL {i + 1}', *responses))
 
     return MDTeXDocument(Section('Follow', *sections))
+
+
+def format_responses(responses):
+    result = []
+    for resp in responses:
+        result.append(KeyValueItem(f'[{resp.status}]', f'{Code(resp.url)}'))
+    return result
