@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+from aiohttp import InvalidURL
+
 from utils.client import Client
 from utils.mdtex import *
 from utils.pluginmgr import k
@@ -19,8 +21,20 @@ async def follow(client: Client, args: List) -> MDTeXDocument:
         {cmd} https://kutt.it/spamwatch
         {cmd} src.kv2.dev
     """
-    link = args[0]
-    return MDTeXDocument(
-        Section('Follow',
-                KeyValueItem(Bold('Original URL'), Code(link)),
-                KeyValueItem(Bold('Followed URL'), Code(await client.resolve_url(link, base_domain=False)))))
+    if not args:
+        return MDTeXDocument(Section('Error', Italic('No URL was provided')))
+    sections = []
+    for i, url in enumerate(args):
+        if not url.startswith('http'):
+            url: str = f'http://{url}'
+        responses = []
+        try:
+            async with client.aioclient.get(url) as response:
+                for resp in response.history:
+                    responses.append(KeyValueItem(f'[{resp.status}]', f'{Code(resp.url)}'))
+                responses.append(KeyValueItem(f'[{response.status}]', f'{Code(response.url)}'))
+        except InvalidURL:
+            responses.append(Italic(f'Invalid URL: {Code(url)}'))
+        sections.append(SubSection(f'URL {i+1}', *responses))
+
+    return MDTeXDocument(Section('Follow', *sections))
