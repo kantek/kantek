@@ -20,7 +20,7 @@ async def update(client: Client, event: Command, tags: Tags) -> None:
         {cmd}
     """
     silent = tags.get('update', False)
-
+    old_commit = helpers.get_commit()
     # region git pull
     if not silent:
         progess_message = await client.respond(event, MDTeXDocument(
@@ -42,6 +42,14 @@ async def update(client: Client, event: Command, tags: Tags) -> None:
         return
     # endregion
 
+    new_commit = helpers.get_commit()
+    if old_commit == new_commit:
+        await client.respond(
+            event, MDTeXDocument(
+                Section('No Update Available',
+                        Italic('Doing nothing'))))
+        return
+
     # region migrant
     if not silent:
         await progess_message.edit(str(MDTeXDocument(
@@ -61,12 +69,10 @@ async def update(client: Client, event: Command, tags: Tags) -> None:
             return
     # endregion
 
-    new_commit = helpers.get_commit()
     if not silent:
         await progess_message.delete()
         await client.respond(
-            event,
-            MDTeXDocument(
+            event, MDTeXDocument(
                 Section('Updated Kantek',
                         KeyValueItem('New commit', Link(new_commit, helpers.link_commit(new_commit))),
                         Italic('Restarting bot'))))
