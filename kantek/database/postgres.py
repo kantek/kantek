@@ -163,11 +163,12 @@ class BanList(TableWrapper):
 
     async def count_reason(self, reason) -> int:
         async with self.pool.acquire() as conn:
-            return (await conn.fetchrow("SELECT count(*) FROM banlist WHERE reason LIKE $1", reason))['count']
+            return (await conn.fetchrow("SELECT count(*) FROM banlist WHERE lower(reason) LIKE lower($1)",
+                                        reason))['count']
 
     async def get_with_reason(self, reason) -> List[BannedUser]:
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch("SELECT * FROM banlist WHERE reason LIKE $1", reason)
+            rows = await conn.fetch("SELECT * FROM banlist WHERE lower(reason) LIKE lower($1)", reason)
         return [BannedUser(row['id'], row['reason']) for row in rows]
 
     async def total_count(self) -> int:
