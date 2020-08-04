@@ -6,7 +6,7 @@ import logzero
 from PIL import UnidentifiedImageError
 from photohash import hashes_are_similar
 from telethon import events
-from telethon.errors import UserNotParticipantError, ChannelPrivateError
+from telethon.errors import UserNotParticipantError, ChannelPrivateError, FloodWaitError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.custom import MessageButton
@@ -18,6 +18,7 @@ from telethon.tl.types import (Channel, MessageEntityTextUrl, UserFull, MessageE
 from database.database import Database
 from utils import helpers, constants
 from utils.client import Client
+from utils.constants import GET_ENTITY_ERRORS
 from utils.helpers import hash_photo
 from utils.pluginmgr import k
 from utils.tags import Tags
@@ -231,7 +232,10 @@ async def _check_message(event):  # pylint: disable = R0911
 
         if _entity:
             try:
-                full_entity = await client.get_cached_entity(_entity)
+                try:
+                    full_entity = await client.get_cached_entity(_entity)
+                except (FloodWaitError, *GET_ENTITY_ERRORS):
+                    full_entity = None
                 if full_entity:
                     channel = full_entity.id
                     try:
