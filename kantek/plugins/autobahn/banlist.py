@@ -40,6 +40,7 @@ async def query(db: Database, args, kwargs) -> MDTeXDocument:
     Arguments:
         `ids`: User IDs the banlist should be queried for
         `reason`: Ban reasons to count
+        `-list`: List users that match the ban reason
 
     Examples:
         {cmd} 777000 172811422
@@ -48,13 +49,17 @@ async def query(db: Database, args, kwargs) -> MDTeXDocument:
         {cmd}
     """
     reason = kwargs.get('reason')
+    list_ids = kwargs.get('list')
     if args:
         users = await db.banlist.get_multiple(args)
         query_results = [KeyValueItem(Code(user.id), user.reason)
                          for user in users] or [Italic('None')]
-    elif reason is not None:
+    elif reason is not None and not list_ids:
         count: int = await db.banlist.count_reason(reason)
         query_results = [KeyValueItem(Bold('Count'), Code(count))]
+    elif reason is not None and list_ids:
+        bans = await db.banlist.get_with_reason(reason)
+        query_results = [KeyValueItem(Code(b.id), b.reason) for b in bans]
     else:
         count: int = await db.banlist.total_count()
         query_results = [KeyValueItem(Bold('Total Count'), Code(count))]

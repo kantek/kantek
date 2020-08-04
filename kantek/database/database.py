@@ -107,6 +107,10 @@ class Banlist(Table):
         reason = self.db.convert_wildcard(reason)
         return await self.db.banlist.count_reason(reason)
 
+    async def get_with_reason(self, reason) -> List[BannedUser]:
+        reason = self.db.convert_wildcard(reason)
+        return await self.db.banlist.get_with_reason(reason)
+
     async def total_count(self) -> int:
         return await self.db.banlist.total_count()
 
