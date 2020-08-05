@@ -7,7 +7,7 @@ from typing import Dict, Optional, List
 import asyncpg as asyncpg
 from asyncpg.pool import Pool
 
-from database.types import BlacklistItem, Chat, BannedUser
+from database.types import BlacklistItem, Chat, BannedUser, Template
 
 
 class TableWrapper:
@@ -223,6 +223,34 @@ class Strafanzeigen(TableWrapper):
             await conn.execute("DELETE FROM strafanzeigen WHERE creation_date + '30 minutes' < now();")
 
 
+class Templates(TableWrapper):
+    async def add(self, name: str, content: str) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute("""
+                INSERT INTO templates
+                VALUES ($1, $2)
+                ON CONFLICT (name) DO UPDATE
+                SET content=excluded.content
+            """, name, content)
+
+    async def get(self, name: str) -> Optional[Template]:
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow('SELECT * FROM templates WHERE name = $1', name)
+        if row:
+            return Template(row['name'], row['content'])
+        else:
+            return None
+
+    async def get_all(self) -> List[Template]:
+        async with self.pool.acquire() as conn:
+            rows = await conn.fetch('SELECT * FROM templates')
+        return [Template(row['name'], row['content']) for row in rows]
+
+    async def delete(self, name: str) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute("DELETE FROM templates WHERE name = $1", name)
+
+
 class Blacklists:
     def __init__(self, pool):
         self.pool = pool
@@ -258,6 +286,7 @@ class Postgres:  # pylint: disable = R0902
         self.blacklists = Blacklists(self.pool)
         self.banlist: BanList = BanList(self.pool)
         self.strafanzeigen: Strafanzeigen = Strafanzeigen(self.pool)
+        self.templates: Templates = Templates(self.pool)
 
     async def disconnect(self):
         await self.pool.close()

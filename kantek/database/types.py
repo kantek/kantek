@@ -21,3 +21,9 @@ class Chat:
 class BannedUser:
     id: int
     reason: str
+
+
+@dataclass
+class Template:
+    name: str
+    content: str
