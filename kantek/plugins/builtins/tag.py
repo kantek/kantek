@@ -2,6 +2,7 @@ import logging
 from typing import Dict
 
 from telethon.tl.types import Channel
+from telethon.utils import get_peer_id
 
 from utils.constants import GET_ENTITY_ERRORS
 from utils.mdtex import *
@@ -45,7 +46,7 @@ async def _get_valid_ids(chats, client):
                 continue
 
             if isinstance(chat, Channel):
-                ids.add(int(f'-100{chat.id}'))
+                ids.add(get_peer_id(chat))
             else:
                 failed.append(str(c))
     return ids, failed
