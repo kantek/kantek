@@ -59,7 +59,7 @@ async def add(args, kwargs, db, client, event: Command) -> None:
         `chats`: Optional list of chat ids and usernames the tags should be set for
         `kwargs`: Key: Value pairs of the tags you want to set
 
-    **Examples:**
+    Examples:
         {cmd} -1001129887931 -strafanzeige polizei: exclude
         {cmd} -strafanzeige polizei: exclude
         {cmd} gban: verbose
@@ -87,7 +87,7 @@ async def del_(args, kwargs, db, client, event: Command) -> None:
         `keys`: Tags to delete
         `chats`: List of chats the tags should be deleted from
 
-    **Examples:**
+    Examples:
         {cmd} chats: [-1001129887931] gban
         {cmd} gban polizei
         {cmd} network
@@ -112,7 +112,7 @@ async def del_(args, kwargs, db, client, event: Command) -> None:
 async def clear(tags: Tags) -> None:
     """Clear all tags from the chat.
 
-    **Examples:**
+    Examples:
         {cmd}
     """
     await tags.clear()
