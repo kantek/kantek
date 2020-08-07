@@ -1,9 +1,10 @@
 """Module containing regex parsers for different occasions."""
+import ast
 import re
 from typing import Dict, List, Pattern, Tuple, Union
 
 KEYWORD_ARGUMENT: Pattern = re.compile(r'(\S+):\s?(\[.+?\]|\".+\"|[\w\-\.]\S*)', re.DOTALL)
-FLAG_ARGUMENT: Pattern = re.compile(r'(?:\s|^)-\w+')
+FLAG_ARGUMENT: Pattern = re.compile(r'(?:\s|^)-\D(?:\w+)?')
 QUOTED_ARGUMENT: Pattern = re.compile(r'(?:\")(.*?)(?:\")', re.DOTALL)
 RANGE_PATTERN: Pattern = re.compile(r'(?P<start>-?\d+)?\.\.(?P<end>-?\d+)?')
 BOOL_MAP = {
@@ -26,12 +27,9 @@ MULTIPLICATION_MAP = {
 
 
 def _parse_types(val: str) -> Value:
-    if val.isdecimal():
-        return int(val)
-
     try:
-        return float(val)
-    except ValueError:
+        return ast.literal_eval(val)
+    except (ValueError, SyntaxError):
         pass
 
     try:
@@ -112,6 +110,9 @@ def arguments(args: str) -> Tuple[Dict[str, KeywordArgument], List[Value]]:
 
     >>> arguments('-flag')
     ({'flag': True}, [])
+
+    >>> arguments('-1001129887931')
+    ({}, [-1001129887931])
 
     >>> arguments('posarg -flag 125e-5')
     ({'flag': True}, ['posarg', 0.00125])
