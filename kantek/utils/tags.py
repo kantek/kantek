@@ -1,3 +1,4 @@
+from builtins import int
 from typing import Optional, Union
 
 from telethon.events import NewMessage
@@ -8,23 +9,28 @@ TagValue = Union[bool, str, int]
 TagName = Union[int, str]
 
 
-
 class Tags:
     """Class to manage the tags of a chat"""
 
-    def __init__(self, event: NewMessage.Event):
-        self.db: Database = event.client.db
-        self.chat_id = event.chat_id
-        self._event = event
+    def __init__(self, db: Database, chat_id, private):
+        self.db = db
+        self.chat_id = chat_id
+        self.private = private
 
     @classmethod
-    async def create(cls, event) -> 'Tags':
-        tags = Tags(event)
+    async def from_event(cls, event: NewMessage.Event) -> 'Tags':
+        tags = Tags(event.client.db, event.chat_id, event.is_private)
+        await tags.setup()
+        return tags
+
+    @classmethod
+    async def from_id(cls, db: Database, chat_id, private) -> 'Tags':
+        tags = Tags(db, chat_id, private)
         await tags.setup()
         return tags
 
     async def setup(self):
-        if not self._event.is_private:
+        if not self.private:
             self.named_tags = (await self.db.chats.get(self.chat_id)).tags
         else:
             self.named_tags = {

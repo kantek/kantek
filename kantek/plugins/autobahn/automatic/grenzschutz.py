@@ -55,7 +55,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         if not chat.admin_rights.ban_users:
             return
     db: Database = client.db
-    tags = await Tags.create(event)
+    tags = await Tags.from_event(event)
     polizei_tag = tags.get('polizei')
     grenzschutz_tag = tags.get('grenzschutz')
     silent = grenzschutz_tag == 'silent'

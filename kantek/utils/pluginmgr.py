@@ -258,7 +258,7 @@ class PluginManager:
             callback_args['event'] = event
 
         if args.tags:
-            callback_args['tags'] = await Tags.create(event)
+            callback_args['tags'] = await Tags.from_event(event)
 
         if admins and event.from_id != me.id:
             try:

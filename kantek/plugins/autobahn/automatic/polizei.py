@@ -44,7 +44,7 @@ async def polizei(event: NewMessage.Event) -> None:
         return
     client: Client = event.client
     chat: Channel = await event.get_chat()
-    tags = await Tags.create(event)
+    tags = await Tags.from_event(event)
     bancmd = tags.get('gbancmd', 'manual')
     polizei_tag = tags.get('polizei')
     if polizei_tag == 'exclude':
@@ -66,7 +66,7 @@ async def join_polizei(event: ChatAction.Event) -> None:
     client: Client = event.client
     chat: Channel = await event.get_chat()
     db: Database = client.db
-    tags = await Tags.create(event)
+    tags = await Tags.from_event(event)
     bancmd = tags.get('gbancmd')
     polizei_tag = tags.get('polizei')
     if polizei_tag == 'exclude':
