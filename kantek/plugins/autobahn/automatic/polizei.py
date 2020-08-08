@@ -283,7 +283,7 @@ async def _check_message(event):  # pylint: disable = R0911
                 return db.blacklists.channel.hex_type, result.index
 
     for string in await db.blacklists.string.get_all():
-        if string.value in msg.raw_text:
+        if string.value in msg.raw_text and not string.retired:
             return db.blacklists.string.hex_type, string.index
 
     if msg.file:
@@ -315,8 +315,9 @@ async def _check_message(event):  # pylint: disable = R0911
                 photo_hash = None
             if photo_hash:
                 for mhash in await db.blacklists.mhash.get_all():
-                    if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
-                        return db.blacklists.mhash.hex_type, mhash.index
+                    if not mhash.retired:
+                        if hashes_are_similar(mhash.value, photo_hash, tolerance=2):
+                            return db.blacklists.mhash.hex_type, mhash.index
 
     return False, False
 
