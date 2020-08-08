@@ -7,7 +7,8 @@ from telethon.errors import UserNotParticipantError
 from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
-from telethon.tl.types import Channel, InputReportReasonSpam, InputPeerChannel, ChannelParticipantCreator
+from telethon.tl.types import (Channel, InputReportReasonSpam, InputPeerChannel, ChannelParticipantCreator,
+                               InputMessagesFilterPhotos)
 
 from database.database import Database
 from utils import helpers, parsers
@@ -74,6 +75,7 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
     if msg.is_reply:
         bancmd = tags.get('gbancmd')
         reply_msg: Message = await msg.get_reply_message()
+
         uid = reply_msg.from_id
         if args:
             ban_reason = ' '.join(args)
@@ -105,8 +107,12 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
             await asyncio.sleep(0.5)
 
         if not client.config.debug_mode and admin:
+            if reply_msg.grouped_id is not None:
+                m: Message
+                async for m in client.iter_messages(chat, limit=12, filter=InputMessagesFilterPhotos, offset_id=msg.id):
+                    if m.grouped_id == reply_msg.grouped_id:
+                        await m.delete()
             await reply_msg.delete()
-
     else:
         uids = []
         ban_reason = []
