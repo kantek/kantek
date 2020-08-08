@@ -36,6 +36,11 @@ class Italic(FormattedBase):
         self.text = f'__{text}__'
 
 
+class Strikethrough(FormattedBase):
+    def __init__(self, text: V) -> None:
+        self.text = f'~~{text}~~'
+
+
 class Code(FormattedBase):
     """A Monospaced text."""
 
@@ -143,6 +148,6 @@ class MDTeXDocument:
         self.sections.extend(items)
 
 
-__all__ = ['Bold', 'Italic', 'Code', 'Pre', 'Link', 'Mention', 'KeyValueItem', 'Item',
+__all__ = ['Bold', 'Italic', 'Strikethrough', 'Code', 'Pre', 'Link', 'Mention', 'KeyValueItem', 'Item',
            'Section', 'SubSection', 'SubSubSection',
            'MDTeXDocument']
