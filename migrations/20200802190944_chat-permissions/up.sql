@@ -1,2 +1,2 @@
-ALTER TABLE chats ADD COLUMN permissions jsonb;
-ALTER TABLE chats ADD COLUMN locked bool DEFAULT FALSE;
+ALTER TABLE chats ADD COLUMN IF NOT EXISTS permissions jsonb;
+ALTER TABLE chats ADD COLUMN IF NOT EXISTS locked bool DEFAULT FALSE;
