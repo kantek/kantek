@@ -282,9 +282,10 @@ async def _check_message(event):  # pylint: disable = R0911
             if result:
                 return db.blacklists.channel.hex_type, result.index
 
-    for string in await db.blacklists.string.get_all():
-        if string.value in msg.raw_text and not string.retired:
-            return db.blacklists.string.hex_type, string.index
+    if msg.raw_text:
+        for string in await db.blacklists.string.get_all():
+            if string.value in msg.raw_text and not string.retired:
+                return db.blacklists.string.hex_type, string.index
 
     if msg.file:
         # avoid a DoS when getting large files
