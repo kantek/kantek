@@ -25,7 +25,7 @@ async def template(args, db: Database, event, msg: Message) -> Optional[MDTeXDoc
     if _template:
         await msg.edit(_template.content)
     else:
-        await event.delete
+        await event.delete()
 
 
 @template.subcommand()
