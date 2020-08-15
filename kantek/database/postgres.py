@@ -96,7 +96,7 @@ class Blacklist(TableWrapper):
 
     async def get_indices(self, indices):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(f"SELECT * FROM blacklists.{self.name} WHERE id = any($1::integer[])", indices)
+            rows = await conn.fetch(f"SELECT * FROM blacklists.{self.name} WHERE id = any($1::integer[]) ORDER BY id", indices)
         return [BlacklistItem(row['id'], row['item'], row['retired']) for row in rows]
 
 
