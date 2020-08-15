@@ -8,7 +8,7 @@ from telethon.tl.functions.messages import MigrateChatRequest
 from database.database import Database
 from utils import parsers
 from utils.client import Client
-from utils.mdtex import *
+from kantex.md import *
 from utils.parsers import MissingExpression
 from utils.pluginmgr import k, _Command, _Signature
 
@@ -23,7 +23,7 @@ async def dev() -> None:
 
 
 @dev.subcommand()
-async def requires(client: Client, args, kwargs) -> MDTeXDocument:
+async def requires(client: Client, args, kwargs) -> KanTeXDocument:
     """List all commands that require a certain argument to their callbacks.
 
     Arguments:
@@ -40,7 +40,7 @@ async def requires(client: Client, args, kwargs) -> MDTeXDocument:
     hide = kwargs.get('hide', False)
     supported_args = _Signature.__annotations__.keys()
     if _requires not in supported_args:
-        return MDTeXDocument(
+        return KanTeXDocument(
             Section('Error',
                     KeyValueItem('Unsupported argument', Code(_requires)),
                     KeyValueItem('Supported', ', '.join(map(str, map(Code, supported_args))))))
@@ -60,11 +60,11 @@ async def requires(client: Client, args, kwargs) -> MDTeXDocument:
                     _cmd.append(_scmd)
         if _cmd.items:
             result.append(_cmd)
-    return MDTeXDocument(result)
+    return KanTeXDocument(result)
 
 
 @dev.subcommand()
-async def args(args: List, kwargs: Dict) -> MDTeXDocument:
+async def args(args: List, kwargs: Dict) -> KanTeXDocument:
     """Show the raw output of the argument parser
 
     Examples:
@@ -88,7 +88,7 @@ async def args(args: List, kwargs: Dict) -> MDTeXDocument:
         keyword_args.append(SubSection(Code(key),
                                        KeyValueItem('value', Code(value)),
                                        KeyValueItem('type', Code(type(value).__name__))))
-    return MDTeXDocument(
+    return KanTeXDocument(
         Section('Args', *_args),
         Section('Keyword Args', *keyword_args),
         Section('Raw',
@@ -98,7 +98,7 @@ async def args(args: List, kwargs: Dict) -> MDTeXDocument:
 
 
 @dev.subcommand()
-async def time(args: List[str]) -> MDTeXDocument:
+async def time(args: List[str]) -> KanTeXDocument:
     """Parse specified duration expressions into timedeltas
     Arguments:
         `exprs`: Time expressions
@@ -118,11 +118,11 @@ async def time(args: List[str]) -> MDTeXDocument:
                            KeyValueItem('formatted', str(timedelta(seconds=seconds)))))
         except MissingExpression as err:
             m.append(SubSection(arg, Italic(err)))
-    return MDTeXDocument(m)
+    return KanTeXDocument(m)
 
 
 @dev.subcommand()
-async def sa(kwargs, db: Database) -> MDTeXDocument:
+async def sa(kwargs, db: Database) -> KanTeXDocument:
     """Output the value of a Strafanzeige
 
     Arguments:
@@ -133,11 +133,11 @@ async def sa(kwargs, db: Database) -> MDTeXDocument:
     """
     sa = kwargs.get('sa')
     if value := await db.strafanzeigen.get(sa):
-        return MDTeXDocument(Section('Strafanzeige',
+        return KanTeXDocument(Section('Strafanzeige',
                                      KeyValueItem('key', Code(sa)),
                                      KeyValueItem('value', Code(value))))
     else:
-        return MDTeXDocument(Section('Strafanzeige', Italic('Key does not exist')))
+        return KanTeXDocument(Section('Strafanzeige', Italic('Key does not exist')))
 
 
 @dev.subcommand()

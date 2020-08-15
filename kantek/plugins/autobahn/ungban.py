@@ -4,12 +4,12 @@ from telethon.tl.custom import Message
 
 from database.database import Database
 from utils.client import Client
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k, Command
 
 
 @k.command('ungban', delete=True)
-async def ungban(client: Client, db: Database, msg: Message, args: List) -> Optional[MDTeXDocument]:
+async def ungban(client: Client, db: Database, msg: Message, args: List) -> Optional[KanTeXDocument]:
     """Globally unban a User
 
     This does not unban them from any groups. It simply removes their ban from the database, api and any bots in the gban group.
@@ -32,6 +32,6 @@ async def ungban(client: Client, db: Database, msg: Message, args: List) -> Opti
             await client.ungban(uid)
             unbanned_users.append(str(uid))
     if unbanned_users:
-        return MDTeXDocument(
+        return KanTeXDocument(
             Section('Un-GBanned Users',
                     KeyValueItem(Bold('IDs'), Code(', '.join(unbanned_users)))))

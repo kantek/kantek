@@ -2,14 +2,14 @@ import logging
 from typing import List
 
 from utils import helpers
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('invitelink', 'il')
-async def invitelink(args: List) -> MDTeXDocument:
+async def invitelink(args: List) -> KanTeXDocument:
     """Decode a invite link and output the Links creator, the chat id and the random part.
 
     Note: For channels the Link Creator is always 0
@@ -22,7 +22,7 @@ async def invitelink(args: List) -> MDTeXDocument:
     """
     link = args[0]
     link_creator, chatid, random_part = await helpers.resolve_invite_link(link)
-    return MDTeXDocument(
+    return KanTeXDocument(
         Section('Invite Link',
                 KeyValueItem('Link Creator',
                              f'[{link_creator}](tg://user?id={link_creator})'),

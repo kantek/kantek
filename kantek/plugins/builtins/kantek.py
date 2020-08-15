@@ -8,14 +8,14 @@ from telethon.tl.types import InputStickerSetShortName, StickerSet, Channel
 
 from utils.client import Client
 from utils.config import Config
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('kantek')
-async def kantek(client: Client, chat: Channel) -> MDTeXDocument:
+async def kantek(client: Client, chat: Channel) -> KanTeXDocument:
     """Show information about Kantek.
 
     Examples:
@@ -27,7 +27,7 @@ async def kantek(client: Client, chat: Channel) -> MDTeXDocument:
         await client.send_file(chat, stickerset.documents[0])
     except ChatSendStickersForbiddenError:
         pass
-    return MDTeXDocument(
+    return KanTeXDocument(
         Section(f"{Bold('Kantek')} userbot",
                 KeyValueItem(Bold('source'), config.source_url),
                 KeyValueItem(Bold('version'), client.kantek_version),

@@ -11,6 +11,7 @@ from io import BytesIO
 from typing import Callable, List, Dict, Optional, Tuple
 
 import logzero
+from kantex.md import KanTeXDocument
 from telethon import events
 from telethon.errors import MessageTooLongError
 from telethon.events import NewMessage
@@ -73,7 +74,7 @@ class _Command:
             if _command is None:
                 _command = callback.__name__.rstrip('_')
             signature = inspect.signature(callback)
-            auto_respond = signature.return_annotation is MDTeXDocument
+            auto_respond = signature.return_annotation is KanTeXDocument
             args = _Signature(**{n: True for n in signature.parameters.keys()})
             cmd = _SubCommand(callback, _command, args, auto_respond, delete)
             self.subcommands[_command] = cmd
@@ -118,8 +119,8 @@ class PluginManager:
 
         def decorator(callback):
             signature = inspect.signature(callback)
-            auto_respond = (signature.return_annotation is MDTeXDocument
-                            or signature.return_annotation is Optional[MDTeXDocument])
+            auto_respond = (signature.return_annotation is KanTeXDocument
+                            or signature.return_annotation is Optional[KanTeXDocument])
             args = _Signature(**{n: True for n in signature.parameters.keys()})
             cmd = _Command(callback, private, admins, commands, args, auto_respond, document, delete)
             cls.commands[commands[0]] = cmd

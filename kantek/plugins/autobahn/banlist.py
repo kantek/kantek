@@ -12,7 +12,7 @@ from telethon.tl.types import DocumentAttributeFilename
 from database.database import Database
 from utils import helpers
 from utils.client import Client
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -27,7 +27,7 @@ async def banlist() -> None:
 
 
 @banlist.subcommand()
-async def query(db: Database, args, kwargs) -> MDTeXDocument:
+async def query(db: Database, args, kwargs) -> KanTeXDocument:
     """Query the banlist for the total ban count, a specific user or a ban reason.
 
     If no arguments are provided the total count will be returned.
@@ -63,11 +63,11 @@ async def query(db: Database, args, kwargs) -> MDTeXDocument:
     else:
         count: int = await db.banlist.total_count()
         query_results = [KeyValueItem(Bold('Total Count'), Code(count))]
-    return MDTeXDocument(Section('Query Results', *query_results))
+    return KanTeXDocument(Section('Query Results', *query_results))
 
 
 @banlist.subcommand()
-async def import_(client: Client, db: Database, msg: Message) -> MDTeXDocument:
+async def import_(client: Client, db: Database, msg: Message) -> KanTeXDocument:
     """Import a CSV to the banlist.
 
     The CSV file should end in .csv and have a `id` and `reason` column
@@ -97,11 +97,11 @@ async def import_(client: Client, db: Database, msg: Message) -> MDTeXDocument:
                             uids_copy = uids_copy[SWAPI_SLICE_LENGTH:]
 
             stop_time = time.time() - start_time
-            return MDTeXDocument(Section('Import Result',
+            return KanTeXDocument(Section('Import Result',
                                          f'Added {len(_banlist)} entries.'),
                                  Italic(f'Took {stop_time:.02f}s'))
         else:
-            return MDTeXDocument(Section('Error',
+            return KanTeXDocument(Section('Error',
                                          'File is not a CSV'))
 
 

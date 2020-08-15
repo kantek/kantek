@@ -11,7 +11,7 @@ from database.database import Database
 from utils import parsers
 from utils.client import Client
 from utils.config import Config
-from utils.mdtex import *
+from kantex.md import *
 from utils.parsers import MissingExpression
 from utils.pluginmgr import k, Command
 
@@ -19,7 +19,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('lock', admins=True)
-async def lock(client: Client, db: Database, chat: Chat, event: Command, msg: Message, args) -> MDTeXDocument:
+async def lock(client: Client, db: Database, chat: Chat, event: Command, msg: Message, args) -> KanTeXDocument:
     """Set a chat to read only.
 
     Arguments:
@@ -39,17 +39,17 @@ async def lock(client: Client, db: Database, chat: Chat, event: Command, msg: Me
         rights = participant.admin_rights
         permitted = rights.ban_users
     if not permitted:
-        return MDTeXDocument('Insufficient permission.')
+        return KanTeXDocument('Insufficient permission.')
 
     duration = None
     if args:
         try:
             duration = parsers.time(args[0])
         except MissingExpression as err:
-            return MDTeXDocument(Italic(err))
+            return KanTeXDocument(Italic(err))
 
     if duration and duration < 10:
-        return MDTeXDocument('Duration too short.')
+        return KanTeXDocument('Duration too short.')
 
     permissions = chat.default_banned_rights.to_dict()
     del permissions['_']
@@ -76,6 +76,6 @@ async def lock(client: Client, db: Database, chat: Chat, event: Command, msg: Me
         if duration:
             config = Config()
             await client.send_message(chat, f'{config.prefix}unlock', schedule=msg.date + timedelta(seconds=duration))
-        return MDTeXDocument('Chat locked.')
+        return KanTeXDocument('Chat locked.')
     except ChatNotModifiedError:
-        return MDTeXDocument('Chat already locked.')
+        return KanTeXDocument('Chat already locked.')

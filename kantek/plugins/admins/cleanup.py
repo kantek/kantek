@@ -8,7 +8,7 @@ from telethon.tl.custom import Message
 from telethon.tl.types import (Channel, User)
 
 from utils.client import Client
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -45,7 +45,7 @@ async def cleanup(client: Client, chat: Channel, msg: Message,
 
 
 async def _cleanup_chat(event, count: bool = False,
-                        progress_message: Optional[Message] = None) -> MDTeXDocument:
+                        progress_message: Optional[Message] = None) -> KanTeXDocument:
     chat: Channel = await event.get_chat()
     client: Client = event.client
     user: User
@@ -88,7 +88,7 @@ async def _cleanup_chat(event, count: bool = False,
                     await asyncio.sleep(error.seconds)
                     await client.ban(chat, user)
 
-    return MDTeXDocument(
+    return KanTeXDocument(
         Section('Cleanup',
                 KeyValueItem(deleted_accounts_label, deleted_users),
                 KeyValueItem(Bold('Deleted Admins'), deleted_admins) if deleted_admins else None))

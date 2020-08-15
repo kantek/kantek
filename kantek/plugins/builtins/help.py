@@ -4,7 +4,7 @@ from typing import Callable
 
 from utils.client import Client
 from utils.config import Config
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k, _Command, _Event
 
 SECTION_PATTERN = re.compile(r'^(?P<name>[\w ]+:)$', re.MULTILINE)
@@ -13,7 +13,7 @@ MISC_TOPICS = ['parsers']
 
 
 @k.command('help')
-async def help_(client: Client, args, kwargs) -> MDTeXDocument:
+async def help_(client: Client, args, kwargs) -> KanTeXDocument:
     """Get help for Kantek commands.
 
     Arguments:
@@ -29,7 +29,7 @@ async def help_(client: Client, args, kwargs) -> MDTeXDocument:
     events = client.plugin_mgr.events
     config = Config()
     if not args:
-        toc = MDTeXDocument()
+        toc = KanTeXDocument()
         _cmds = []
         for name, cmd in cmds.items():
             if cmd.document:
@@ -58,25 +58,25 @@ async def help_(client: Client, args, kwargs) -> MDTeXDocument:
                     cmd = _event
                     break
             if cmd is None:
-                return MDTeXDocument(Section('Error', f'Unknown command or event {Code(topic)}'))
+                return KanTeXDocument(Section('Error', f'Unknown command or event {Code(topic)}'))
         if isinstance(cmd, _Command):
             return get_command_info(cmd, subtopic, config)
         elif isinstance(cmd, _Event):
             return get_event_info(cmd, subtopic, config)
 
 
-def get_event_info(event, subcommands, config) -> MDTeXDocument:
+def get_event_info(event, subcommands, config) -> KanTeXDocument:
     description = get_description(event.callback, '')
-    help_msg = MDTeXDocument(Section(f'Help for {event.name}'), description)
+    help_msg = KanTeXDocument(Section(f'Help for {event.name}'), description)
     return help_msg
 
 
-def get_command_info(cmd, subcommands, config) -> MDTeXDocument:
+def get_command_info(cmd, subcommands, config) -> KanTeXDocument:
     cmd_name = cmd.commands[0]
     if not subcommands:
         help_cmd = f'{config.prefix}{cmd_name}'
         description = get_description(cmd.callback, help_cmd)
-        help_msg = MDTeXDocument(Section(f'Help for {help_cmd}'), description)
+        help_msg = KanTeXDocument(Section(f'Help for {help_cmd}'), description)
 
         if cmd.admins:
             help_msg.append(Italic('This command can be used by group admins.'))
@@ -100,12 +100,12 @@ def get_command_info(cmd, subcommands, config) -> MDTeXDocument:
         subcommand = cmd.subcommands.get(subcommands[0])
 
         if subcommand is None:
-            return MDTeXDocument(
+            return KanTeXDocument(
                 Section('Error', f'Unknown subcommand {Code(subcommands[0])} for command {Code(cmd_name)}'))
         help_cmd = f'{config.prefix}{cmd_name} {subcommand.command}'
         description = get_description(subcommand.callback, help_cmd)
 
-        help_msg = MDTeXDocument(Section(f'Help for {help_cmd}'), description)
+        help_msg = KanTeXDocument(Section(f'Help for {help_cmd}'), description)
 
         return help_msg
 
@@ -120,14 +120,14 @@ def get_description(callback: Callable, help_cmd: str) -> str:
     return description
 
 
-def get_misc_topics(topic, subtopics) -> MDTeXDocument:
+def get_misc_topics(topic, subtopics) -> KanTeXDocument:
     config = Config()
     subtopic = None
     if subtopics:
         subtopic = subtopics[0]
     if topic == 'parsers':
         if not subtopic:
-            return MDTeXDocument(
+            return KanTeXDocument(
                 Section(f'Available Parsers',
                         KeyValueItem(Italic(Bold('time')),
                                      'Specify durations with a shorthand',
@@ -137,7 +137,7 @@ def get_misc_topics(topic, subtopics) -> MDTeXDocument:
                                      colon_styles=(Bold, Italic)))
             )
         elif subtopic == 'time':
-            return MDTeXDocument(
+            return KanTeXDocument(
                 Section('Time'),
                 'Express a duration as a shorthand:\n'
                 'Supports s, m, h, d and w for seconds, minutes, hours, days and weeks respectively.',
@@ -150,7 +150,7 @@ def get_misc_topics(topic, subtopics) -> MDTeXDocument:
                         KeyValueItem(Code('20m30s'), '20 minutes and 30 seconds'))
             )
         elif subtopic == 'args':
-            return MDTeXDocument(
+            return KanTeXDocument(
                 Section('Arguments'),
                 'Parse arguments into positional and keyword arguments. '
                 'Convert values into their respective types',

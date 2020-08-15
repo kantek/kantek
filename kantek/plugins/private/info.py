@@ -4,7 +4,7 @@ from typing import Optional
 from telethon.tl.types import Channel, User
 
 from utils.client import Client
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k, Command
 from utils.tags import Tags
 
@@ -12,7 +12,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('info')
-async def info(client: Client, tags: Tags, chat: Channel, event: Command) -> Optional[MDTeXDocument]:
+async def info(client: Client, tags: Tags, chat: Channel, event: Command) -> Optional[KanTeXDocument]:
     """Show information about a group or channel.
 
     Examples:
@@ -48,4 +48,4 @@ async def info(client: Client, tags: Tags, chat: Channel, event: Command) -> Opt
     data = []
     data += [KeyValueItem(key, Code(value)) for key, value in tags.named_tags.items()]
     tags = Section('Tags:', *data or [Italic('None')])
-    return MDTeXDocument(chat_info, user_stats, tags)
+    return KanTeXDocument(chat_info, user_stats, tags)

@@ -12,7 +12,7 @@ from telethon.utils import get_display_name
 from database.database import Database
 from utils.client import Client
 from utils.constants import GET_ENTITY_ERRORS
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k
 from utils.tags import Tags
 
@@ -90,7 +90,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
             return
         await event.delete()
         if not silent:
-            message = MDTeXDocument(Section(
+            message = KanTeXDocument(Section(
                 Bold('SpamWatch Grenzschutz Ban'),
                 KeyValueItem(Bold("User"),
                              f'{Mention(name, uid)} [{Code(uid)}]'),

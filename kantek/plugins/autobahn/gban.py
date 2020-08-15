@@ -13,7 +13,7 @@ from telethon.tl.types import (Channel, InputReportReasonSpam, InputPeerChannel,
 from database.database import Database
 from utils import helpers, parsers
 from utils.client import Client
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k, Command
 from utils.tags import Tags
 
@@ -25,7 +25,7 @@ CHUNK_SIZE = 10
 
 @k.command('gban', delete=True)
 async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Message,
-               args: List, kwargs: Dict, event: Command) -> Optional[MDTeXDocument]:
+               args: List, kwargs: Dict, event: Command) -> Optional[KanTeXDocument]:
     """Globally ban a user.
 
     This will not actively ban them from any chats except the one command was issued in as reply. GBanned users will be automatically banned on join or when writing a message by the Grenzschutz module.
@@ -172,7 +172,7 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
                 bans = _build_message(skipped_uids)
                 sections.append(Section('Skipped GBan', *bans))
 
-            return MDTeXDocument(*sections)
+            return KanTeXDocument(*sections)
 
 
 def _build_message(bans: Dict[str, List[str]], message: Optional[str] = None) -> List[KeyValueItem]:

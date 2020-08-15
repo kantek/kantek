@@ -5,7 +5,7 @@ from telethon.tl.types import Channel
 from telethon.utils import get_peer_id
 
 from utils.constants import GET_ENTITY_ERRORS
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k, Command
 from utils.tags import Tags
 
@@ -13,7 +13,7 @@ tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('tag')
-async def tag(chat: Channel, tags: Tags, event: Command) -> MDTeXDocument:
+async def tag(chat: Channel, tags: Tags, event: Command) -> KanTeXDocument:
     """Add, query or remove tags from groups and channels.
 
     Tags are used by various plugins to alter their functionality in the specific chats.
@@ -28,7 +28,7 @@ async def tag(chat: Channel, tags: Tags, event: Command) -> MDTeXDocument:
     data += [KeyValueItem(key, Code(value)) for key, value in named_tags.items()]
     if not data:
         data.append(Code('None'))
-    return MDTeXDocument(
+    return KanTeXDocument(
         Section(Item(f'Tags for {chat.title}[{Code(event.chat_id)}]:'),
                 *data)
     )

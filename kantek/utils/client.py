@@ -10,6 +10,7 @@ import logzero
 import spamwatch
 from aiohttp import ClientTimeout, ClientSession, ClientError
 from faker import Faker
+from kantex.md import KanTeXDocument
 from spamwatch.types import Permission
 from telethon import TelegramClient, hints
 from telethon.errors import UserAdminInvalidError
@@ -22,7 +23,6 @@ from yarl import URL
 from database.database import Database
 from utils import parsers
 from utils.config import Config
-from utils.mdtex import *
 from utils.pluginmgr import PluginManager
 
 logger: logging.Logger = logzero.logger
@@ -47,7 +47,7 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
         self.aioclient = ClientSession(timeout=ClientTimeout(total=2))
 
     async def respond(self, event: NewMessage.Event,
-                      msg: Union[str, MDTeXDocument],
+                      msg: Union[str, KanTeXDocument],
                       reply: bool = True, delete: Optional[str] = None, link_preview: bool = False) -> Message:
         """Respond to the message an event caused or to the message that was replied to
 

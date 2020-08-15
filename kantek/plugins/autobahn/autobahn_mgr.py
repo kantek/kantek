@@ -10,7 +10,7 @@ from telethon.tl.custom import Message
 from database.database import Database, ItemDoesNotExistError
 from utils import helpers, constants
 from utils.client import Client
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -33,19 +33,19 @@ INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 
 
 @k.command('autobahn', 'ab')
-async def autobahn() -> MDTeXDocument:
+async def autobahn() -> KanTeXDocument:
     """Manage Autobahn blacklists.
 
     Each message will be checked for blacklisted items and if a match is found the user is automatically gbanned.
     """
-    return MDTeXDocument(
+    return KanTeXDocument(
         Section('Types',
                 *[KeyValueItem(Bold(name), Code(code)) for name, code in AUTOBAHN_TYPES.items()]))
 
 
 @autobahn.subcommand()
 async def add(client: Client, db: Database, msg: Message, args,
-              event) -> MDTeXDocument:  # pylint: disable = R1702
+              event) -> KanTeXDocument:  # pylint: disable = R1702
     """Add a item to its blacklist.
 
     Blacklist names are _not_ the hexadecimal short hands
@@ -132,9 +132,9 @@ async def add(client: Client, db: Database, msg: Message, args,
                 else:
                     existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
             else:
-                return MDTeXDocument(Section('Error', 'Need to reply to a file'))
+                return KanTeXDocument(Section('Error', 'Need to reply to a file'))
         else:
-            return MDTeXDocument(Section('Error', 'Need to reply to a file'))
+            return KanTeXDocument(Section('Error', 'Need to reply to a file'))
     if not items and hex_type == '0x6':
         if msg.is_reply:
             reply_msg: Message = await msg.get_reply_message()
@@ -156,11 +156,11 @@ async def add(client: Client, db: Database, msg: Message, args,
                 else:
                     existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
             else:
-                return MDTeXDocument(Section('Error', 'Need to reply to a photo'))
+                return KanTeXDocument(Section('Error', 'Need to reply to a photo'))
         else:
-            return MDTeXDocument(Section('Error', 'Need to reply to a photo'))
+            return KanTeXDocument(Section('Error', 'Need to reply to a photo'))
 
-    return MDTeXDocument(Section('Added Items:',
+    return KanTeXDocument(Section('Added Items:',
                                  SubSection(item_type,
                                             *added_items)) if added_items else '',
                          Section('Existing Items:',
@@ -175,7 +175,7 @@ async def add(client: Client, db: Database, msg: Message, args,
 
 
 @autobahn.subcommand()
-async def del_(db: Database, args) -> MDTeXDocument:
+async def del_(db: Database, args) -> KanTeXDocument:
     """Remove a item from its blacklist.
 
     Blacklist names are _not_ the hexadecimal short hands
@@ -205,14 +205,14 @@ async def del_(db: Database, args) -> MDTeXDocument:
         except ItemDoesNotExistError:
             skipped_items.append(Code(item))
 
-    return MDTeXDocument(Section('Deleted Items:',
+    return KanTeXDocument(Section('Deleted Items:',
                                  SubSection(item_type, *removed_items)) if removed_items else None,
                          Section('Skipped Items:',
                                  SubSection(item_type, *skipped_items)) if skipped_items else None)
 
 
 @autobahn.subcommand()
-async def query(args, kwargs, db: Database) -> MDTeXDocument:
+async def query(args, kwargs, db: Database) -> KanTeXDocument:
     """Query a blacklist for a specific code.
 
     Blacklist names are _not_ the hexadecimal short hands
@@ -231,7 +231,7 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
     if item_type is None and args:
         item_type = args[0]
     else:
-        return MDTeXDocument(Section('Error', Italic('No blacklist name specified')))
+        return KanTeXDocument(Section('Error', Italic('No blacklist name specified')))
     if code is None and len(args) > 1:
         code = args[1]
 
@@ -255,7 +255,7 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
         kvitem = KeyValueItem(Bold(item.index), f"{Code(item.value)} {Italic('(retired)') if item.retired else ''}")
         items.append(kvitem)
 
-    return MDTeXDocument(
+    return KanTeXDocument(
         Section(f'Items for type: {item_type}[{hex_type}]', *items or [Italic('None')]),
         Italic(f'Total count: {len(blacklist_items)}') if blacklist_items else None
     )
@@ -266,11 +266,11 @@ async def query(args, kwargs, db: Database) -> MDTeXDocument:
     #     items = blacklist.get_indices(list(code))
     #     items = [KeyValueItem(Bold(f'0x{item.index}'.rjust(5)),
     #                           Code(item.value)) for item in items]
-    #     return MDTeXDocument(Section(f'Items for for type: {item_type}[{hex_type}]'), *items)
+    #     return KanTeXDocument(Section(f'Items for for type: {item_type}[{hex_type}]'), *items)
 
 
 @autobahn.subcommand()
-async def count(db: Database) -> MDTeXDocument:
+async def count(db: Database) -> KanTeXDocument:
     """Display item count of each blacklist
 
     Examples:
@@ -281,7 +281,7 @@ async def count(db: Database) -> MDTeXDocument:
         name = f'{blacklist.__class__.__name__.replace("Blacklist", "")} [{Code(hextype)}]'
         sec.append(KeyValueItem(name, len(await blacklist.get_all())))
 
-    return MDTeXDocument(sec)
+    return KanTeXDocument(sec)
 
 
 def _sync_file_callback(received: int, total: int, msg: Message) -> None:
@@ -291,7 +291,7 @@ def _sync_file_callback(received: int, total: int, msg: Message) -> None:
 
 
 async def _file_callback(received: int, total: int, msg: Message) -> None:
-    text = MDTeXDocument(
+    text = KanTeXDocument(
         Section('Downloading File',
                 KeyValueItem('Progress',
                              f'{received / 1024 ** 2:.2f}/{total / 1024 ** 2:.2f}MB'

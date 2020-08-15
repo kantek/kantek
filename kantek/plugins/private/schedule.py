@@ -10,14 +10,14 @@ from telethon.tl.types import Channel, MessageMediaDocument
 
 from utils import parsers
 from utils.client import Client
-from utils.mdtex import *
+from kantex.md import *
 from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 
 
 @k.command('schedule')
-async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> MDTeXDocument:
+async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, event: Command) -> KanTeXDocument:
     """Schedule commands from a file or a message
 
     One command per line. Must be in reply to either a message or a file.
@@ -63,7 +63,7 @@ async def schedule(client: Client, chat: Channel, msg: Message, kwargs: Dict, ev
                 next_time += timedelta(seconds=offset)
                 await asyncio.sleep(0.5)
         await event.delete()
-        return MDTeXDocument(
+        return KanTeXDocument(
             Section('Scheduled Messages',
                     KeyValueItem(Bold('From'),
                                  from_time.astimezone(current.tzinfo).strftime('%Y-%m-%d %H:%M:%S')),
