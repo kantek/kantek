@@ -24,6 +24,7 @@ from telethon.utils import get_display_name
 from utils import helpers
 from utils.config import Config
 from utils.constants import GET_ENTITY_ERRORS
+from utils.errors import Error
 from utils.mdtex import *
 from utils.tags import Tags
 
@@ -287,8 +288,16 @@ class PluginManager:
             else:
                 raise
         except Exception as err:
-            tlog.error(f'An error occured while running {Code(command_name)}', exc_info=err)
-            logger.exception(err)
+            if cmd.auto_respond:
+                error_name = err.__class__.__name__
+                error_name = re.sub(r'([A-Z])', r' \1', error_name)
+                doc = KanTeXDocument(
+                    Section(error_name,
+                            Italic(str(err))))
+                await client.respond(event, str(doc), reply=not delete)
+            if not isinstance(err, Error):
+                tlog.error(f'An error occured while running {Code(command_name)}', exc_info=err)
+                logger.exception(err)
 
 
 k = PluginManager
