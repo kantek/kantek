@@ -1,14 +1,15 @@
 import logging
 import platform
 
+import kantex
 import telethon
+from kantex.md import *
 from telethon.errors import ChatSendStickersForbiddenError
 from telethon.tl.functions.messages import GetStickerSetRequest
 from telethon.tl.types import InputStickerSetShortName, StickerSet, Channel
 
 from utils.client import Client
 from utils.config import Config
-from kantex.md import *
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -28,10 +29,11 @@ async def kantek(client: Client, chat: Channel) -> KanTeXDocument:
     except ChatSendStickersForbiddenError:
         pass
     return KanTeXDocument(
-        Section(f"{Bold('Kantek')} userbot",
-                KeyValueItem(Bold('source'), config.source_url),
-                KeyValueItem(Bold('version'), client.kantek_version),
-                KeyValueItem(Bold('telethon version'), telethon.__version__),
-                KeyValueItem(Bold('python version'), platform.python_version()),
-                KeyValueItem(Bold('plugins loaded'),
+        Section(f"{Bold('Kantek')} Userbot",
+                KeyValueItem(Bold('Source'), config.source_url),
+                KeyValueItem(Bold('Version'), client.kantek_version),
+                KeyValueItem(Bold('Telethon version'), telethon.__version__),
+                KeyValueItem(Bold('Python version'), platform.python_version()),
+                KeyValueItem(Bold('KanTeX version'), kantex.__version__),
+                KeyValueItem(Bold('Plugins loaded'),
                              len(client.plugin_mgr.commands) + len(client.plugin_mgr.events))))
