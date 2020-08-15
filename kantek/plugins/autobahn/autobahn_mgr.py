@@ -4,13 +4,14 @@ import re
 from collections import Counter
 
 import logzero
+from kantex.md import *
 from telethon.errors import MessageIdInvalidError
 from telethon.tl.custom import Message
 
 from database.database import Database, ItemDoesNotExistError
 from utils import helpers, constants
 from utils.client import Client
-from kantex.md import *
+from utils.errors import Error
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -132,9 +133,9 @@ async def add(client: Client, db: Database, msg: Message, args,
                 else:
                     existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
             else:
-                return KanTeXDocument(Section('Error', 'Need to reply to a file'))
+                raise Error('Need to reply to a file')
         else:
-            return KanTeXDocument(Section('Error', 'Need to reply to a file'))
+            raise Error('Need to reply to a file')
     if not items and hex_type == '0x6':
         if msg.is_reply:
             reply_msg: Message = await msg.get_reply_message()
@@ -156,22 +157,23 @@ async def add(client: Client, db: Database, msg: Message, args,
                 else:
                     existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
             else:
-                return KanTeXDocument(Section('Error', 'Need to reply to a photo'))
+                raise Error('Need to reply to a photo')
         else:
-            return KanTeXDocument(Section('Error', 'Need to reply to a photo'))
+            raise Error('Need to reply to a photo')
 
-    return KanTeXDocument(Section('Added Items:',
-                                 SubSection(item_type,
-                                            *added_items)) if added_items else '',
-                         Section('Existing Items:',
-                                 SubSection(item_type,
-                                            *existing_items)) if existing_items else '',
-                         Section('Skipped Items:',
-                                 SubSection(item_type,
-                                            *skipped_items)) if skipped_items else '',
-                         Section('Warning:',
-                                 warn_message) if warn_message else ''
-                         )
+    return KanTeXDocument(
+        Section('Added Items:',
+                SubSection(item_type,
+                           *added_items)) if added_items else '',
+        Section('Existing Items:',
+                SubSection(item_type,
+                           *existing_items)) if existing_items else '',
+        Section('Skipped Items:',
+                SubSection(item_type,
+                           *skipped_items)) if skipped_items else '',
+        Section('Warning:',
+                warn_message) if warn_message else ''
+    )
 
 
 @autobahn.subcommand()
@@ -206,9 +208,9 @@ async def del_(db: Database, args) -> KanTeXDocument:
             skipped_items.append(Code(item))
 
     return KanTeXDocument(Section('Deleted Items:',
-                                 SubSection(item_type, *removed_items)) if removed_items else None,
-                         Section('Skipped Items:',
-                                 SubSection(item_type, *skipped_items)) if skipped_items else None)
+                                  SubSection(item_type, *removed_items)) if removed_items else None,
+                          Section('Skipped Items:',
+                                  SubSection(item_type, *skipped_items)) if skipped_items else None)
 
 
 @autobahn.subcommand()
@@ -231,7 +233,7 @@ async def query(args, kwargs, db: Database) -> KanTeXDocument:
     if item_type is None and args:
         item_type = args[0]
     else:
-        return KanTeXDocument(Section('Error', Italic('No blacklist name specified')))
+        raise Error('No blacklist name specified')
     if code is None and len(args) > 1:
         code = args[1]
 

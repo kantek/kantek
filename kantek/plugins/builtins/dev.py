@@ -2,13 +2,13 @@ from datetime import timedelta
 from pprint import pformat
 from typing import List, Dict
 
+from kantex.md import *
 from telethon.tl.custom import Message
 from telethon.tl.functions.messages import MigrateChatRequest
 
 from database.database import Database
 from utils import parsers
 from utils.client import Client
-from kantex.md import *
 from utils.parsers import MissingExpression
 from utils.pluginmgr import k, _Command, _Signature
 

@@ -2,9 +2,11 @@ import inspect
 import re
 from typing import Callable
 
+from kantex.md import *
+
 from utils.client import Client
 from utils.config import Config
-from kantex.md import *
+from utils.errors import UnknownTopicError
 from utils.pluginmgr import k, _Command, _Event
 
 SECTION_PATTERN = re.compile(r'^(?P<name>[\w ]+:)$', re.MULTILINE)
@@ -58,7 +60,7 @@ async def help_(client: Client, args, kwargs) -> KanTeXDocument:
                     cmd = _event
                     break
             if cmd is None:
-                return KanTeXDocument(Section('Error', f'Unknown command or event {Code(topic)}'))
+                raise UnknownTopicError(f'Unknown command or event {Code(topic)}')
         if isinstance(cmd, _Command):
             return get_command_info(cmd, subtopic, config)
         elif isinstance(cmd, _Event):
@@ -100,8 +102,7 @@ def get_command_info(cmd, subcommands, config) -> KanTeXDocument:
         subcommand = cmd.subcommands.get(subcommands[0])
 
         if subcommand is None:
-            return KanTeXDocument(
-                Section('Error', f'Unknown subcommand {Code(subcommands[0])} for command {Code(cmd_name)}'))
+            raise UnknownTopicError(f'Unknown subcommand {Code(subcommands[0])} for command {Code(cmd_name)}')
         help_cmd = f'{config.prefix}{cmd_name} {subcommand.command}'
         description = get_description(subcommand.callback, help_cmd)
 

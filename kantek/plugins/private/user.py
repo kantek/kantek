@@ -1,6 +1,7 @@
 import logging
 from typing import Union, Dict, List, Optional
 
+from kantex.md import *
 from spamwatch.types import Permission
 from telethon.tl.custom import Forward, Message
 from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, User, Channel
@@ -8,7 +9,7 @@ from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, Us
 from database.database import Database
 from utils import helpers, constants
 from utils.client import Client
-from kantex.md import *
+from utils.errors import Error
 from utils.pluginmgr import k
 from utils.tags import Tags
 
@@ -91,7 +92,7 @@ async def _info_from_reply(client, msg, db, kwargs, tags) -> KanTeXDocument:
     if get_forward and reply_msg.forward is not None:
         forward: Forward = reply_msg.forward
         if forward.sender_id is None:
-            return KanTeXDocument(Section('Error', 'User has forward privacy enabled'))
+            raise Error('User has forward privacy enabled')
         user: User = await client.get_entity(forward.sender_id)
     else:
         user: User = await client.get_entity(reply_msg.sender_id)

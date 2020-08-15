@@ -1,8 +1,9 @@
 import subprocess
 
+from kantex.md import *
+
 from utils import helpers
 from utils.client import Client
-from kantex.md import *
 from utils.pluginmgr import k, Command
 from utils.tags import Tags
 

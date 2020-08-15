@@ -1,9 +1,10 @@
 from typing import Optional
 
+from kantex.md import *
 from telethon.tl.custom import Message
 
 from database.database import Database
-from kantex.md import *
+from utils.errors import MissingArgumentsError
 from utils.pluginmgr import k
 
 QUERY_MAX_LENGTH = 20
@@ -40,7 +41,7 @@ async def add(args, db: Database) -> KanTeXDocument:
         {cmd} test testcontent
     """
     if len(args) < 2:
-        return KanTeXDocument(Section('Error', Italic('Missing arguments.')))
+        raise MissingArgumentsError(f'Missing {Code("name")} and {Code("content")}')
     name, content = args[:2]
     existing = await db.templates.get(args[0])
     await db.templates.add(name, content)

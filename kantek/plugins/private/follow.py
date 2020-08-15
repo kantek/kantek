@@ -2,9 +2,10 @@ import logging
 from typing import List
 
 from aiohttp import InvalidURL, TooManyRedirects
+from kantex.md import *
 
 from utils.client import Client
-from kantex.md import *
+from utils.errors import MissingArgumentsError
 from utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
@@ -22,7 +23,7 @@ async def follow(client: Client, args: List) -> KanTeXDocument:
         {cmd} src.kv2.dev
     """
     if not args:
-        return KanTeXDocument(Section('Error', Italic('No URL was provided')))
+        raise MissingArgumentsError('No url was provided')
     sections = []
     for i, url in enumerate(args):
         if not url.startswith('http'):

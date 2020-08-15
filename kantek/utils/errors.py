@@ -2,9 +2,12 @@ class Error(Exception):
     pass
 
 
-class MissingArgumentError(Error):
+class MissingArgumentsError(Error):
     pass
 
 
 class UnknownTopicError(Error):
+    pass
+
+class UpdateError(Error):
     pass
