@@ -51,6 +51,8 @@ async def query(db: Database, args, kwargs) -> KanTeXDocument:
     """
     reason = kwargs.get('reason')
     list_ids = kwargs.get('list')
+    args = [arg for arg in args if isinstance(arg, int)]
+
     if args:
         users = await db.banlist.get_multiple(args)
         query_results = [KeyValueItem(Code(user.id), user.reason)
