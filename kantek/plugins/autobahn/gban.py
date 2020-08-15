@@ -103,7 +103,7 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
                 await client.ban(chat, uid)
 
         elif bancmd is not None:
-            await reply_msg.reply(f'{bancmd} {ban_reason}')
+            await reply_msg.reply(f'{bancmd} {ban_reason if admin else ""}')
             await asyncio.sleep(0.5)
 
         if not client.config.debug_mode and admin:
