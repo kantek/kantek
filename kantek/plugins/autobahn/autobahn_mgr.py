@@ -222,6 +222,7 @@ async def query(args, kwargs, db: Database) -> KanTeXDocument:
     Arguments:
         `type`: One of the possible autobahn types (See {prefix}ab)
         `code`: The index of the item, can be a range
+        `-retired`: Show retired items
 
     Examples:
         {cmd} domain 3
@@ -230,6 +231,7 @@ async def query(args, kwargs, db: Database) -> KanTeXDocument:
     """
     item_type = kwargs.get('type')
     code = kwargs.get('code')
+
     if item_type is None and args:
         item_type = args[0]
     else:
@@ -252,9 +254,13 @@ async def query(args, kwargs, db: Database) -> KanTeXDocument:
     else:
         all_items = blacklist_items
 
+    retired = kwargs.get('retired', len(all_items) == 1)
+    if not retired:
+        all_items = [i for i in all_items if not i.retired]
+
     items = []
     for item in all_items[:MAX_QUERY_ITEMS]:
-        kvitem = KeyValueItem(Bold(item.index), f"{Code(item.value)} {Italic('(retired)') if item.retired else ''}")
+        kvitem = KeyValueItem(item.index, f"{Code(item.value)} {Italic('(retired)') if item.retired else ''}")
         items.append(kvitem)
 
     return KanTeXDocument(
