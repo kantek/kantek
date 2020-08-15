@@ -50,6 +50,21 @@ async def update(client: Client, event: Command, tags: Tags) -> None:
                         Italic('Doing nothing'))))
         return
 
+    # region pip install
+    proc = subprocess.call(['pip', 'install', '-r', 'requirements.txt'])
+    if proc != 0:
+        msg = MDTeXDocument(
+            Section('Error',
+                    f'{Code("pip")} returned non-zero exit code.',
+                    'Please update manually'))
+        if not silent:
+            await progess_message.edit(str(msg))
+        else:
+            await client.respond(event, msg)
+        return
+    # endregion
+
+
     # region migrant
     if not silent:
         await progess_message.edit(str(MDTeXDocument(
