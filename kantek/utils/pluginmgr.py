@@ -11,9 +11,10 @@ from io import BytesIO
 from typing import Callable, List, Dict, Optional, Tuple
 
 import logzero
+from datetime import timedelta
 from kantex.md import KanTeXDocument
 from telethon import events
-from telethon.errors import MessageTooLongError
+from telethon.errors import MessageTooLongError, FloodWaitError
 from telethon.events import NewMessage
 from telethon.events.common import EventBuilder
 from telethon.tl.custom import Forward, Message
@@ -291,10 +292,15 @@ class PluginManager:
             if cmd.auto_respond:
                 error_name = err.__class__.__name__
                 error_name = re.sub(r'([A-Z])', r' \1', error_name)
-                doc = KanTeXDocument(
-                    Section(error_name,
-                            Italic(str(err))))
-                await client.respond(event, str(doc), reply=not delete)
+                sec = Section(error_name,
+                            )
+                if isinstance(err, FloodWaitError):
+                    sec.append(KeyValueItem('duration', timedelta(seconds=err.seconds)))
+                    sec.append(KeyValueItem('cause', Code(err.request.__class__.__name__)))
+                    print(err.request)
+                else:
+                    sec.append(Italic(err))
+                await client.respond(event, str(KanTeXDocument(sec)), reply=not delete)
             if not isinstance(err, Error):
                 tlog.error(f'An error occured while running {Code(command_name)}', exc_info=err)
                 logger.exception(err)
