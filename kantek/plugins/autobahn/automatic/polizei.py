@@ -208,7 +208,10 @@ async def _check_message(event):  # pylint: disable = R0911
         channel = ''
         _entity = None
         if isinstance(entity, MessageEntityUrl):
-            domain = await client.resolve_url(text)
+            try:
+                domain = await client.resolve_url(text)
+            except ValueError:
+                pass
             face_domain = await helpers.netloc(text)
             if domain in constants.TELEGRAM_DOMAINS:
                 # remove any query parameters like ?start=
