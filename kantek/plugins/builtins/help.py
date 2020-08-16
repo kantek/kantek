@@ -180,3 +180,5 @@ def get_misc_topics(topic, subtopics) -> KanTeXDocument:
                                    Code('[1,2,3]')),
                         ),
             )
+        else:
+            raise UnknownTopicError(f'Unknown subtopic {Code(subtopic)} for topic {Code(topic)}')
