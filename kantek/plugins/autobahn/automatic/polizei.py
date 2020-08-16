@@ -133,9 +133,7 @@ async def _check_message(event):  # pylint: disable = R0911
     user_id = msg.from_id
     if user_id is None:
         return False, False
-    # exclude users below a certain id to avoid banning "legit" users
-    if user_id and user_id < 610000000:
-        return False, False
+
     try:
         result = await client(GetParticipantRequest(event.chat_id, user_id))
         if isinstance(result.participant, ChannelParticipantAdmin):
