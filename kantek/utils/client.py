@@ -21,7 +21,7 @@ from telethon.tl.types import ChatBannedRights, User
 from yarl import URL
 
 from database.database import Database
-from utils import parsers
+from utils import parsers, helpers
 from utils.config import Config
 from utils.pluginmgr import PluginManager
 
@@ -206,8 +206,10 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
             async with self.aioclient.get(url, headers=headers) as response:
                 url: URL = response.url
         except (ClientError, asyncio.TimeoutError, socket.gaierror) as err:
-            logger.warning(err)
-            return old_url
+            if base_domain:
+                return await helpers.netloc(old_url)
+            else:
+                raise
 
         if base_domain:
             # split up the result to only get the base domain
@@ -216,6 +218,7 @@ class Client(TelegramClient):  # pylint: disable = R0901, W0223
             _base_domain = url.split('.', maxsplit=url.count('.') - 1)[-1]
             if _base_domain:
                 url: str = _base_domain
+
         return str(url)
 
     async def get_me(self, input_peer: bool = False) -> User:
