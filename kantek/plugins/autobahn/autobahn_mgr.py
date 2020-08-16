@@ -12,7 +12,7 @@ from database.database import Database, ItemDoesNotExistError
 from utils import helpers, constants
 from utils.client import Client
 from utils.errors import Error
-from utils.pluginmgr import k
+from utils.pluginmgr import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger
@@ -46,7 +46,7 @@ async def autobahn() -> KanTeXDocument:
 
 @autobahn.subcommand()
 async def add(client: Client, db: Database, msg: Message, args,
-              event) -> KanTeXDocument:  # pylint: disable = R1702
+              event: Command) -> KanTeXDocument:  # pylint: disable = R1702
     """Add a item to its blacklist.
 
     Blacklist names are _not_ the hexadecimal short hands
@@ -68,6 +68,13 @@ async def add(client: Client, db: Database, msg: Message, args,
     hex_type = AUTOBAHN_TYPES.get(item_type)
     blacklist = await db.blacklists.get(hex_type)
     warn_message = ''
+
+    # This just removes the webpreview so its irrelevant if it fails
+    # noinspection PyBroadException
+    try:
+        await msg.edit(msg.text, link_preview=False)
+    except Exception:
+        pass
 
     for item in items:  # pylint: disable = R1702
         if hex_type is None or blacklist is None:
