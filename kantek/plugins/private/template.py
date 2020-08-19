@@ -42,8 +42,9 @@ async def add(args, db: Database) -> KanTeXDocument:
     """
     if len(args) < 2:
         raise MissingArgumentsError(f'Missing {Code("name")} and {Code("content")}')
-    name, content = args[:2]
-    existing = await db.templates.get(args[0])
+    name, content = args[0], args[1:]
+    content = ' '.join(content)
+    existing = await db.templates.get(name)
     await db.templates.add(name, content)
     return KanTeXDocument(
         Section(f'Template {"update" if existing else "created"}',
