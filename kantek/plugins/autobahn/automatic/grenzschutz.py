@@ -3,7 +3,7 @@ from typing import Union
 
 import logzero
 from telethon import events
-from telethon.errors import UserIdInvalidError
+from telethon.errors import UserIdInvalidError, ChannelPrivateError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.types import (Channel, ChannelParticipantsAdmins, MessageActionChatJoinedByLink,
                                MessageActionChatAddUser)
@@ -48,7 +48,10 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
                             (MessageActionChatJoinedByLink, MessageActionChatAddUser)):
             return
     client: Client = event.client
-    chat: Channel = await event.get_chat()
+    try:
+        chat: Channel = await event.get_chat()
+    except ChannelPrivateError:
+        return
     if not chat.creator and not chat.admin_rights:
         return
     if chat.admin_rights:
