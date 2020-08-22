@@ -43,7 +43,10 @@ async def polizei(event: NewMessage.Event) -> None:
     if event.is_private:
         return
     client: Client = event.client
-    chat: Channel = await event.get_chat()
+    try:
+        chat: Channel = await event.get_chat()
+    except ChannelPrivateError:
+        return
     tags = await Tags.from_event(event)
     bancmd = tags.get('gbancmd', 'manual')
     polizei_tag = tags.get('polizei')
@@ -64,7 +67,10 @@ async def join_polizei(event: ChatAction.Event) -> None:
     if not event.user_joined:
         return
     client: Client = event.client
-    chat: Channel = await event.get_chat()
+    try:
+        chat: Channel = await event.get_chat()
+    except ChannelPrivateError:
+        return
     db: Database = client.db
     tags = await Tags.from_event(event)
     bancmd = tags.get('gbancmd')
