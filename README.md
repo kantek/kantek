@@ -5,9 +5,9 @@
 # Kantek
 Kantek is a userbot written in Python using Telethon.
 
-## A word of warning
+## A word of warning!
 Kantek is mostly built to help with the Administration of chats and is the main source for [SpamWat.ch](https://spamwat.ch). 
-Because of that it checks every message your account receives for blacklisted items, this includes strings, domains, top level domains, files, images and telegram entities. This means that for every message your account receives Kantek might make multiple http requests an resolve multiple telegram entities. The latter might lead to large (6+ hours) Floodwaits from Telegram.
+Because of that it checks every message your account receives for blacklisted items, this includes strings, domains, top level domains, files, images and telegram entities. This means that for every message your account receives Kantek might make multiple http requests an resolve multiple telegram entities. The latter might lead to **large (6+ hours) Floodwaits from Telegram.**
 
 If you want to use Kantek without the administration part, simply remove the `plugins/autobahn` folder to disable these features. 
 
