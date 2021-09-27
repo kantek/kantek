@@ -1,5 +1,5 @@
 from telethon.errors import (UsernameInvalidError, UsernameNotOccupiedError, InviteHashInvalidError,
-                             AuthBytesInvalidError, FileIdInvalidError, PeerIdInvalidError)
+                             AuthBytesInvalidError, FileIdInvalidError, PeerIdInvalidError, FileReferenceExpiredError, )
 
 TELEGRAM_DOMAINS = ['t.me',
                     'telegram.org',
@@ -12,4 +12,4 @@ TELEGRAM_DOMAINS = ['t.me',
 
 GET_ENTITY_ERRORS = (UsernameNotOccupiedError, UsernameInvalidError, ValueError, InviteHashInvalidError, PeerIdInvalidError)
 
-DOWNLOAD_ERRORS = (AuthBytesInvalidError, FileIdInvalidError)
+DOWNLOAD_ERRORS = (AuthBytesInvalidError, FileIdInvalidError, FileReferenceExpiredError)
