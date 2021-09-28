@@ -87,7 +87,7 @@
         },
         "debug_mode": {
             "type": "boolean",
-            "description": "The token for the SpamWatch API",
+            "description": "Disable features like reporting/banning when developing",
             "default": false
         },
         "kill_command": {
