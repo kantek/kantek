@@ -6,7 +6,7 @@ from telethon import events
 from telethon.errors import UserIdInvalidError, ChannelPrivateError
 from telethon.events import ChatAction, NewMessage
 from telethon.tl.types import (Channel, ChannelParticipantsAdmins, MessageActionChatJoinedByLink,
-                               MessageActionChatAddUser)
+                               MessageActionChatAddUser, PeerUser, Message, )
 from telethon.utils import get_display_name
 
 from database.database import Database
@@ -66,11 +66,16 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
         return
 
     if isinstance(event, ChatAction.Event):
-        uid = event.user_id
+        uid = event.user.id
     elif isinstance(event, NewMessage.Event):
-        uid = event.message.from_id
+        user = event.message.from_id
+        if isinstance(user, PeerUser):
+            uid = user.user_id
+        else:
+            return
     else:
         return
+
     if uid is None:
         return
     try:

@@ -13,7 +13,7 @@ from telethon.tl.custom import MessageButton
 from telethon.tl.functions.channels import DeleteUserHistoryRequest, GetParticipantRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import (Channel, MessageEntityTextUrl, UserFull, MessageEntityUrl,
-                               MessageEntityMention, ChannelParticipantsAdmins, ChannelParticipantAdmin)
+                               MessageEntityMention, ChannelParticipantsAdmins, ChannelParticipantAdmin, PeerUser, )
 
 from database.database import Database
 from utils import helpers, constants
@@ -105,10 +105,11 @@ async def join_polizei(event: ChatAction.Event) -> None:
                         ban_type, ban_reason = db.blacklists.mhash.hex_type, mhash.index
 
     if ban_type and ban_reason:
-        await _banuser(event, chat, event.user_id, bancmd, ban_type, ban_reason)
+        await _banuser(event, chat, event.user.id, bancmd, ban_type, ban_reason)
 
 
-async def _banuser(event, chat, userid, bancmd, ban_type, ban_reason):
+async def _banuser(event, chat, user: PeerUser, bancmd, ban_type, ban_reason):
+    userid = user.user_id
     formatted_reason = f'Spambot[kv2 {ban_type} 0x{str(ban_reason).rjust(4, "0")}]'
     client: Client = event.client
     db: Database = client.db
