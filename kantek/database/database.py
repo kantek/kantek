@@ -146,9 +146,9 @@ class Chats(Table):
 
 
 class Templates(Table):
-    async def add(self, name: str, content: str) -> Template:
-        await self.db.templates.add(name, content)
-        return Template(name, content)
+    async def add(self, name: str, content: str, edit: bool) -> Template:
+        await self.db.templates.add(name, content, edit)
+        return Template(name, content, edit)
 
     async def get(self, name: str) -> Template:
         return await self.db.templates.get(name)

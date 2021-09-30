@@ -27,3 +27,4 @@ class BannedUser:
 class Template:
     name: str
     content: str
+    edit: bool
