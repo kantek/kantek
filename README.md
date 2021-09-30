@@ -20,7 +20,7 @@ ArangoDB 3.5+ or Postgres is used to store data.
 
 ### PostgreSQL
 - Create a database and a user in postgres
-- kantek uses [migrant](https://github.com/jaemk/migrant) for migrations. Follow the installation instructions [here](https://github.com/jaemk/migrant#installation).
+- kantek uses [migrant](https://github.com/jaemk/migrant) for migrations. Follow the installation instructions [here](https://github.com/jaemk/migrant#installation) or run `cargo install migrant --features postgres`.
 - Copy the `example.Migrant.toml` to `Migrant.toml` and fill out the details.
 - Run `migrant setup`
 - Run `migrant apply --all` 
