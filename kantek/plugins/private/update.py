@@ -52,7 +52,7 @@ async def update(client: Client, event: Command, tags: Tags) -> None:
         return
 
     # region pip install
-    proc = subprocess.call(['pip', 'install', '-r', 'requirements.txt'])
+    proc = subprocess.call(['pip', 'install', '-Ur', 'requirements.txt'])
     if proc != 0:
         msg = KanTeXDocument(
             Section('Error',
