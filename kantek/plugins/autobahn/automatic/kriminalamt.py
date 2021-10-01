@@ -50,7 +50,7 @@ async def kriminalamt(event: ChatAction.Event) -> None:
     except GET_ENTITY_ERRORS:
         return
     except UserNotParticipantError:
-        userid = event.user.user_id
+        userid = event.user.id
         leave_event = None
         async for e in client.iter_admin_log(chat, join=True, leave=True):
             if e.user_id == userid:
