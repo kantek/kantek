@@ -64,13 +64,6 @@ class Config:  # pylint: disable = R0902
                 prefixes = config.get('prefixes', [])
                 if prefix := config.get('prefix'):
                     prefixes.append(prefix)
-                if prefix := config.get('cmd_prefix'):
-                    logger.info('Using deprecated option `cmd_prefix` use `prefix` or `prefixes` instead.')
-                    if isinstance(prefix, str):
-                        prefixes.append(prefix)
-                    else:
-                        prefixes.extend(prefix)
-                    del config['cmd_prefix']
                 if prefixes:
                     config['prefixes'] = prefixes
                     config['prefix'] = prefixes[0]
