@@ -6,7 +6,7 @@ from .errors import DeprecatedDatabaseError, UnknownDatabaseError
 
 
 class Database:
-    db: Union['Postgres']
+    db: Union['PostgresWrapper']
 
     async def connect(self, config: Config):
         if config.db_type == 'arango':
