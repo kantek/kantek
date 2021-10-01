@@ -28,7 +28,7 @@ ArangoDB 3.5+ or Postgres is used to store data.
 After setting up the database:
 
 - Put the Authentication data into the config file.
-- Run bot.py
+- Run `python -m kantek`
 
 ## Config
 ### api_id
