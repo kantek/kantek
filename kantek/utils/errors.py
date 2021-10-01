@@ -9,5 +9,6 @@ class MissingArgumentsError(Error):
 class UnknownTopicError(Error):
     pass
 
+
 class UpdateError(Error):
     pass

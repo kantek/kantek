@@ -6,10 +6,10 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantCreator, ChannelParticipantAdmin
 
-from database.database import Database
-from utils.client import Client
+from kantek import Database
+from kantek import Client
 from kantex.md import *
-from utils.pluginmgr import k, Command
+from kantek import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 

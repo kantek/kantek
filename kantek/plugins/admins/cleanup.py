@@ -6,10 +6,10 @@ import logzero
 from telethon.errors import FloodWaitError, UserAdminInvalidError, MessageIdInvalidError
 from telethon.tl.custom import Message
 from telethon.tl.types import (Channel, User)
-
-from utils.client import Client
 from kantex.md import *
-from utils.pluginmgr import k, Command
+
+from kantek import Client
+from kantek import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger

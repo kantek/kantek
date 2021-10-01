@@ -20,10 +20,10 @@ from telethon.tl.patched import Message
 from telethon.tl.types import ChatBannedRights, User
 from yarl import URL
 
-from database.database import Database
-from utils import parsers, helpers
-from utils.config import Config
-from utils.pluginmgr import PluginManager
+from ..database import Database
+from ..utils import parsers, helpers
+from .pluginmgr import PluginManager
+from .. import Config
 
 logger: logging.Logger = logzero.logger
 

@@ -12,7 +12,7 @@ from typing import Callable, List, Dict, Optional, Tuple
 
 import logzero
 from datetime import timedelta
-from kantex.md import KanTeXDocument
+from kantex import *
 from telethon import events
 from telethon.errors import MessageTooLongError, FloodWaitError
 from telethon.events import NewMessage
@@ -22,12 +22,11 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import ChannelParticipantAdmin, DocumentAttributeFilename
 from telethon.utils import get_display_name
 
-from utils import helpers
-from utils.config import Config
-from utils.constants import GET_ENTITY_ERRORS
-from utils.errors import Error
-from utils.mdtex import *
-from utils.tags import Tags
+from . import helpers
+from .. import Config
+from .constants import GET_ENTITY_ERRORS
+from .errors import Error
+from .tags import Tags
 
 logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
 tlog = logging.getLogger('kantek-channel-log')

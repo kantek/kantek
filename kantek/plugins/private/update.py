@@ -2,10 +2,10 @@ import subprocess
 
 from kantex.md import *
 
-from utils import helpers
-from utils.client import Client
-from utils.pluginmgr import k, Command
-from utils.tags import Tags
+from kantek.utils import helpers
+from kantek import Client
+from kantek import k, Command
+from kantek.utils.tags import Tags
 
 
 @k.command('update')

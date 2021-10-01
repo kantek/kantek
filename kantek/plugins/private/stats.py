@@ -4,10 +4,10 @@ import time
 from telethon.tl.custom import Dialog
 from telethon.tl.types import Channel, Chat, User
 
-from utils import helpers
-from utils.client import Client
+from kantek.utils import helpers
+from kantek import Client
 from kantex.md import *
-from utils.pluginmgr import k, Command
+from kantek import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 

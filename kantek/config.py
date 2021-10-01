@@ -52,7 +52,7 @@ class Config:  # pylint: disable = R0902
     def __new__(cls):
         if cls.instance is not None:
             return cls.instance
-        bot_dir = Path(__file__).parent.parent
+        bot_dir = Path(__file__).parent
         sessions_dir = bot_dir / 'sessions'
         plugin_path = bot_dir / 'plugins'
         repo_dir = bot_dir.parent

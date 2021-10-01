@@ -7,13 +7,13 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
 from telethon.tl.types import ChatBannedRights, Chat, ChannelParticipantCreator, ChannelParticipantAdmin
 
-from database.database import Database
-from utils import parsers
-from utils.client import Client
-from utils.config import Config
+from kantek import Database
+from kantek.utils import parsers
+from kantek import Client
+from kantek import Config
 from kantex.md import *
-from utils.parsers import MissingExpression
-from utils.pluginmgr import k, Command
+from kantek.utils.parsers import MissingExpression
+from kantek import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 

@@ -9,12 +9,12 @@ from telethon.tl.types import (Channel, ChannelParticipantsAdmins, MessageAction
                                MessageActionChatAddUser, PeerUser, Message, )
 from telethon.utils import get_display_name
 
-from database.database import Database
-from utils.client import Client
-from utils.constants import GET_ENTITY_ERRORS
+from kantek import Database
+from kantek import Client
+from kantek.utils.constants import GET_ENTITY_ERRORS
 from kantex.md import *
-from utils.pluginmgr import k
-from utils.tags import Tags
+from kantek.utils.pluginmgr import k
+from kantek.utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger

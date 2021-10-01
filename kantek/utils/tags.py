@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from telethon.events import NewMessage
 
-from database.database import Database
+from ..database import Database
 
 TagValue = Union[bool, str, int]
 TagName = Union[int, str]

@@ -10,12 +10,12 @@ from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.types import (Channel, InputReportReasonSpam, InputPeerChannel, ChannelParticipantCreator,
                                InputMessagesFilterPhotos)
 
-from database.database import Database
-from utils import helpers, parsers
-from utils.client import Client
+from kantek import Database
+from kantek.utils import helpers, parsers
+from kantek import Client
 from kantex.md import *
-from utils.pluginmgr import k, Command
-from utils.tags import Tags
+from kantek import k, Command
+from kantek.utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 

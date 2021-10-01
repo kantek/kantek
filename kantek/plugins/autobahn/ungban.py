@@ -2,10 +2,10 @@ from typing import Optional, List
 
 from telethon.tl.custom import Message
 
-from database.database import Database
-from utils.client import Client
+from kantek import Database
+from kantek import Client
 from kantex.md import *
-from utils.pluginmgr import k, Command
+from kantek import k, Command
 
 
 @k.command('ungban', delete=True)

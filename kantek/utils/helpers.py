@@ -17,8 +17,8 @@ from telethon.events import NewMessage
 from telethon.tl.custom import Message
 from telethon.tl.types import User, DocumentAttributeFilename, PeerChannel, PeerUser
 
-from utils import parsers
-from utils.config import Config
+from . import parsers
+from .. import Config
 
 INVITELINK_PATTERN = re.compile(r'(?:joinchat|join)(?:/|\?invite=)(.*|)')
 

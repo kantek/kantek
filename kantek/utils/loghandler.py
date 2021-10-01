@@ -7,7 +7,7 @@ from typing import Union, Dict
 
 import logzero
 
-from vendor import lazybot
+from ..vendor import lazybot
 
 logger: Logger = logzero.logger
 

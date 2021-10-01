@@ -8,10 +8,10 @@ from telethon.tl.functions.messages import GetScheduledHistoryRequest, DeleteSch
 from telethon.tl.patched import Message
 from telethon.tl.types import Channel, MessageMediaDocument
 
-from utils import parsers
-from utils.client import Client
+from kantek.utils import parsers
+from kantek import Client
 from kantex.md import *
-from utils.pluginmgr import k, Command
+from kantek import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 

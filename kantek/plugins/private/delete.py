@@ -1,7 +1,7 @@
 from telethon.events import NewMessage
 from telethon.tl.patched import Message
 
-from utils.pluginmgr import k
+from kantek.utils.pluginmgr import k
 
 
 @k.command('delete')

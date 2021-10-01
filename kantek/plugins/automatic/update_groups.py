@@ -3,8 +3,8 @@ import logging
 from telethon import events
 from telethon.events import NewMessage
 
-from utils.client import Client
-from utils.pluginmgr import k
+from kantek import Client
+from kantek.utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 

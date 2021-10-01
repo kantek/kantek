@@ -4,9 +4,9 @@ from typing import List, Dict
 from spamwatch.types import Permission
 from telethon.tl.patched import Message
 
-from utils.client import Client
+from kantek import Client
 from kantex.md import *
-from utils.pluginmgr import k, Command
+from kantek import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 

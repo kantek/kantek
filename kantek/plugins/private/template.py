@@ -1,13 +1,13 @@
 from typing import Optional
-
-from database.database import Database
-from database.types import Template
 from kantex.md import *
+
+from kantek import Database
+from kantek.database import Template
 from telethon.tl.custom import Message
 from telethon.tl.types import Chat
-from utils.client import Client
-from utils.errors import MissingArgumentsError
-from utils.pluginmgr import k
+from kantek import Client
+from kantek.utils.errors import MissingArgumentsError
+from kantek.utils.pluginmgr import k
 
 QUERY_MAX_LENGTH = 20
 

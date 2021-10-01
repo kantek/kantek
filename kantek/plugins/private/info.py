@@ -3,10 +3,10 @@ from typing import Optional
 
 from telethon.tl.types import Channel, User
 
-from utils.client import Client
+from kantek import Client
 from kantex.md import *
-from utils.pluginmgr import k, Command
-from utils.tags import Tags
+from kantek import k, Command
+from kantek.utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 

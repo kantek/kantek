@@ -15,13 +15,13 @@ from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import (Channel, MessageEntityTextUrl, UserFull, MessageEntityUrl,
                                MessageEntityMention, ChannelParticipantsAdmins, ChannelParticipantAdmin, PeerUser, )
 
-from database.database import Database
-from utils import helpers, constants
-from utils.client import Client
-from utils.constants import GET_ENTITY_ERRORS
-from utils.helpers import hash_photo
-from utils.pluginmgr import k
-from utils.tags import Tags
+from kantek import Database
+from kantek.utils import helpers, constants
+from kantek import Client
+from kantek.utils.constants import GET_ENTITY_ERRORS
+from kantek.utils.helpers import hash_photo
+from kantek.utils.pluginmgr import k
+from kantek.utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger

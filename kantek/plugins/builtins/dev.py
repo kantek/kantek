@@ -6,11 +6,11 @@ from kantex.md import *
 from telethon.tl.custom import Message
 from telethon.tl.functions.messages import MigrateChatRequest
 
-from database.database import Database
-from utils import parsers
-from utils.client import Client
-from utils.parsers import MissingExpression
-from utils.pluginmgr import k, _Command, _Signature
+from kantek import Database
+from kantek.utils import parsers
+from kantek import Client
+from kantek.utils.parsers import MissingExpression
+from kantek.utils.pluginmgr import k, _Command, _Signature
 
 
 @k.command('dev', document=False)

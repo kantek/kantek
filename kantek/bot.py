@@ -5,12 +5,8 @@ import logging
 import logzero
 from spamwatch.client import Client as SWClient
 
-from database.database import Database
-from utils import helpers
-from utils.client import Client
-from utils.config import Config
-from utils.loghandler import TGChannelLogHandler
-from utils.pluginmgr import PluginManager
+from . import Client, Config, Database
+from .utils import PluginManager, TGChannelLogHandler, helpers
 
 logger = logzero.setup_logger('kantek-logger', level=logging.DEBUG)
 telethon_logger = logzero.setup_logger('telethon', level=logging.INFO)
@@ -21,7 +17,7 @@ tlog.setLevel(logging.INFO)
 __version__ = '0.3.1'
 
 
-async def main() -> None:
+async def amain() -> None:
     """Register logger and components."""
     config = Config()
 
@@ -56,10 +52,13 @@ async def main() -> None:
 
     await client.run_until_disconnected()
 
-
-if __name__ == '__main__':
+def main():
     try:
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(main())
+        loop.run_until_complete(amain())
     except KeyboardInterrupt:
         pass
+
+
+if __name__ == '__main__':
+    main()

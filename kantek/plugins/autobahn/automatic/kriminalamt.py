@@ -10,10 +10,10 @@ from telethon.tl.functions.channels import (DeleteUserHistoryRequest,
 from telethon.tl.types import (Channel, User, ChannelAdminLogEventActionParticipantLeave,
                                ChannelAdminLogEventActionParticipantJoin)
 
-from utils.client import Client
-from utils.constants import GET_ENTITY_ERRORS
-from utils.pluginmgr import k
-from utils.tags import Tags
+from kantek import Client
+from kantek.utils.constants import GET_ENTITY_ERRORS
+from kantek.utils.pluginmgr import k
+from kantek.utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger

@@ -4,10 +4,10 @@ from typing import Callable
 
 from kantex.md import *
 
-from utils.client import Client
-from utils.config import Config
-from utils.errors import UnknownTopicError
-from utils.pluginmgr import k, _Command, _Event
+from kantek import Client
+from kantek import Config
+from kantek.utils.errors import UnknownTopicError
+from kantek.utils.pluginmgr import k, _Command, _Event
 
 SECTION_PATTERN = re.compile(r'^(?P<name>[\w ]+:)$', re.MULTILINE)
 

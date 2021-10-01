@@ -8,11 +8,12 @@ from kantex.md import *
 from telethon.errors import MessageIdInvalidError
 from telethon.tl.custom import Message
 
-from database.database import Database, ItemDoesNotExistError
-from utils import helpers, constants
-from utils.client import Client
-from utils.errors import Error
-from utils.pluginmgr import k, Command
+from kantek import Database
+from kantek.database import ItemDoesNotExistError
+from kantek.utils import helpers, constants
+from kantek import Client
+from kantek.utils.errors import Error
+from kantek import k, Command
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger

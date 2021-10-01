@@ -1,9 +1,9 @@
 import logging
 from typing import List
 
-from utils import helpers
+from kantek.utils import helpers
 from kantex.md import *
-from utils.pluginmgr import k
+from kantek.utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 

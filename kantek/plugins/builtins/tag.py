@@ -4,10 +4,10 @@ from typing import Dict
 from telethon.tl.types import Channel
 from telethon.utils import get_peer_id
 
-from utils.constants import GET_ENTITY_ERRORS
+from kantek.utils.constants import GET_ENTITY_ERRORS
 from kantex.md import *
-from utils.pluginmgr import k, Command
-from utils.tags import Tags
+from kantek import k, Command
+from kantek.utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 

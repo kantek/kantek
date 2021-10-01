@@ -4,9 +4,9 @@ from typing import List
 from aiohttp import InvalidURL, TooManyRedirects
 from kantex.md import *
 
-from utils.client import Client
-from utils.errors import MissingArgumentsError
-from utils.pluginmgr import k
+from kantek import Client
+from kantek.utils.errors import MissingArgumentsError
+from kantek.utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 

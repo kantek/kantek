@@ -6,12 +6,12 @@ from spamwatch.types import Permission
 from telethon.tl.custom import Forward, Message
 from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, User, Channel
 
-from database.database import Database
-from utils import helpers, constants
-from utils.client import Client
-from utils.errors import Error
-from utils.pluginmgr import k
-from utils.tags import Tags
+from kantek import Database
+from kantek.utils import helpers, constants
+from kantek import Client
+from kantek.utils.errors import Error
+from kantek.utils.pluginmgr import k
+from kantek.utils.tags import Tags
 
 tlog = logging.getLogger('kantek-channel-log')
 

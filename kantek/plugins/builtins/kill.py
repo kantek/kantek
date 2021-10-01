@@ -4,9 +4,9 @@ import shlex
 
 import logzero
 
-from utils.client import Client
-from utils.config import Config
-from utils.pluginmgr import k
+from kantek import Client
+from kantek import Config
+from kantek.utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 logger: logging.Logger = logzero.logger

@@ -10,11 +10,11 @@ from spamwatch.types import Ban, Permission
 from telethon.tl.custom import Message
 from telethon.tl.types import DocumentAttributeFilename
 
-from database.database import Database
-from utils import helpers
-from utils.client import Client
-from utils.errors import Error
-from utils.pluginmgr import k
+from kantek import Database
+from kantek.utils import helpers
+from kantek import Client
+from kantek.utils.errors import Error
+from kantek.utils.pluginmgr import k
 
 tlog = logging.getLogger('kantek-channel-log')
 
