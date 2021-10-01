@@ -8,7 +8,7 @@ from telethon.tl.custom import Message
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.types import (Channel, InputReportReasonSpam, InputPeerChannel, ChannelParticipantCreator,
-                               InputMessagesFilterPhotos)
+                               InputMessagesFilterPhotos, PeerUser, )
 
 from kantek import Database
 from kantek.utils import helpers, parsers
@@ -76,13 +76,18 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
         bancmd = tags.get('gbancmd')
         reply_msg: Message = await msg.get_reply_message()
 
-        uid = reply_msg.from_id
+        peer = reply_msg.from_id
+
+        if not isinstance(peer, PeerUser):
+            return
+        else:
+            uid = peer.user_id
         if args:
             ban_reason = ' '.join(args)
         else:
             ban_reason = DEFAULT_REASON
             try:
-                participant = await client(GetParticipantRequest(event.chat_id, reply_msg.from_id))
+                participant = await client(GetParticipantRequest(event.chat_id, uid))
                 if not isinstance(participant.participant, ChannelParticipantCreator):
                     join_date = participant.participant.date
 
