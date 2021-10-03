@@ -14,8 +14,10 @@ class BlacklistItem:
 class Chat:
     id: int
     tags: Dict[str, str]
+    title: str
     permissions: Dict[str, bool] = field(default_factory=lambda: {})
     locked: bool = False
+
 
 
 @dataclass

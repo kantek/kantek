@@ -2,6 +2,7 @@ import logging
 
 from telethon import events
 from telethon.events import NewMessage
+from telethon.tl.types import Channel
 
 from kantek import Client
 from kantek.utils.pluginmgr import k
@@ -15,4 +16,5 @@ async def add_groups(event: NewMessage.Event) -> None:
         return
     client: Client = event.client
     await client.db.cleanup()
-    await client.db.chats.get(event.chat_id)
+    c: Channel = event.chat
+    await client.db.chats.add(event.chat_id, c.title)

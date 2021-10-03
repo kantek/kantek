@@ -7,20 +7,26 @@ from ...types import Chat
 
 class Chats(AbstractTableWrapper):
 
-    async def add(self, chat_id: int) -> Optional[Chat]:
+    async def add(self, chat_id: int, title: Optional[str] = None) -> Optional[Chat]:
         async with self.pool.acquire() as conn:
             await conn.execute("""
-            INSERT INTO chats 
-            VALUES ($1, '{}') 
-            ON CONFLICT DO NOTHING
-            """, chat_id)
-        return Chat(chat_id, {})
+            INSERT INTO chats (id, tags, title)
+            VALUES ($1, '{}', $2)
+            ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title
+            """, chat_id, title)
+        return Chat(id=chat_id, title=title, tags={})
 
     async def get(self, chat_id: int) -> Chat:
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow("SELECT * FROM chats WHERE id = $1", chat_id)
         if row:
-            return Chat(row['id'], json.loads(row['tags']), json.loads(row['permissions'] or '{}'), row['locked'])
+            return Chat(
+                id=row['id'],
+                tags=json.loads(row['tags']),
+                title=row['title'],
+                permissions=json.loads(row['permissions'] or '{}'),
+                locked=row['locked']
+            )
         else:
             return await self.add(chat_id)
 

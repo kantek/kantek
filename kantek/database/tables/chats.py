@@ -1,10 +1,12 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from . import AbstractTable
-from ..types import Chat, BlacklistItem, Template, BannedUser
+from ..types import Chat
+
+
 class Chats(AbstractTable):
-    async def add(self, chat_id: int) -> Chat:
-        return await self.db.chats.add(chat_id)
+    async def add(self, chat_id: int, title: Optional[str] = None) -> Chat:
+        return await self.db.chats.add(chat_id, title)
 
     async def get(self, chat_id: int) -> Chat:
         return await self.db.chats.get(chat_id)
@@ -17,4 +19,3 @@ class Chats(AbstractTable):
 
     async def update_tags(self, chat_id: int, new: Dict):
         return await self.db.chats.update_tags(chat_id, new)
-
