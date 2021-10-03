@@ -23,7 +23,7 @@ async def ungban(client: Client, db: Database, msg: Message, args: List) -> Opti
     users_to_unban = [*args]
     if msg.is_reply:
         reply_msg: Message = await msg.get_reply_message()
-        uid = reply_msg.from_id
+        uid = reply_msg.from_id.user_id
         users_to_unban.append(uid)
 
     unbanned_users = []
