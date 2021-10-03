@@ -38,8 +38,9 @@ class Bundesnachrichtendienst(AbstractTableWrapper):
                 """
                 UPDATE bundesnachrichtendienst
                 SET action= $1, pattern= $2, character_class = $3
+                WHERE id = $4
                 RETURNING chat_id
-                        """, action, pattern, character_class)
+                        """, action, pattern, character_class, uid)
             return BND(uid, row['chat_id'], action, pattern, character_class)
 
     async def remove(self, uid: int) -> None:
