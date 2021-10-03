@@ -31,6 +31,17 @@ class Bundesnachrichtendienst(AbstractTableWrapper):
         else:
             return None
 
+    async def edit(self, uid: int, action: BNDAction,
+                   pattern: Optional[str] = None, character_class: Optional[CharacterClass] = None) -> Optional[BND]:
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                UPDATE bundesnachrichtendienst
+                SET action= $1, pattern= $2, character_class = $3
+                RETURNING chat_id
+                        """, action, pattern, character_class)
+            return BND(uid, row['chat_id'], action, pattern, character_class)
+
     async def remove(self, uid: int) -> None:
         async with self.pool.acquire() as conn:
             await conn.execute("DELETE FROM bundesnachrichtendienst WHERE id = $1", uid)

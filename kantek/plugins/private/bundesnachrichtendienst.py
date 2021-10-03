@@ -40,7 +40,7 @@ async def handle_event(event: NewMessage.Event, action: str) -> None:
 
 @k.command('bundesnachrichtendienst', 'bnd')
 async def bundesnachrichtendienst(db: Database, event: Command) -> KanTeXDocument:
-    """"Description
+    """"Perform an action on a message matching a regex/character class
 
     Arguments:
         `arg`: Args
@@ -67,7 +67,7 @@ async def bundesnachrichtendienst(db: Database, event: Command) -> KanTeXDocumen
 
 @bundesnachrichtendienst.subcommand()
 async def add(db: Database, kwargs: Dict, event: Command) -> KanTeXDocument:
-    """"Add a pattern to the BND
+    """Add a pattern to the BND
 
     Arguments:
         `action`: The action to do on a match, can be `delete`, `kick`, `ban`
@@ -80,7 +80,7 @@ async def add(db: Database, kwargs: Dict, event: Command) -> KanTeXDocument:
     action = kwargs.get('action')
     pattern = kwargs.get('pattern')
     character_class = kwargs.get('class')
-    print(kwargs)
+
     if not action:
         return KanTeXDocument(Section('TypeError', f'missing required keyword argument: {Code(action)}'))
     if not pattern and not character_class:
@@ -94,6 +94,33 @@ async def add(db: Database, kwargs: Dict, event: Command) -> KanTeXDocument:
                 KeyValueItem('pattern', Code(item.pattern)) if item.pattern else '',
                 KeyValueItem('class', Code(item.character_class)) if item.character_class else '', )
     )
+
+@bundesnachrichtendienst.subcommand()
+async def edit(db: Database, kwargs: Dict, args: List, event: Command) -> KanTeXDocument:
+    """Update a entry
+
+    Arguments:
+        `uid`: The id of the entry
+        `action`: The action to do on a match, can be `delete`, `kick`, `ban`
+        `pattern`: Regex to match
+        `class`: Unused
+
+    Examples:
+        {cmd} 6 action: kick pattern: def
+    """
+    uid = args[0]
+    item = await db.bundesnachrichtendienst.get(uid)
+    action = kwargs.get('action', item.action)
+    pattern = kwargs.get('pattern', item.pattern)
+    character_class = kwargs.get('class', item.character_class)
+
+    item = await db.bundesnachrichtendienst.edit(uid, action, pattern, character_class)
+
+    return KanTeXDocument(
+        Section('Updated Item', KeyValueItem('id', Code(item.id)),
+                KeyValueItem('action', Code(item.action)),
+                KeyValueItem('pattern', Code(item.pattern)) if item.pattern else '',
+                KeyValueItem('class', Code(item.character_class)) if item.character_class else '', ))
 
 
 @bundesnachrichtendienst.subcommand()

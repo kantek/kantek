@@ -15,6 +15,10 @@ class Bundesnachrichtendienst(AbstractTable):
     async def get_all_for_chat(self, uid: int) -> List[BND]:
         return await self.db.bundesnachrichtendienst.get_all_for_chat(uid)
 
+    async def edit(self, uid: int, action: BNDAction,
+                   pattern: Optional[str] = None, character_class: Optional[CharacterClass] = None) -> Optional[BND]:
+        return await self.db.bundesnachrichtendienst.edit(uid, action, pattern, character_class)
+
     async def remove(self, uid: int) -> None:
         return await self.db.bundesnachrichtendienst.remove(uid)
 
