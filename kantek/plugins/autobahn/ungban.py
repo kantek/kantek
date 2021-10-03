@@ -12,7 +12,8 @@ from kantek import k, Command
 async def ungban(client: Client, db: Database, msg: Message, args: List) -> Optional[KanTeXDocument]:
     """Globally unban a User
 
-    This does not unban them from any groups. It simply removes their ban from the database, api and any bots in the gban group.
+    This does not unban them from any groups.
+    It simply removes their ban from the database, api and any bots in the gban group.
 
     Arguments:
         `ids`: User IDs to ungban.
