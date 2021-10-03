@@ -5,7 +5,8 @@ import re
 
 import asyncpg as asyncpg
 from asyncpg.pool import Pool
-from . import Banlist, Blacklists, Chats, Strafanzeigen, Templates
+from . import Banlist, Blacklists, Chats, Strafanzeigen, Templates, Bundesnachrichtendienst
+
 
 class PostgresWrapper:  # pylint: disable = R0902
     wildcard = '%'
@@ -21,6 +22,7 @@ class PostgresWrapper:  # pylint: disable = R0902
         self.banlist: Banlist = Banlist(self.pool)
         self.strafanzeigen: Strafanzeigen = Strafanzeigen(self.pool)
         self.templates: Templates = Templates(self.pool)
+        self.bundesnachrichtendienst: Bundesnachrichtendienst = Bundesnachrichtendienst(self.pool)
 
     async def disconnect(self):
         await self.pool.close()

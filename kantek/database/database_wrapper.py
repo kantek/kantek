@@ -1,6 +1,7 @@
 from typing import Union
 
 from .tables import Banlist, Blacklists, Chats, Strafanzeigen, Templates
+from .tables.bundesnachrichtendienst import Bundesnachrichtendienst
 from .. import Config
 from .errors import DeprecatedDatabaseError, UnknownDatabaseError
 
@@ -25,6 +26,7 @@ class Database:
         self.blacklists = Blacklists(self)
         self.chats = Chats(self)
         self.templates = Templates(self)
+        self.bundesnachrichtendienst = Bundesnachrichtendienst(self)
 
     async def disconnect(self):
         await self.db.disconnect()

@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Dict
+from enum import Enum
+from typing import Dict, Optional
 
 
 @dataclass
@@ -28,3 +29,19 @@ class Template:
     name: str
     content: str
     edit: bool
+
+class BNDAction(Enum):
+    delete = 'delete'
+    kick = 'kick'
+    ban = 'ban'
+
+class CharacterClass(Enum):
+    emoji = 'emoji'
+
+@dataclass()
+class BND:
+    id: int
+    chat_id: int
+    action: BNDAction
+    pattern: Optional[str]
+    character_class: CharacterClass

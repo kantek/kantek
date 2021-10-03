@@ -1,7 +1,10 @@
 import json
-from typing import Dict, Optional, List
-from ...types import Chat, BlacklistItem, Template, BannedUser
+from typing import Dict, Optional
+
 from . import AbstractTableWrapper
+from ...types import Chat
+
+
 class Chats(AbstractTableWrapper):
 
     async def add(self, chat_id: int) -> Optional[Chat]:
