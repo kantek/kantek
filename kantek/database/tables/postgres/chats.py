@@ -27,8 +27,6 @@ class Chats(AbstractTableWrapper):
                 permissions=json.loads(row['permissions'] or '{}'),
                 locked=row['locked']
             )
-        else:
-            return await self.add(chat_id)
 
     async def lock(self, chat_id: int, permissions: Dict[str, bool]) -> None:
         async with self.pool.acquire() as conn:
