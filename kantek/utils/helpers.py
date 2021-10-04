@@ -36,7 +36,7 @@ async def get_full_name(user: User) -> str:
     Returns:
         The combined names
     """
-    return str(user.first_name + ' ' + (user.last_name or ''))
+    return f"{user.first_name or ''} {user.last_name or ''})"
 
 
 async def get_args(event: NewMessage.Event, skip: int = 1) -> Tuple[Dict[str, str], List[str]]:
