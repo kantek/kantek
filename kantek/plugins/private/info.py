@@ -25,6 +25,7 @@ async def info(client: Client, args: List, db: Database) -> KanTeXDocument:
     if entity is not None:
         chat_id = telethon.utils.get_peer_id(entity)
         title = entity.title
+        await db.chats.add(chat_id, title)
     else:
         chat = await db.chats.get(chat)
         if chat is None:
