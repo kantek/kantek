@@ -13,6 +13,7 @@ class Chats(AbstractTableWrapper):
             INSERT INTO chats (id, tags, title)
             VALUES ($1, '{}', $2)
             ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title
+            WHERE EXCLUDED.title IS NOT NULL
             """, chat_id, title)
         return Chat(id=chat_id, title=title, tags={})
 

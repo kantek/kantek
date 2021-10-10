@@ -31,7 +31,10 @@ class Tags:
 
     async def setup(self):
         if not self.private:
-            self.named_tags = (await self.db.chats.get(self.chat_id)).tags
+            chat = await self.db.chats.get(self.chat_id)
+            if not chat:
+                chat = await self.db.chats.add(self.chat_id)
+            self.named_tags = chat.tags
         else:
             self.named_tags = {
                 "polizei": "exclude"
