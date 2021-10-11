@@ -31,7 +31,7 @@ async def lock(client: Client, db: Database, chat: Chat, event: Command, msg: Me
         {cmd} 1d
         {cmd}
     """
-    participant = (await client(GetParticipantRequest(chat, msg.from_id))).participant
+    participant = (await client(GetParticipantRequest(chat, msg.sender_id))).participant
     permitted = False
     if isinstance(participant, ChannelParticipantCreator):
         permitted = True

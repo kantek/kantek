@@ -24,7 +24,7 @@ async def unlock(client: Client, db: Database, chat, event: Command, msg: Messag
     Examples:
         {cmd}
     """
-    participant = (await client(GetParticipantRequest(chat, msg.from_id))).participant
+    participant = (await client(GetParticipantRequest(chat, msg.sender_id))).participant
     permitted = False
     if isinstance(participant, ChannelParticipantCreator):
         permitted = True

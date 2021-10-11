@@ -16,5 +16,5 @@ async def kick(client: Client, chat: Chat, msg: Message) -> None:
     """
     reply_msg: Message = await msg.get_reply_message()
     if reply_msg:
-        await client.kick_participant(chat, reply_msg.from_id)
+        await client.kick_participant(chat, reply_msg.sender_id)
 

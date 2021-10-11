@@ -33,9 +33,9 @@ async def handle_event(event: NewMessage.Event, action: str) -> None:
     if action == 'delete':
         await event.delete()
     elif action == 'kick':
-        await client.kick_participant(event.chat_id, event.from_id)
+        await client.kick_participant(event.chat_id, event.message.sender_id)
     elif action == 'ban':
-        await client.ban(event.chat_id, event.from_id)
+        await client.ban(event.chat_id, event.message.sender_id)
 
 
 @k.command('bundesnachrichtendienst', 'bnd')

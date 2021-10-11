@@ -76,12 +76,8 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
         bancmd = tags.get('gbancmd')
         reply_msg: Message = await msg.get_reply_message()
 
-        peer = reply_msg.from_id
+        uid = reply_msg.sender_id
 
-        if not isinstance(peer, PeerUser):
-            return
-        else:
-            uid = peer.user_id
         if args:
             ban_reason = ' '.join(args)
         else:

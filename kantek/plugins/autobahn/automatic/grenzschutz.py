@@ -68,7 +68,7 @@ async def grenzschutz(event: Union[ChatAction.Event, NewMessage.Event]) -> None:
     if isinstance(event, ChatAction.Event):
         uid = event.user.id
     elif isinstance(event, NewMessage.Event):
-        user = event.message.from_id
+        user = event.message.sender_id
         if isinstance(user, PeerUser):
             uid = user.user_id
         else:

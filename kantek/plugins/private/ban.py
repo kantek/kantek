@@ -23,8 +23,8 @@ async def ban(client: Client, chat: Chat, msg: Message, kwargs: Dict) -> None:
 
     reply_msg: Message = await msg.get_reply_message()
     if reply_msg:
-        await client.ban(chat, reply_msg.from_id)
+        await client.ban(chat, reply_msg.sender_id)
         if delall:
-            await client(DeleteUserHistoryRequest(chat, reply_msg.from_id))
+            await client(DeleteUserHistoryRequest(chat, reply_msg.sender_id))
 
 

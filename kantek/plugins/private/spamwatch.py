@@ -38,7 +38,7 @@ async def _token(event, client, args, keyword_args):
     if not userid:
         if msg.is_reply:
             reply_message: Message = await msg.get_reply_message()
-            userid = reply_message.from_id
+            userid = reply_message.sender_id
         else:
             return KanTeXDocument(Section('Missing Argument',
                                          'A User ID is required.'))

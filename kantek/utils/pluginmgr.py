@@ -219,7 +219,7 @@ class PluginManager:
 
         chat = await event.get_chat()
         if admins and event.is_channel:
-            uid = event.message.from_id
+            uid = event.message.sender_id
             own_id = (await client.get_me()).id
             if uid != own_id and _kwargs.get('self', False) or (not chat.creator and not chat.admin_rights):
                 return
@@ -261,14 +261,14 @@ class PluginManager:
 
         if args.tags:
             callback_args['tags'] = await Tags.from_event(event)
-
-        if admins and event.from_id != me.id:
+        from_id = event.message.sender_id
+        if admins and from_id != me.id:
             try:
-                entity = await client.get_cached_entity(event.from_id)
+                entity = await client.get_cached_entity(from_id)
                 name = get_display_name(entity)
             except GET_ENTITY_ERRORS:
-                name = str(event.from_id)
-            user_link = Mention(name, event.from_id)
+                name = str(from_id)
+            user_link = Mention(name, from_id)
             group_link = Link(get_display_name(await event.get_chat()), f't.me/c/{event.chat.id}/{event.message.id}')
             tlog.info(f'{user_link} ran {Code(command_name)} in {group_link}')
         result = None

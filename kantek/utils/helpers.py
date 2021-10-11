@@ -157,7 +157,7 @@ async def create_strafanzeige(uid, msg: Message):
     if isinstance(msg.to_id, PeerChannel):
         chat_id = msg.to_id.channel_id
     elif isinstance(msg.to_id, PeerUser):
-        chat_id = msg.from_id
+        chat_id = msg.sender_id
     else:
         chat_id = msg.chat_id
     msg_id = msg.id
