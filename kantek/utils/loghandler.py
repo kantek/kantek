@@ -6,8 +6,7 @@ from logging import Handler, LogRecord, Logger
 from typing import Union, Dict
 
 import logzero
-
-from ..vendor import lazybot
+from telethon import TelegramClient
 
 logger: Logger = logzero.logger
 
@@ -15,19 +14,16 @@ logger: Logger = logzero.logger
 class TGChannelLogHandler(Handler):
     """Log to a Telegram Channel using a Bot"""
 
-    def __init__(self, bot_token: str, channel_id: Union[str, int]) -> None:
-        self.bot = lazybot.Bot(bot_token)
+    def __init__(self, api_id: int, api_hash: str, bot_token: str, channel_id: Union[str, int]) -> None:
+        self.bot = TelegramClient(None, api_id, api_hash)
+        self.bot_token = bot_token
         self.channel_id = channel_id
         # might want to make this a instance variable if its safe to do so
         super().__init__()
 
     async def connect(self):
-        self.me: Dict[str, Union[bool, str, int]] = await self.bot.get_me()
-        if not self.me['ok']:
-            logger.warning('Got Error: %s %s '
-                           'from the bot API. '
-                           'Check if your `log_bot_token` in the config is correct.',
-                           self.me.get("error_code"), self.me.get("description"))
+        await self.bot.start(bot_token=self.bot_token)
+        self.me = await self.bot.get_me()
 
     def format(self, record: LogRecord) -> str:
         """Format the specified record."""
@@ -54,7 +50,7 @@ class TGChannelLogHandler(Handler):
     def emit(self, record: LogRecord) -> None:
         """Send the log message to the specified Telegram channel."""
         asyncio.ensure_future(self.bot.send_message(
-            chat_id=self.channel_id,
-            text=self.format(record),
+            self.channel_id,
+            self.format(record),
             parse_mode='markdown',
-            disable_web_page_preview=True))
+            link_preview=False))

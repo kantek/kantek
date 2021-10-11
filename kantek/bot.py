@@ -21,8 +21,8 @@ async def amain() -> None:
     """Register logger and components."""
     config = Config()
 
-    handler = TGChannelLogHandler(config.log_bot_token,
-                                  config.log_channel_id)
+    handler = TGChannelLogHandler(config.api_id, config.api_hash,
+                                  config.log_bot_token, config.log_channel_id)
     await handler.connect()
     tlog.addHandler(handler)
 
