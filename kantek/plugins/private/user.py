@@ -3,6 +3,7 @@ from typing import Union, Dict, List, Optional
 
 from kantex.md import *
 from spamwatch.types import Permission
+from telethon.utils import get_display_name
 from telethon.tl.custom import Forward, Message
 from telethon.tl.types import MessageEntityMention, MessageEntityMentionName, User, Channel
 
@@ -122,7 +123,7 @@ async def _collect_user_info(client, user, db, **kwargs) -> Union[str, Section, 
 
     mention_name = kwargs.get('mention', False)
 
-    full_name = await helpers.get_full_name(user)
+    full_name = get_display_name(user)
     if mention_name:
         title = Link(full_name, f'tg://user?id={user.id}')
     else:

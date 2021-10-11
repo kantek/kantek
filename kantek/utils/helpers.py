@@ -27,18 +27,6 @@ MESSAGE_LINK_PATTERN = re.compile(r't\.me/(?:c/)?(?P<chat>\w+)/(?P<id>\d+)')
 logger: logging.Logger = logzero.logger
 
 
-async def get_full_name(user: User) -> str:
-    """Return first_name + last_name if last_name exists else just first_name
-
-    Args:
-        user: The user
-
-    Returns:
-        The combined names
-    """
-    return f"{user.first_name or ''} {user.last_name or ''})"
-
-
 async def get_args(event: NewMessage.Event, skip: int = 1) -> Tuple[Dict[str, str], List[str]]:
     """Get arguments from a event
 
