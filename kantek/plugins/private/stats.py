@@ -1,10 +1,10 @@
 import logging
 import time
 
+from telethon.utils import get_display_name
 from telethon.tl.custom import Dialog
 from telethon.tl.types import Channel, Chat, User
 
-from kantek.utils import helpers
 from kantek import Client
 from kantex.md import *
 from kantek import k, Command
@@ -77,7 +77,7 @@ async def stats(client: Client, event: Command) -> KanTeXDocument:  # pylint: di
         unread += dialog.unread_count
     stop_time = time.time() - start_time
 
-    full_name = await helpers.get_full_name(await client.get_me())
+    full_name = get_display_name(await client.get_me())
     response = KanTeXDocument(
         Section(Bold(f'Stats for {full_name}')),
         Section('Private Chats',
