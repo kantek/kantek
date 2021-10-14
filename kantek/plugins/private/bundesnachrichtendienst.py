@@ -87,6 +87,15 @@ async def add(db: Database, kwargs: Dict, event: Command) -> KanTeXDocument:
         return KanTeXDocument(
             Section('TypeError', f'missing required keyword argument: {Code("pattern")} or {Code("class")}'))
 
+    try:
+        re.compile(pattern)
+    except re.error as e:
+        return KanTeXDocument(
+            Section('Pattern Errror',
+                    Code(e.pattern),
+                    Code('^'.rjust(e.colno)),
+                    Code(e.msg)))
+
     item = await db.bundesnachrichtendienst.add(event.chat_id, action, pattern, character_class)
     return KanTeXDocument(
         Section('Item', KeyValueItem('id', Code(item.id)),
@@ -94,6 +103,7 @@ async def add(db: Database, kwargs: Dict, event: Command) -> KanTeXDocument:
                 KeyValueItem('pattern', Code(item.pattern)) if item.pattern else '',
                 KeyValueItem('class', Code(item.character_class)) if item.character_class else '', )
     )
+
 
 @bundesnachrichtendienst.subcommand()
 async def edit(db: Database, kwargs: Dict, args: List, event: Command) -> KanTeXDocument:
