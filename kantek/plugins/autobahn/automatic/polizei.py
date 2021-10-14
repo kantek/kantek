@@ -47,6 +47,8 @@ async def polizei(event: NewMessage.Event) -> None:
         chat: Channel = await event.get_chat()
     except ChannelPrivateError:
         return
+    if chat.broadcast:
+        return
     tags = await Tags.from_event(event)
     bancmd = tags.get('gbancmd', 'manual')
     polizei_tag = tags.get('polizei')
