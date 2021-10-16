@@ -110,30 +110,29 @@ async def join_polizei(event: ChatAction.Event) -> None:
         await _banuser(event, chat, event.user.id, bancmd, ban_type, ban_reason)
 
 
-async def _banuser(event, chat, user: PeerUser, bancmd, ban_type, ban_reason):
-    userid = user.user_id
+async def _banuser(event, chat, uid: int, bancmd, ban_type, ban_reason):
     formatted_reason = f'Spambot[kv2 {ban_type} 0x{str(ban_reason).rjust(4, "0")}]'
     client: Client = event.client
     db: Database = client.db
     chat: Channel = await event.get_chat()
     admin = chat.creator or chat.admin_rights
     await event.delete()
-    old_ban = await db.banlist.get(userid)
+    old_ban = await db.banlist.get(uid)
     if old_ban:
         if old_ban.reason == formatted_reason:
-            logger.info('User ID `%s` already banned for the same reason.', userid)
+            logger.info('User ID `%s` already banned for the same reason.', uid)
             return
     if admin:
         if bancmd == 'manual':
-            await client.ban(chat, userid)
+            await client.ban(chat, uid)
         elif bancmd is not None:
-            await client.respond(event, f'{bancmd} {userid} {formatted_reason}')
+            await client.respond(event, f'{bancmd} {uid} {formatted_reason}')
             await asyncio.sleep(0.25)
-    await client.gban(userid, formatted_reason, await helpers.textify_message(event.message))
+    await client.gban(uid, formatted_reason, await helpers.textify_message(event.message))
 
-    message_count = len(await client.get_messages(chat, from_user=userid, limit=10))
+    message_count = len(await client.get_messages(chat, from_user=uid, limit=10))
     if admin and message_count <= 5:
-        await client(DeleteUserHistoryRequest(chat, userid))
+        await client(DeleteUserHistoryRequest(chat, uid))
 
 
 async def _check_message(event):  # pylint: disable = R0911
