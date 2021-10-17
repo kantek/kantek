@@ -78,7 +78,7 @@ async def add(db: Database, kwargs: Dict, event: Command) -> KanTeXDocument:
         {cmd} pattern: "^(hello|hi+|salom|hey)$" action: delete
     """
     action = kwargs.get('action')
-    pattern = kwargs.get('pattern')
+    pattern = kwargs.get('pattern').strip()
     character_class = kwargs.get('class')
 
     if not action:
