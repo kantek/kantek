@@ -128,7 +128,12 @@ async def _banuser(event, uid: int, bancmd, ban_type, ban_reason):
         elif bancmd is not None:
             await client.respond(event, f'{bancmd} {uid} {formatted_reason}')
             await asyncio.sleep(0.25)
-    await client.gban(uid, formatted_reason, await helpers.textify_message(event.message))
+    msg = getattr(event, 'message')
+    text = ''
+    if msg:
+        text = await helpers.textify_message(msg)
+
+    await client.gban(uid, formatted_reason, text)
 
     message_count = len(await client.get_messages(chat, from_user=uid, limit=10))
     if admin and message_count <= 5:

@@ -121,7 +121,6 @@ async def get_linked_message(client, link):
 async def textify_message(msg: Message):
     """Turn a message with media into a textual representation for the SpamWatch API"""
     message = []
-
     if msg.photo:
         message.append('[photo]')
     elif msg.sticker:
