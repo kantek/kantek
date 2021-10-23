@@ -97,7 +97,7 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
         message = await helpers.textify_message(reply_msg)
         await client.gban(uid, ban_reason, message)
         peer_channel: InputPeerChannel = await event.get_input_chat()
-        if not client.config.debug_mode:
+        if not client.config.debug_mode and not event.is_private:
             await client(ReportRequest(peer_channel, [reply_msg.id], InputReportReasonSpam(), 'Spam'))
         if bancmd == 'manual' or bancmd is None:
             if admin:
