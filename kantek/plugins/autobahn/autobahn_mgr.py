@@ -132,7 +132,7 @@ async def add(client: Client, db: Database, msg: Message, args,
                     progress_callback=lambda r, t: _sync_file_callback(r, t, msg))
                 file_hash = helpers.hash_file(file)
                 await msg.delete()
-                existing_one = await blacklist.get(file_hash)
+                existing_one = await blacklist.get_by_value(file_hash)
 
                 if not existing_one:
                     entry = await blacklist.add(file_hash)
