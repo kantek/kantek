@@ -5,7 +5,7 @@ from typing import Dict, Optional, List
 
 from telethon.errors import UserNotParticipantError
 from telethon.tl.custom import Message
-from telethon.tl.functions.channels import GetParticipantRequest
+from telethon.tl.functions.channels import GetParticipantRequest, DeleteUserHistoryRequest
 from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.types import (Channel, InputReportReasonSpam, InputPeerChannel, ChannelParticipantCreator,
                                InputMessagesFilterPhotos, PeerUser, )
@@ -68,6 +68,8 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
         kwargs.update(_kw)
         args.extend(_args)
 
+    del_all = kwargs.get('del', False)
+
     verbose = False
     if _gban == 'verbose' or event.is_private:
         verbose = True
@@ -114,6 +116,8 @@ async def gban(client: Client, db: Database, tags: Tags, chat: Channel, msg: Mes
                     if m.grouped_id == reply_msg.grouped_id:
                         await m.delete()
             await reply_msg.delete()
+            if del_all:
+                await client(DeleteUserHistoryRequest(chat, uid))
     else:
         uids = []
         ban_reason = []
