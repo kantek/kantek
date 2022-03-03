@@ -35,9 +35,12 @@ async def start(chat: Channel, db: Database, msg: Message, args: List, event: Co
 
 @raid.subcommand('stop', delete=True)
 async def stop(chat: Channel, client: Client, db: Database, event: Command, tags: Tags):
+    if not event.message.is_reply:
+        return
     db_chat = await db.chats.get(event.chat_id)
     start_id = db_chat.raid_start
-    end_id = event.message.id
+    reply_msg = await event.message.get_reply_message()
+    end_id = reply_msg.id
     await db.chats.stop_raid(event.chat_id)
     raidno = tags.get('raidno', None)
 
