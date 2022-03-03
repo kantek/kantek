@@ -17,7 +17,7 @@ class Chat:
     title: str
     permissions: Dict[str, bool] = field(default_factory=lambda: {})
     locked: bool = False
-
+    raid_start: int = None
 
 
 @dataclass

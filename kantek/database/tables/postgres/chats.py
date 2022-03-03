@@ -26,7 +26,8 @@ class Chats(AbstractTableWrapper):
                 tags=json.loads(row['tags']),
                 title=row['title'],
                 permissions=json.loads(row['permissions'] or '{}'),
-                locked=row['locked']
+                locked=row['locked'],
+                raid_start=row['raid_start'],
             )
 
     async def lock(self, chat_id: int, permissions: Dict[str, bool]) -> None:
@@ -41,3 +42,11 @@ class Chats(AbstractTableWrapper):
     async def update_tags(self, chat_id: int, new: Dict):
         async with self.pool.acquire() as conn:
             await conn.execute("UPDATE chats SET tags=$1 WHERE id=$2", json.dumps(new), chat_id)
+
+    async def start_raid(self, chat_id: int, message_id: int) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute("UPDATE chats SET raid_start = $2 WHERE id = $1", chat_id, message_id)
+
+    async def stop_raid(self, chat_id: int) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute("UPDATE chats SET raid_start = NULL WHERE id = $1", chat_id)
