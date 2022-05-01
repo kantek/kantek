@@ -48,7 +48,7 @@ class Blacklist(AbstractTableWrapper):
                 SET retired=TRUE
                 WHERE id=$1
                 RETURNING id
-            """, str(item))
+            """, str(id))
         return result
 
     async def get_all(self) -> List[BlacklistItem]:
