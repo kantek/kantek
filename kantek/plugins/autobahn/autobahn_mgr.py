@@ -111,7 +111,7 @@ async def add(client: Client, db: Database, msg: Message, args,
         elif hex_type == '0x7':
             item = item.replace('.', '')
         # avoids "null" being added to the db
-        if item is None:
+        if item is None or item == '':
             skipped_items.append(item)
             continue
         existing_one = await blacklist.get_by_value(item)
@@ -185,35 +185,53 @@ async def add(client: Client, db: Database, msg: Message, args,
 
 
 @autobahn.subcommand()
-async def del_(db: Database, args) -> KanTeXDocument:
+async def del_(db: Database, args, kwargs) -> KanTeXDocument:
     """Remove a item from its blacklist.
 
     Blacklist names are _not_ the hexadecimal short hands
 
     Arguments:
         `type`: One of the possible autobahn types (See {prefix}ab)
-        `item`: The item to be blacklisted. Not required for the file and mhash blacklists.
+        `item`: The item to be retired. Not required for the file and mhash blacklists.
+        `ids`: The item id to be retired
 
     Examples:
         {cmd} domain example.com
         {cmd} string "invest with bitcoin"
         {cmd} channel @durov
+        {cmd} domain ids: 100
     """
     item_type = args[0]
     items = args[1:]
+    ids = kwargs.get('ids')
+
     removed_items = []
     skipped_items = []
-    for item in items:
-        hex_type = AUTOBAHN_TYPES.get(item_type)
-        blacklist = await db.blacklists.get(hex_type)
-        if hex_type is None or blacklist is None:
-            continue
+    if items:
+        for item in items:
+            hex_type = AUTOBAHN_TYPES.get(item_type)
+            blacklist = await db.blacklists.get(hex_type)
+            if hex_type is None or blacklist is None:
+                continue
 
-        try:
-            await blacklist.retire(item)
-            removed_items.append(Code(item))
-        except ItemDoesNotExistError:
-            skipped_items.append(Code(item))
+            try:
+                await blacklist.retire(item)
+                removed_items.append(Code(item))
+            except ItemDoesNotExistError:
+                skipped_items.append(Code(item))
+
+    if ids:
+        for id_ in ids:
+            hex_type = AUTOBAHN_TYPES.get(item_type)
+            blacklist = await db.blacklists.get(hex_type)
+            if hex_type is None or blacklist is None:
+                continue
+
+            try:
+                await blacklist.retire(id_)
+                removed_items.append(Code(id_))
+            except ItemDoesNotExistError:
+                skipped_items.append(Code(id_))
 
     return KanTeXDocument(Section('Deleted Items:',
                                   SubSection(item_type, *removed_items)) if removed_items else None,

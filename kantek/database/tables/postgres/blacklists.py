@@ -34,9 +34,19 @@ class Blacklist(AbstractTableWrapper):
     async def retire(self, item):
         async with self.pool.acquire() as conn:
             result = await conn.fetchrow(f"""
-                UPDATE blacklists.{self.name} 
+                UPDATE blacklists.{self.name}
                 SET retired=TRUE
                 WHERE item=$1
+                RETURNING id
+            """, str(item))
+        return result
+
+    async def retire_by_id(self, id):
+        async with self.pool.acquire() as conn:
+            result = await conn.fetchrow(f"""
+                UPDATE blacklists.{self.name}
+                SET retired=TRUE
+                WHERE id=$1
                 RETURNING id
             """, str(item))
         return result

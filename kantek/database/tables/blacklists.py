@@ -25,6 +25,11 @@ class Blacklist(AbstractTable):
         if not result:
             raise ItemDoesNotExistError()
 
+    async def retire_by_id(self, id):
+        result = await self.bl.retire_by_id(id)
+        if not result:
+            raise ItemDoesNotExistError()
+
     async def get_all(self) -> List[BlacklistItem]:
         return await self.bl.get_all()
 
