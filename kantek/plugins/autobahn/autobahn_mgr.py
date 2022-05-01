@@ -228,7 +228,7 @@ async def del_(db: Database, args, kwargs) -> KanTeXDocument:
                 continue
 
             try:
-                await blacklist.retire(id_)
+                await blacklist.retire_by_id(id_)
                 removed_items.append(Code(id_))
             except ItemDoesNotExistError:
                 skipped_items.append(Code(id_))
