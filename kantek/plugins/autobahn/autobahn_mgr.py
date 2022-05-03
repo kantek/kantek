@@ -137,7 +137,7 @@ async def add(client: Client, db: Database, msg: Message, args,
                 if not existing_one:
                     entry = await blacklist.add(file_hash)
                     short_hash = f'{entry.value[:15]}[...]'
-                    KeyValueItem(entry.index, Code(short_hash))
+                    added_items.append(KeyValueItem(entry.index, Code(short_hash)))
                 else:
                     existing_items.append(KeyValueItem(existing_one.index, Code(existing_one.value)))
             else:
